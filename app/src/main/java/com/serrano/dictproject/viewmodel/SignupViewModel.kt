@@ -1,12 +1,12 @@
 package com.serrano.dictproject.viewmodel
 
 import android.app.Application
-import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.serrano.dictproject.api.ApiRepository
 import com.serrano.dictproject.datastore.PreferencesRepository
 import com.serrano.dictproject.utils.Login
+import com.serrano.dictproject.utils.MiscUtils
 import com.serrano.dictproject.utils.Resource
 import com.serrano.dictproject.utils.Signup
 import com.serrano.dictproject.utils.SignupState
@@ -49,7 +49,7 @@ class SignupViewModel @Inject constructor(
                     is Resource.Success -> {
                         val data = response.data!!
                         preferencesRepository.login(data.token, data.id, data.name, data.email, data.password, data.image)
-                        Toast.makeText(getApplication(), "Created Account Successfully!", Toast.LENGTH_LONG).show()
+                        MiscUtils.toast(getApplication(), "Created Account Successfully!")
                         updateSignupState(_signupState.value.copy(signupButtonEnabled = true))
                         navigate()
                     }
@@ -105,7 +105,7 @@ class SignupViewModel @Inject constructor(
                     is Resource.Success -> {
                         val data = response.data!!
                         preferencesRepository.login(data.token, data.id, data.name, data.email, data.password, data.image)
-                        Toast.makeText(getApplication(), "User Logged In Successfully!", Toast.LENGTH_LONG).show()
+                        MiscUtils.toast(getApplication(), "User Logged In Successfully!")
                         updateSignupState(_signupState.value.copy(loginButtonEnabled = true))
                         navigate()
                     }

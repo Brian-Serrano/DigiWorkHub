@@ -21,10 +21,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.serrano.dictproject.customui.text.OneLineText
+import com.serrano.dictproject.customui.textfield.InputFieldColors
+import com.serrano.dictproject.utils.FileUtils
 import com.serrano.dictproject.utils.SearchState
 import com.serrano.dictproject.utils.SearchUserDialogState
-import com.serrano.dictproject.utils.User
-import com.serrano.dictproject.utils.Utils
+import com.serrano.dictproject.utils.UserDTO
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,7 +39,7 @@ fun CustomSearchBar(
     onSearch: (String) -> Unit,
     onActiveChange: (Boolean) -> Unit,
     onTrailingIconClick: () -> Unit,
-    onUserAdd: (User) -> Unit
+    onUserAdd: (UserDTO) -> Unit
 ) {
     SearchBar(
         query = searchState.searchQuery,
@@ -70,8 +72,9 @@ fun CustomSearchBar(
         shape = MaterialTheme.shapes.small,
         modifier = Modifier.fillMaxWidth(),
         colors = SearchBarDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            dividerColor = MaterialTheme.colorScheme.onPrimaryContainer
+            containerColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            dividerColor = MaterialTheme.colorScheme.surfaceVariant,
+            inputFieldColors = InputFieldColors()
         )
     ) {
         LazyColumn {
@@ -82,7 +85,7 @@ fun CustomSearchBar(
                 ) {
                     IconButton(onClick = { onUserClick(user.id) }) {
                         Icon(
-                            bitmap = Utils.encodedStringToImage(user.image),
+                            bitmap = FileUtils.encodedStringToImage(user.image),
                             contentDescription = null,
                             tint = Color.Unspecified
                         )

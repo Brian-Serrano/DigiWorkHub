@@ -1,40 +1,43 @@
 package com.serrano.dictproject.api
 
 import com.serrano.dictproject.utils.AssigneeEdit
-import com.serrano.dictproject.utils.Attachment
-import com.serrano.dictproject.utils.Checklist
+import com.serrano.dictproject.utils.AttachmentDTO
 import com.serrano.dictproject.utils.ChecklistBody
-import com.serrano.dictproject.utils.Comment
+import com.serrano.dictproject.utils.ChecklistDTO
 import com.serrano.dictproject.utils.CommentBody
+import com.serrano.dictproject.utils.CommentDTO
 import com.serrano.dictproject.utils.DescriptionChange
 import com.serrano.dictproject.utils.DueChange
 import com.serrano.dictproject.utils.LikeComment
 import com.serrano.dictproject.utils.Login
-import com.serrano.dictproject.utils.Message
 import com.serrano.dictproject.utils.MessageBody
-import com.serrano.dictproject.utils.MessagePart
+import com.serrano.dictproject.utils.MessageDTO
+import com.serrano.dictproject.utils.MessageIdBody
+import com.serrano.dictproject.utils.MessagePartDTO
+import com.serrano.dictproject.utils.MessageReplyDTO
 import com.serrano.dictproject.utils.NameChange
 import com.serrano.dictproject.utils.PriorityChange
-import com.serrano.dictproject.utils.ProfileData
+import com.serrano.dictproject.utils.ProfileDataDTO
+import com.serrano.dictproject.utils.ReplyBody
 import com.serrano.dictproject.utils.Resource
 import com.serrano.dictproject.utils.SignUpSuccess
 import com.serrano.dictproject.utils.Signup
 import com.serrano.dictproject.utils.StatusChange
-import com.serrano.dictproject.utils.Subtask
 import com.serrano.dictproject.utils.SubtaskAssigneeEdit
 import com.serrano.dictproject.utils.SubtaskBody
+import com.serrano.dictproject.utils.SubtaskDTO
 import com.serrano.dictproject.utils.SubtaskDescriptionChange
 import com.serrano.dictproject.utils.SubtaskDueChange
 import com.serrano.dictproject.utils.SubtaskPriorityChange
 import com.serrano.dictproject.utils.SubtaskStatusChange
 import com.serrano.dictproject.utils.SubtaskTypeChange
 import com.serrano.dictproject.utils.Success
-import com.serrano.dictproject.utils.Task
 import com.serrano.dictproject.utils.TaskBody
-import com.serrano.dictproject.utils.TaskPart
+import com.serrano.dictproject.utils.TaskDTO
+import com.serrano.dictproject.utils.TaskPartDTO
 import com.serrano.dictproject.utils.ToggleChecklist
 import com.serrano.dictproject.utils.TypeChange
-import com.serrano.dictproject.utils.User
+import com.serrano.dictproject.utils.UserDTO
 import com.serrano.dictproject.utils.UserNameChange
 import com.serrano.dictproject.utils.UserRoleChange
 import okhttp3.MultipartBody
@@ -53,31 +56,31 @@ class ApiRepository(
         return apiHandler.handleApi { apiService.login(login) }
     }
 
-    suspend fun getTasks(): Resource<List<TaskPart>> {
+    suspend fun getTasks(): Resource<List<TaskPartDTO>> {
         return apiHandler.handleApi { apiService.getTasks() }
     }
 
-    suspend fun getTask(taskId: Int): Resource<Task> {
+    suspend fun getTask(taskId: Int): Resource<TaskDTO> {
         return apiHandler.handleApi { apiService.getTask(taskId) }
     }
 
-    suspend fun getSentMessages(): Resource<List<MessagePart>> {
+    suspend fun getSentMessages(): Resource<List<MessagePartDTO>> {
         return apiHandler.handleApi { apiService.getSentMessages() }
     }
 
-    suspend fun getReceivedMessages(): Resource<List<MessagePart>> {
+    suspend fun getReceivedMessages(): Resource<List<MessagePartDTO>> {
         return apiHandler.handleApi { apiService.getReceivedMessages() }
     }
 
-    suspend fun getMessage(messageId: Int): Resource<Message> {
+    suspend fun getMessage(messageId: Int): Resource<MessageDTO> {
         return apiHandler.handleApi { apiService.getMessage(messageId) }
     }
 
-    suspend fun getCreatedTasks(): Resource<List<TaskPart>> {
+    suspend fun getCreatedTasks(): Resource<List<TaskPartDTO>> {
         return apiHandler.handleApi { apiService.getCreatedTasks() }
     }
 
-    suspend fun searchUsers(searchQuery: String): Resource<List<User>> {
+    suspend fun searchUsers(searchQuery: String): Resource<List<UserDTO>> {
         return apiHandler.handleApi { apiService.searchUsers(searchQuery) }
     }
 
@@ -85,20 +88,20 @@ class ApiRepository(
         return apiHandler.handleApi { apiService.downloadAttachment(attachmentName) }
     }
 
-    suspend fun getUser(userId: Int): Resource<ProfileData> {
+    suspend fun getUser(userId: Int): Resource<ProfileDataDTO> {
         return apiHandler.handleApi { apiService.getUser(userId) }
     }
 
-    suspend fun addTask(taskBody: TaskBody): Resource<Success> {
+    suspend fun addTask(taskBody: TaskBody): Resource<TaskPartDTO> {
         return apiHandler.handleApi { apiService.addTask(taskBody) }
     }
 
-    suspend fun addCommentToTask(commentBody: CommentBody): Resource<Comment> {
+    suspend fun addCommentToTask(commentBody: CommentBody): Resource<CommentDTO> {
         return apiHandler.handleApi { apiService.addCommentToTask(commentBody) }
     }
 
-    suspend fun messageUser(messageBody: MessageBody): Resource<Success> {
-        return apiHandler.handleApi { apiService.messageUser(messageBody) }
+    suspend fun messageUser(file: List<MultipartBody.Part>, messageBody: MessageBody): Resource<MessagePartDTO> {
+        return apiHandler.handleApi { apiService.messageUser(file, messageBody) }
     }
 
     suspend fun changeTaskStatus(statusChange: StatusChange): Resource<Success> {
@@ -129,15 +132,15 @@ class ApiRepository(
         return apiHandler.handleApi { apiService.changeDescription(descriptionChange) }
     }
 
-    suspend fun addSubtask(subtaskBody: SubtaskBody): Resource<Subtask> {
+    suspend fun addSubtask(subtaskBody: SubtaskBody): Resource<SubtaskDTO> {
         return apiHandler.handleApi { apiService.addSubtask(subtaskBody) }
     }
 
-    suspend fun addChecklist(checklistBody: ChecklistBody): Resource<Checklist> {
+    suspend fun addChecklist(checklistBody: ChecklistBody): Resource<ChecklistDTO> {
         return apiHandler.handleApi { apiService.addChecklist(checklistBody) }
     }
 
-    suspend fun uploadAttachment(file: MultipartBody.Part, taskId: MultipartBody.Part): Resource<Attachment> {
+    suspend fun uploadAttachment(file: MultipartBody.Part, taskId: MultipartBody.Part): Resource<AttachmentDTO> {
         return apiHandler.handleApi { apiService.uploadAttachment(file, taskId) }
     }
 
@@ -183,5 +186,41 @@ class ApiRepository(
 
     suspend fun changeUserRole(userRoleChange: UserRoleChange): Resource<Success> {
         return apiHandler.handleApi { apiService.changeUserRole(userRoleChange) }
+    }
+
+    suspend fun replyToMessage(file: List<MultipartBody.Part>, replyBody: ReplyBody): Resource<MessageReplyDTO> {
+        return apiHandler.handleApi { apiService.replyToMessage(file, replyBody) }
+    }
+
+    suspend fun deleteMessageFromUser(messageIdBody: MessageIdBody): Resource<Success> {
+        return apiHandler.handleApi { apiService.deleteMessageFromUser(messageIdBody) }
+    }
+
+    suspend fun deleteTask(taskId: Int): Resource<Success> {
+        return apiHandler.handleApi { apiService.deleteTask(taskId) }
+    }
+
+    suspend fun deleteComment(commentId: Int): Resource<Success> {
+        return apiHandler.handleApi { apiService.deleteComment(commentId) }
+    }
+
+    suspend fun deleteSubtask(subtaskId: Int): Resource<Success> {
+        return apiHandler.handleApi { apiService.deleteSubtask(subtaskId) }
+    }
+
+    suspend fun deleteChecklist(checklistId: Int): Resource<Success> {
+        return apiHandler.handleApi { apiService.deleteChecklist(checklistId) }
+    }
+
+    suspend fun deleteAttachment(attachmentId: Int): Resource<Success> {
+        return apiHandler.handleApi { apiService.deleteAttachment(attachmentId) }
+    }
+
+    suspend fun deleteMessage(messageId: Int): Resource<Success> {
+        return apiHandler.handleApi { apiService.deleteMessage(messageId) }
+    }
+
+    suspend fun deleteMessageReply(messageReplyId: Int): Resource<Success> {
+        return apiHandler.handleApi { apiService.deleteMessageReply(messageReplyId) }
     }
 }

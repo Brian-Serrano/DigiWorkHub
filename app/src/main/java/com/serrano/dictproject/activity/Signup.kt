@@ -27,8 +27,11 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.serrano.dictproject.customui.CustomButton
-import com.serrano.dictproject.customui.CustomTextField
+import androidx.navigation.NavOptionsBuilder
+import com.serrano.dictproject.customui.button.CustomButton
+import com.serrano.dictproject.customui.textfield.CustomTextField
+import com.serrano.dictproject.utils.MiscUtils
+import com.serrano.dictproject.utils.Routes
 import com.serrano.dictproject.utils.SignupState
 
 @Composable
@@ -39,6 +42,12 @@ fun Signup(
     signup: (() -> Unit) -> Unit,
     login: (() -> Unit) -> Unit
 ) {
+    val navBuilder: NavOptionsBuilder.() -> Unit = {
+        popUpTo(navController.graph.id) {
+            inclusive = false
+        }
+    }
+
     val annotatedText = buildAnnotatedString {
 
         append(
@@ -94,8 +103,26 @@ fun Signup(
                 )
                 CustomTextField(
                     value = signupState.signupName,
-                    onValueChange = { updateSignupState(signupState.copy(signupName = it)) },
-                    placeholderText = "Enter Username"
+                    onValueChange = {
+                        if (it.length <= 20) {
+                            updateSignupState(
+                                signupState.copy(
+                                    signupName = it,
+                                    signupNameError = if (Regex(MiscUtils.NAME_PATTERN).matches(it)) "" else {
+                                        "Username should only have alphanumeric, underscore and space characters."
+                                    }
+                                )
+                            )
+                        }
+                    },
+                    placeholderText = "Enter Username",
+                    supportingText = {
+                        Text(
+                            text = signupState.signupNameError,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Red
+                        )
+                    }
                 )
                 Text(
                     text = "Email",
@@ -104,8 +131,26 @@ fun Signup(
                 )
                 CustomTextField(
                     value = signupState.signupEmail,
-                    onValueChange = { updateSignupState(signupState.copy(signupEmail = it)) },
-                    placeholderText = "Enter Email"
+                    onValueChange = {
+                        if (it.length <= 40) {
+                            updateSignupState(
+                                signupState.copy(
+                                    signupEmail = it,
+                                    signupEmailError = if (Regex(MiscUtils.EMAIL_PATTERN).matches(it)) "" else {
+                                        "Invalid Email Address"
+                                    }
+                                )
+                            )
+                        }
+                    },
+                    placeholderText = "Enter Email",
+                    supportingText = {
+                        Text(
+                            text = signupState.signupEmailError,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Red
+                        )
+                    }
                 )
                 Text(
                     text = "Password",
@@ -114,7 +159,19 @@ fun Signup(
                 )
                 CustomTextField(
                     value = signupState.signupPassword,
-                    onValueChange = { updateSignupState(signupState.copy(signupPassword = it)) },
+                    onValueChange = {
+                        if (it.length <= 20) {
+                            val message = MiscUtils.checkPassword(it, signupState.signupConfirmPassword)
+
+                            updateSignupState(
+                                signupState.copy(
+                                    signupPassword = it,
+                                    signupPasswordError = message,
+                                    signupConfirmPasswordError = message
+                                )
+                            )
+                        }
+                    },
                     placeholderText = "Enter Password",
                     visualTransformation = if (signupState.signupPasswordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
@@ -132,6 +189,13 @@ fun Signup(
                                 contentDescription = null
                             )
                         }
+                    },
+                    supportingText = {
+                        Text(
+                            text = signupState.signupPasswordError,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Red
+                        )
                     }
                 )
                 Text(
@@ -141,7 +205,19 @@ fun Signup(
                 )
                 CustomTextField(
                     value = signupState.signupConfirmPassword,
-                    onValueChange = { updateSignupState(signupState.copy(signupConfirmPassword = it)) },
+                    onValueChange = {
+                        if (it.length <= 20) {
+                            val message = MiscUtils.checkPassword(it, signupState.signupPassword)
+
+                            updateSignupState(
+                                signupState.copy(
+                                    signupConfirmPassword = it,
+                                    signupConfirmPasswordError = message,
+                                    signupPasswordError = message
+                                )
+                            )
+                        }
+                    },
                     placeholderText = "Enter Confirm Password",
                     visualTransformation = if (signupState.signupConfirmPasswordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
@@ -159,6 +235,13 @@ fun Signup(
                                 contentDescription = null
                             )
                         }
+                    },
+                    supportingText = {
+                        Text(
+                            text = signupState.signupConfirmPasswordError,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Red
+                        )
                     }
                 )
 
@@ -179,7 +262,7 @@ fun Signup(
 
                 CustomButton(
                     text = "SIGN UP",
-                    onClick = { signup { navController.navigate("Dashboard") } },
+                    onClick = { signup { navController.navigate(Routes.DASHBOARD, navBuilder) } },
                     enabled = signupState.signupButtonEnabled
                 )
             }
@@ -196,8 +279,26 @@ fun Signup(
                 )
                 CustomTextField(
                     value = signupState.loginEmail,
-                    onValueChange = { updateSignupState(signupState.copy(loginEmail = it)) },
-                    placeholderText = "Enter Email"
+                    onValueChange = {
+                        if (it.length <= 40) {
+                            updateSignupState(
+                                signupState.copy(
+                                    loginEmail = it,
+                                    loginEmailError = if (Regex(MiscUtils.EMAIL_PATTERN).matches(it)) "" else {
+                                        "Invalid Email Address"
+                                    }
+                                )
+                            )
+                        }
+                    },
+                    placeholderText = "Enter Email",
+                    supportingText = {
+                        Text(
+                            text = signupState.loginEmailError,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Red
+                        )
+                    }
                 )
                 Text(
                     text = "Password",
@@ -206,7 +307,19 @@ fun Signup(
                 )
                 CustomTextField(
                     value = signupState.loginPassword,
-                    onValueChange = { updateSignupState(signupState.copy(loginPassword = it)) },
+                    onValueChange = {
+                        if (it.length <= 20) {
+                            updateSignupState(
+                                signupState.copy(
+                                    loginPassword = it,
+                                    loginPasswordError = if (Regex(MiscUtils.PASSWORD_PATTERN).matches(it)) "" else {
+                                        "Password should have at least one letter and number, and 8-20 characters."
+                                    }
+
+                                )
+                            )
+                        }
+                    },
                     placeholderText = "Enter Password",
                     visualTransformation = if (signupState.loginPasswordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
@@ -224,6 +337,13 @@ fun Signup(
                                 contentDescription = null
                             )
                         }
+                    },
+                    supportingText = {
+                        Text(
+                            text = signupState.loginPasswordError,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Red
+                        )
                     }
                 )
 
@@ -244,7 +364,7 @@ fun Signup(
 
                 CustomButton(
                     text = "LOGIN",
-                    onClick = { login { navController.navigate("Dashboard") } },
+                    onClick = { login { navController.navigate(Routes.DASHBOARD, navBuilder) } },
                     enabled = signupState.loginButtonEnabled
                 )
             }

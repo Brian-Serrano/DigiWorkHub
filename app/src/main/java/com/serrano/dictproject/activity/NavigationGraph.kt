@@ -1,6 +1,8 @@
 package com.serrano.dictproject.activity
 
 import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -10,15 +12,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Assignment
+import androidx.compose.material.icons.automirrored.filled.CallReceived
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.automirrored.outlined.Assignment
+import androidx.compose.material.icons.automirrored.outlined.CallReceived
+import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Assignment
-import androidx.compose.material.icons.filled.CallReceived
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.outlined.AddCircle
-import androidx.compose.material.icons.outlined.Assignment
-import androidx.compose.material.icons.outlined.CallReceived
-import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -45,6 +47,7 @@ import com.serrano.dictproject.customui.BottomBar
 import com.serrano.dictproject.customui.CustomScaffold
 import com.serrano.dictproject.customui.Drawer
 import com.serrano.dictproject.customui.WindowInfo
+import com.serrano.dictproject.utils.Routes
 import com.serrano.dictproject.viewmodel.AboutMessageViewModel
 import com.serrano.dictproject.viewmodel.AboutTaskViewModel
 import com.serrano.dictproject.viewmodel.AddTaskViewModel
@@ -57,6 +60,7 @@ import com.serrano.dictproject.viewmodel.SignupViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 
+@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun NavigationGraph(
     navController: NavHostController,
@@ -66,8 +70,8 @@ fun NavigationGraph(
     sharedViewModel: SharedViewModel,
     windowInfo: WindowInfo
 ) {
-    NavHost(navController = navController, startDestination = "Splash") {
-        composable(route = "Splash") {
+    NavHost(navController = navController, startDestination = Routes.SPLASH) {
+        composable(route = Routes.SPLASH) {
             val preferences by sharedViewModel.preferences.collectAsState()
 
             var startAnimation by remember { mutableStateOf(false) }
@@ -87,8 +91,8 @@ fun NavigationGraph(
                 navController.popBackStack()
 
                 when {
-                    preferences!!.authToken.isNotEmpty() -> navController.navigate("Dashboard")
-                    else -> navController.navigate("Signup")
+                    preferences!!.authToken.isNotEmpty() -> navController.navigate(Routes.DASHBOARD)
+                    else -> navController.navigate(Routes.SIGNUP)
                 }
             }
 
@@ -105,11 +109,11 @@ fun NavigationGraph(
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.Center)
-                        .size(300.dp)
+                        .size(600.dp)
                 )
             }
         }
-        composable(route = "Signup") {
+        composable(route = Routes.SIGNUP) {
             val signupViewModel = hiltViewModel<SignupViewModel>()
 
             val signupState by signupViewModel.signupState.collectAsState()
@@ -124,7 +128,7 @@ fun NavigationGraph(
                 )
             }
         }
-        composable(route = "Dashboard") {
+        composable(route = Routes.DASHBOARD) {
             val dashboardViewModel = hiltViewModel<DashboardViewModel>()
 
             LaunchedEffect(Unit) {
@@ -149,8 +153,8 @@ fun NavigationGraph(
                 coroutineScope = coroutineScope,
                 navController = navController,
                 user = preferences,
-                context = context,
-                selected = "Dashboard"
+                onLogout = sharedViewModel::logout,
+                selected = Routes.DASHBOARD
             ) {
                 CustomScaffold(
                     user = preferences,
@@ -197,18 +201,20 @@ fun NavigationGraph(
                             changeStatus = dashboardViewModel::changeStatus,
                             changeType = dashboardViewModel::changeType,
                             updateTasks = dashboardViewModel::updateTasks,
-                            updateCreatedTasks = dashboardViewModel::updateCreatedTasks
+                            updateCreatedTasks = dashboardViewModel::updateCreatedTasks,
+                            refreshTasks = dashboardViewModel::refreshTasks,
+                            refreshCreatedTasks = dashboardViewModel::refreshCreatedTasks
                         )
                     },
                     floatingButton = {
-                        FloatingActionButton(onClick = { navController.navigate("AddTask") }) {
+                        FloatingActionButton(onClick = { navController.navigate(Routes.ADD_TASK) }) {
                             Icon(imageVector = Icons.Filled.Add, contentDescription = null)
                         }
                     },
                     bottomBar = BottomBar(
                         items = listOf("ASSIGNED", "CREATED"),
                         icons = listOf(
-                            listOf(Icons.Outlined.Assignment, Icons.Filled.Assignment),
+                            listOf(Icons.AutoMirrored.Outlined.Assignment, Icons.AutoMirrored.Filled.Assignment),
                             listOf(Icons.Outlined.AddCircle, Icons.Filled.AddCircle)
                         ),
                         bottomBarIdx = sharedState.dashboardBottomBarIdx,
@@ -217,7 +223,7 @@ fun NavigationGraph(
                 )
             }
         }
-        composable(route = "Inbox") {
+        composable(route = Routes.INBOX) {
             val inboxViewModel = hiltViewModel<InboxViewModel>()
 
             LaunchedEffect(Unit) {
@@ -231,14 +237,16 @@ fun NavigationGraph(
             val process2 by inboxViewModel.processState2.collectAsState()
             val sentMessages by inboxViewModel.sentMessages.collectAsState()
             val receivedMessages by inboxViewModel.receivedMessage.collectAsState()
+            val inboxState by inboxViewModel.inboxState.collectAsState()
+            val inboxDialogs by inboxViewModel.dialogState.collectAsState()
 
             Drawer(
                 drawerState = drawerState,
                 coroutineScope = coroutineScope,
                 navController = navController,
                 user = preferences,
-                context = context,
-                selected = "Inbox"
+                onLogout = sharedViewModel::logout,
+                selected = Routes.INBOX
             ) {
                 CustomScaffold(
                     user = preferences,
@@ -253,19 +261,32 @@ fun NavigationGraph(
                             process2 = process2,
                             sentMessages = sentMessages,
                             receivedMessages = receivedMessages,
-                            sharedState = sharedState
+                            inboxState = inboxState,
+                            sharedState = sharedState,
+                            inboxDialogs = inboxDialogs,
+                            updateInboxDialogs = inboxViewModel::updateInboxDialogs,
+                            updateConfirmDialogState = inboxViewModel::updateConfirmDialogState,
+                            refreshSentMessages = inboxViewModel::refreshSentMessages,
+                            refreshReceivedMessages = inboxViewModel::refreshReceivedMessages,
+                            deleteMessageFromUser = inboxViewModel::deleteMessageFromUser
                         )
                     },
                     floatingButton = {
-                        FloatingActionButton(onClick = { navController.navigate("SendMessage") }) {
+                        FloatingActionButton(onClick = { navController.navigate(Routes.SEND_MESSAGE) }) {
                             Icon(imageVector = Icons.Filled.Add, contentDescription = null)
                         }
                     },
                     bottomBar = BottomBar(
                         items = listOf("RECEIVED", "SENT"),
                         icons = listOf(
-                            listOf(Icons.Outlined.CallReceived, Icons.Filled.CallReceived),
-                            listOf(Icons.Outlined.Send, Icons.Filled.Send)
+                            listOf(
+                                Icons.AutoMirrored.Outlined.CallReceived,
+                                Icons.AutoMirrored.Filled.CallReceived
+                            ),
+                            listOf(
+                                Icons.AutoMirrored.Outlined.Send,
+                                Icons.AutoMirrored.Filled.Send
+                            )
                         ),
                         bottomBarIdx = sharedState.messageBottomBarIdx,
                         onClick = { sharedViewModel.updateSharedState(sharedState.copy(messageBottomBarIdx = it)) }
@@ -274,13 +295,14 @@ fun NavigationGraph(
             }
         }
         composable(
-            route = "AboutTask/{taskId}",
+            route = "${Routes.ABOUT_TASK}/{taskId}",
             arguments = listOf(navArgument("taskId") { type = NavType.IntType })
         ) { entry ->
             val aboutTaskViewModel = hiltViewModel<AboutTaskViewModel>()
+            val taskId = entry.arguments!!.getInt("taskId")
 
             LaunchedEffect(Unit) {
-                aboutTaskViewModel.getTaskInfo(entry.arguments!!.getInt("taskId"))
+                aboutTaskViewModel.getTaskInfo(taskId)
             }
 
             val preferences by sharedViewModel.preferences.collectAsState()
@@ -295,8 +317,8 @@ fun NavigationGraph(
                 coroutineScope = coroutineScope,
                 navController = navController,
                 user = preferences,
-                context = context,
-                selected = "Dashboard"
+                onLogout = sharedViewModel::logout,
+                selected = Routes.DASHBOARD
             ) {
                 CustomScaffold(
                     user = preferences,
@@ -315,11 +337,11 @@ fun NavigationGraph(
                             task = task,
                             dialogsState = dialogsState,
                             aboutTaskState = aboutTaskState,
-                            updateTabIdx = aboutTaskViewModel::updateTabIdx,
                             updateAddSubtaskState = aboutTaskViewModel::updateAddSubtaskState,
                             updateAddCommentState = aboutTaskViewModel::updateAddCommentState,
                             updateAddChecklistState = aboutTaskViewModel::updateAddChecklistState,
                             updateAddAttachmentState = aboutTaskViewModel::updateAddAttachmentState,
+                            updateConfirmDialogState = aboutTaskViewModel::updateConfirmDialogState,
                             updateDialogState = aboutTaskViewModel::updateDialogState,
                             updateTask = aboutTaskViewModel::updateTask,
                             updateRadioDialogState = aboutTaskViewModel::updateRadioDialogState,
@@ -348,13 +370,19 @@ fun NavigationGraph(
                             changeSubtaskStatus = aboutTaskViewModel::changeSubtaskStatus,
                             toggleChecklist = aboutTaskViewModel::toggleChecklist,
                             likeComment = aboutTaskViewModel::likeComment,
-                            downloadAttachment = aboutTaskViewModel::downloadAttachment
+                            downloadAttachment = aboutTaskViewModel::downloadAttachment,
+                            refreshTaskInfo = { aboutTaskViewModel.refreshTaskInfo(taskId) },
+                            deleteTask = aboutTaskViewModel::deleteTask,
+                            deleteComment = aboutTaskViewModel::deleteComment,
+                            deleteSubtask = aboutTaskViewModel::deleteSubtask,
+                            deleteChecklist = aboutTaskViewModel::deleteChecklist,
+                            deleteAttachment = aboutTaskViewModel::deleteAttachment
                         )
                     }
                 )
             }
         }
-        composable(route = "AddTask") {
+        composable(route = Routes.ADD_TASK) {
             val addTaskViewModel = hiltViewModel<AddTaskViewModel>()
 
             val preferences by sharedViewModel.preferences.collectAsState()
@@ -367,8 +395,8 @@ fun NavigationGraph(
                 coroutineScope = coroutineScope,
                 navController = navController,
                 user = preferences,
-                context = context,
-                selected = "Dashboard"
+                onLogout = sharedViewModel::logout,
+                selected = Routes.DASHBOARD
             ) {
                 CustomScaffold(
                     user = preferences,
@@ -399,13 +427,14 @@ fun NavigationGraph(
             }
         }
         composable(
-            route = "Profile/{userId}",
+            route = "${Routes.PROFILE}/{userId}",
             arguments = listOf(navArgument("userId") { type = NavType.IntType })
         ) { entry ->
             val profileViewModel = hiltViewModel<ProfileViewModel>()
+            val userId = entry.arguments!!.getInt("userId")
 
             LaunchedEffect(Unit) {
-                profileViewModel.getUser(entry.arguments!!.getInt("userId"))
+                profileViewModel.getUser(userId)
             }
 
             val preferences by sharedViewModel.preferences.collectAsState()
@@ -419,8 +448,8 @@ fun NavigationGraph(
                 coroutineScope = coroutineScope,
                 navController = navController,
                 user = preferences,
-                context = context,
-                selected = "Dashboard"
+                onLogout = sharedViewModel::logout,
+                selected = Routes.DASHBOARD
             ) {
                 CustomScaffold(
                     user = preferences,
@@ -437,40 +466,41 @@ fun NavigationGraph(
                             user = user,
                             profileDialogs = profileDialogs,
                             profileState = profileState,
-                            updateUser = profileViewModel::updateUser,
                             updateDialogState = profileViewModel::updateDialogState,
                             updateProfileState = profileViewModel::updateProfileState,
                             changeUserName = profileViewModel::changeUserName,
                             changeUserRole = profileViewModel::changeUserRole,
                             uploadImage = profileViewModel::uploadImage,
-                            changePreferencesName = profileViewModel::changePreferencesName,
-                            changePreferencesImage = profileViewModel::changePreferencesImage
+                            refreshUser = { profileViewModel.refreshUser(userId) }
                         )
                     }
                 )
             }
         }
         composable(
-            route = "AboutMessage/{messageId}",
+            route = "${Routes.ABOUT_MESSAGE}/{messageId}",
             arguments = listOf(navArgument("messageId") { type = NavType.IntType })
         ) { entry ->
             val aboutMessageViewModel = hiltViewModel<AboutMessageViewModel>()
+            val messageId = entry.arguments!!.getInt("messageId")
 
             LaunchedEffect(Unit) {
-                aboutMessageViewModel.getMessage(entry.arguments!!.getInt("messageId"))
+                aboutMessageViewModel.getMessage(messageId)
             }
 
             val preferences by sharedViewModel.preferences.collectAsState()
             val process by aboutMessageViewModel.processState.collectAsState()
             val message by aboutMessageViewModel.message.collectAsState()
+            val aboutMessageState by aboutMessageViewModel.aboutMessageState.collectAsState()
+            val aboutMessageDialogs by aboutMessageViewModel.dialogState.collectAsState()
 
             Drawer(
                 drawerState = drawerState,
                 coroutineScope = coroutineScope,
                 navController = navController,
                 user = preferences,
-                context = context,
-                selected = "Inbox"
+                onLogout = sharedViewModel::logout,
+                selected = Routes.INBOX
             ) {
                 CustomScaffold(
                     user = preferences,
@@ -479,16 +509,30 @@ fun NavigationGraph(
                     navController = navController,
                     content = {
                         AboutMessage(
+                            windowInfo = windowInfo,
+                            preferences = preferences!!,
                             navController = navController,
                             paddingValues = it,
+                            context = context,
                             message = message,
-                            process = process
+                            aboutMessageState = aboutMessageState,
+                            aboutMessageDialogs = aboutMessageDialogs,
+                            process = process,
+                            updateDialogState = aboutMessageViewModel::updateDialogState,
+                            updateAboutMessageState = aboutMessageViewModel::updateAboutMessageState,
+                            updateConfirmDialogState = aboutMessageViewModel::updateConfirmDialogState,
+                            downloadAttachment = aboutMessageViewModel::downloadAttachment,
+                            replyMessage = aboutMessageViewModel::replyMessage,
+                            refreshMessage = { aboutMessageViewModel.refreshMessage(messageId) },
+                            deleteMessage = aboutMessageViewModel::deleteMessage,
+                            deleteReply = aboutMessageViewModel::deleteReply,
+                            deleteMessageFromUser = aboutMessageViewModel::deleteMessageFromUser
                         )
                     }
                 )
             }
         }
-        composable(route = "SendMessage") {
+        composable(route = Routes.SEND_MESSAGE) {
             val sendMessageViewModel = hiltViewModel<SendMessageViewModel>()
 
             val preferences by sharedViewModel.preferences.collectAsState()
@@ -500,8 +544,8 @@ fun NavigationGraph(
                 coroutineScope = coroutineScope,
                 navController = navController,
                 user = preferences,
-                context = context,
-                selected = "Inbox"
+                onLogout = sharedViewModel::logout,
+                selected = Routes.INBOX
             ) {
                 CustomScaffold(
                     user = preferences,
@@ -512,12 +556,39 @@ fun NavigationGraph(
                         SendMessage(
                             navController = navController,
                             paddingValues = it,
+                            context = context,
                             sendMessageState = sendMessageState,
                             sendMessageDialogs = sendMessageDialogs,
                             updateSendMessageState = sendMessageViewModel::updateSendMessageState,
                             updateDialogState = sendMessageViewModel::updateDialogState,
                             sendMessage = sendMessageViewModel::sendMessage,
                             searchUser = sendMessageViewModel::searchUser
+                        )
+                    }
+                )
+            }
+        }
+        composable(route = Routes.SETTINGS) {
+            val preferences by sharedViewModel.preferences.collectAsState()
+
+            Drawer(
+                drawerState = drawerState,
+                coroutineScope = coroutineScope,
+                navController = navController,
+                user = preferences,
+                onLogout = sharedViewModel::logout,
+                selected = Routes.SETTINGS
+            ) {
+                CustomScaffold(
+                    user = preferences,
+                    coroutineScope = coroutineScope,
+                    drawerState = drawerState,
+                    navController = navController,
+                    content = {
+                        Settings(
+                            navController = navController,
+                            paddingValues = it,
+                            context = context
                         )
                     }
                 )

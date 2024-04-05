@@ -1,6 +1,5 @@
 package com.serrano.dictproject.customui
 
-import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,9 +8,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Inbox
-import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.Icon
@@ -26,9 +26,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.serrano.dictproject.activity.preferencesDataStore
+import androidx.navigation.NavOptionsBuilder
 import com.serrano.dictproject.datastore.Preferences
 import com.serrano.dictproject.utils.DrawerData
+import com.serrano.dictproject.utils.Routes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -38,14 +39,33 @@ fun Drawer(
     coroutineScope: CoroutineScope,
     navController: NavController,
     user: Preferences?,
-    context: Context,
+    onLogout: () -> Unit,
     selected: String,
     content: @Composable () -> Unit
 ) {
+    val singleTop: NavOptionsBuilder.() -> Unit = {
+        launchSingleTop = true
+    }
+
     val items = listOf(
-        DrawerData(Icons.Filled.Dashboard, "Dashboard"),
-        DrawerData(Icons.Filled.Inbox, "Inbox"),
-        DrawerData(Icons.Filled.Logout, "Log Out")
+        DrawerData(Icons.Filled.Dashboard, "Dashboard") {
+            navController.navigate(Routes.DASHBOARD, singleTop)
+        },
+        DrawerData(Icons.Filled.Inbox, "Inbox") {
+            navController.navigate(Routes.INBOX, singleTop)
+        },
+        DrawerData(Icons.Filled.Settings, "Settings") {
+            navController.navigate(Routes.SETTINGS, singleTop)
+        },
+        DrawerData(Icons.AutoMirrored.Filled.Logout, "Log Out") {
+            navController.navigate(Routes.SIGNUP) {
+                popUpTo(navController.graph.id) {
+                    inclusive = false
+                }
+                launchSingleTop = true
+            }
+            onLogout()
+        }
     )
 
     SelectionContainer {
@@ -64,7 +84,7 @@ fun Drawer(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         when (user) {
-                            null -> {
+                            null, Preferences() -> {
                                 CircularProgressIndicator(
                                     color = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(40.dp)
@@ -100,19 +120,7 @@ fun Drawer(
                             onClick = {
                                 coroutineScope.launch {
                                     drawerState.close()
-                                    when (item.name) {
-                                        "Dashboard" -> navController.navigate("Dashboard")
-                                        "Inbox" -> navController.navigate("Inbox")
-                                        "Log Out" -> {
-                                            context.preferencesDataStore.updateData { Preferences() }
-                                            navController.navigate("Signup") {
-                                                popUpTo(navController.graph.id) {
-                                                    inclusive = false
-                                                }
-                                            }
-                                        }
-                                        else -> throw IllegalStateException()
-                                    }
+                                    item.action()
                                 }
                             },
                             modifier = Modifier.padding(

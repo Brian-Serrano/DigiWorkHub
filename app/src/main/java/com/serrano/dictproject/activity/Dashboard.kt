@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,15 +16,17 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.GridOn
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -31,12 +34,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.serrano.dictproject.customui.Calendar
-import com.serrano.dictproject.customui.DashboardGrid
-import com.serrano.dictproject.customui.DashboardList
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.SwipeRefreshState
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.serrano.dictproject.customui.ErrorComposable
 import com.serrano.dictproject.customui.Loading
-import com.serrano.dictproject.customui.OneLineText
 import com.serrano.dictproject.customui.WindowInfo
 import com.serrano.dictproject.customui.dialog.DateTimePickerDialog
 import com.serrano.dictproject.customui.dialog.EditNameDialog
@@ -46,6 +48,10 @@ import com.serrano.dictproject.customui.dialog.SearchUserDialog
 import com.serrano.dictproject.customui.dialog.ViewAssigneeDialog
 import com.serrano.dictproject.customui.dropdown.CustomDropDown
 import com.serrano.dictproject.customui.dropdown.CustomDropDownNoMenu
+import com.serrano.dictproject.customui.menu.Calendar
+import com.serrano.dictproject.customui.menu.DashboardGrid
+import com.serrano.dictproject.customui.menu.DashboardList
+import com.serrano.dictproject.customui.text.OneLineText
 import com.serrano.dictproject.utils.DashboardDialogs
 import com.serrano.dictproject.utils.DashboardState
 import com.serrano.dictproject.utils.DateDialogState
@@ -55,27 +61,28 @@ import com.serrano.dictproject.utils.DropDownState
 import com.serrano.dictproject.utils.EditNameDialogState
 import com.serrano.dictproject.utils.ProcessState
 import com.serrano.dictproject.utils.RadioButtonDialogState
+import com.serrano.dictproject.utils.Routes
 import com.serrano.dictproject.utils.SearchState
 import com.serrano.dictproject.utils.SearchUserDialogState
 import com.serrano.dictproject.utils.SharedViewModelState
-import com.serrano.dictproject.utils.TaskPart
-import com.serrano.dictproject.utils.User
+import com.serrano.dictproject.utils.TaskPartDTO
+import com.serrano.dictproject.utils.UserDTO
 import com.serrano.dictproject.utils.header
 import java.time.LocalDateTime
 
 @Composable
 fun Dashboard(
     windowInfo: WindowInfo,
-    rawTasks: List<TaskPart>,
-    rawCreatedTasks: List<TaskPart>,
+    rawTasks: List<TaskPartDTO>,
+    rawCreatedTasks: List<TaskPartDTO>,
     dashboardDialogs: DashboardDialogs,
     navController: NavController,
     paddingValues: PaddingValues,
     process: ProcessState,
     process2: ProcessState,
     dashboardState: DashboardState,
-    tasks: List<Pair<String, List<TaskPart>>>,
-    createdTasks: List<Pair<String, List<TaskPart>>>,
+    tasks: List<Pair<String, List<TaskPartDTO>>>,
+    createdTasks: List<Pair<String, List<TaskPartDTO>>>,
     dialogsState: DialogsState,
     sharedState: SharedViewModelState,
     updateDialogState: (DashboardDialogs) -> Unit,
@@ -94,20 +101,25 @@ fun Dashboard(
     updateIsFilterDropdown: (DropDownState) -> Unit,
     updateOptionsFilterDropdown: (DropDownMultiselect) -> Unit,
     changeName: (Int, String, () -> Unit) -> Unit,
-    changeAssignee: (Int, List<Int>, () -> Unit) -> Unit,
+    changeAssignee: (Int, List<UserDTO>, () -> Unit) -> Unit,
     updateSearchState: (SearchState) -> Unit,
-    updateViewAssigneeDialogState: (List<User>) -> Unit,
-    searchUser: (String, (List<User>) -> Unit) -> Unit,
+    updateViewAssigneeDialogState: (List<UserDTO>) -> Unit,
+    searchUser: (String, (List<UserDTO>) -> Unit) -> Unit,
     changeDue: (Int, LocalDateTime, () -> Unit) -> Unit,
     changePriority: (Int, String, () -> Unit) -> Unit,
     changeStatus: (Int, String, () -> Unit) -> Unit,
     changeType: (Int, String, () -> Unit) -> Unit,
-    updateTasks: (List<TaskPart>) -> Unit,
-    updateCreatedTasks: (List<TaskPart>) -> Unit
+    updateTasks: (List<TaskPartDTO>) -> Unit,
+    updateCreatedTasks: (List<TaskPartDTO>) -> Unit,
+    refreshTasks: () -> Unit,
+    refreshCreatedTasks: () -> Unit
 ) {
     val removeDialog: () -> Unit = { updateDialogState(DashboardDialogs.NONE) }
     val radioSelect: (String) -> Unit = { updateRadioDialogState(dialogsState.radioButtonDialogState.copy(selected = it)) }
     val openDialog: (DashboardDialogs) -> Unit = { updateDialogState(it) }
+
+    val refreshTaskState = rememberSwipeRefreshState(isRefreshing = dashboardState.isTaskRefreshing)
+    val refreshCreatedTaskState = rememberSwipeRefreshState(isRefreshing = dashboardState.isCreatedTaskRefreshing)
 
     Box(
         contentAlignment = Alignment.Center,
@@ -125,7 +137,7 @@ fun Dashboard(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        CustomDropDownNoMenu(text = "LIST", icon = Icons.Filled.List) {
+                        CustomDropDownNoMenu(text = "LIST", icon = Icons.AutoMirrored.Filled.List) {
                             updateSharedState(sharedState.copy(dashboardViewIdx = 0))
                         }
                         CustomDropDownNoMenu(text = "GRID", icon = Icons.Filled.GridOn) {
@@ -174,7 +186,7 @@ fun Dashboard(
                         CustomDropDown(
                             prefix = "SORT",
                             dropDownState = dashboardState.sortDropDown,
-                            icon = Icons.Filled.Sort,
+                            icon = Icons.AutoMirrored.Filled.Sort,
                             onArrowClick = {
                                 updateSortDropdown(dashboardState.sortDropDown.copy(expanded = true))
                             },
@@ -193,7 +205,7 @@ fun Dashboard(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        CustomDropDownNoMenu(text = "LIST", icon = Icons.Filled.List) {
+                        CustomDropDownNoMenu(text = "LIST", icon = Icons.AutoMirrored.Filled.List) {
                             updateSharedState(sharedState.copy(dashboardViewIdx = 0))
                         }
                         CustomDropDownNoMenu(text = "GRID", icon = Icons.Filled.GridOn) {
@@ -237,7 +249,7 @@ fun Dashboard(
                         CustomDropDown(
                             prefix = "SORT",
                             dropDownState = dashboardState.sortDropDown,
-                            icon = Icons.Filled.Sort,
+                            icon = Icons.AutoMirrored.Filled.Sort,
                             onArrowClick = {
                                 updateSortDropdown(dashboardState.sortDropDown.copy(expanded = true))
                             },
@@ -270,7 +282,9 @@ fun Dashboard(
                         updateDateDialogState = updateDateDialogState,
                         updateSharedState = updateSharedState,
                         openDialog = openDialog,
-                        updateViewAssigneeDialogState = updateViewAssigneeDialogState
+                        updateViewAssigneeDialogState = updateViewAssigneeDialogState,
+                        swipeRefreshState = refreshTaskState,
+                        onRefresh = refreshTasks
                     )
                 }
                 1 -> {
@@ -290,7 +304,9 @@ fun Dashboard(
                         updateDateDialogState = updateDateDialogState,
                         updateSharedState = updateSharedState,
                         openDialog = openDialog,
-                        updateViewAssigneeDialogState = updateViewAssigneeDialogState
+                        updateViewAssigneeDialogState = updateViewAssigneeDialogState,
+                        swipeRefreshState = refreshCreatedTaskState,
+                        onRefresh = refreshCreatedTasks
                     )
                 }
             }
@@ -320,10 +336,10 @@ fun Dashboard(
                     text = "Assignees",
                     searchUserDialogState = dialogsState.searchUserDialogState,
                     searchState = dialogsState.searchState,
-                    onUserClick = { navController.navigate("Profile/$it") },
+                    onUserClick = { navController.navigate("${Routes.PROFILE}/$it") },
                     onDismissRequest = removeDialog,
                     onApplyClick = { task, assignees ->
-                        changeAssignee(task, assignees.map { it.id }) {
+                        changeAssignee(task, assignees) {
                             updateCreatedTasks(
                                 rawCreatedTasks.map {
                                     if (it.taskId == task) it.copy(assignees = assignees) else it
@@ -444,13 +460,13 @@ fun Dashboard(
                     removeDialog = removeDialog,
                     updateIsFilterDropdown = updateIsFilterDropdown,
                     updateOptionsFilterDropdown = updateOptionsFilterDropdown,
-                    onApplyClick = { filterAllTabs() }
+                    onApplyClick = filterAllTabs
                 )
             }
             DashboardDialogs.VIEW -> {
                 ViewAssigneeDialog(
                     assignees = dialogsState.viewAssigneeDialogState,
-                    onUserClick = { navController.navigate("Profile/$it") },
+                    onUserClick = { navController.navigate("${Routes.PROFILE}/$it") },
                     onDismissRequest = removeDialog
                 )
             }
@@ -464,8 +480,8 @@ fun DashboardMenu(
     windowInfo: WindowInfo,
     isCreator: Boolean,
     process: ProcessState,
-    tasks: List<Pair<String, List<TaskPart>>>,
-    rawTasks: List<TaskPart>,
+    tasks: List<Pair<String, List<TaskPartDTO>>>,
+    rawTasks: List<TaskPartDTO>,
     navController: NavController,
     sharedState: SharedViewModelState,
     dashboardState: DashboardState,
@@ -476,265 +492,289 @@ fun DashboardMenu(
     updateDateDialogState: (DateDialogState) -> Unit,
     updateSharedState: (SharedViewModelState) -> Unit,
     openDialog: (DashboardDialogs) -> Unit,
-    updateViewAssigneeDialogState: (List<User>) -> Unit
+    updateViewAssigneeDialogState: (List<UserDTO>) -> Unit,
+    swipeRefreshState: SwipeRefreshState,
+    onRefresh: () -> Unit
 ) {
     when (process) {
         is ProcessState.Loading -> {
             Loading(PaddingValues(0.dp))
         }
         is ProcessState.Error -> {
-            ErrorComposable(navController, PaddingValues(0.dp), process.message)
+            ErrorComposable(navController, PaddingValues(0.dp), process.message, swipeRefreshState, onRefresh)
         }
         is ProcessState.Success -> {
-            when (sharedState.dashboardViewIdx) {
-                0 -> {
-                    LazyColumn {
-                        tasks.forEachIndexed { idx, pair ->
-                            stickyHeader {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    OneLineText(
-                                        text = pair.first,
-                                        modifier = Modifier.padding(10.dp)
-                                    )
-                                    IconButton(
-                                        onClick = {
-                                            updateCollapsible(
-                                                dashboardState.isCollapsed[sharedState.dashboardBottomBarIdx].mapIndexed { index, col ->
-                                                    if (idx == index) !dashboardState.isCollapsed[sharedState.dashboardBottomBarIdx][idx] else col
-                                                }, sharedState.dashboardBottomBarIdx
+            SwipeRefresh(state = swipeRefreshState, onRefresh = onRefresh) {
+                when (sharedState.dashboardViewIdx) {
+                    0 -> {
+                        if (tasks.isNotEmpty()) {
+                            LazyColumn {
+                                tasks.forEachIndexed { idx, pair ->
+                                    stickyHeader {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            OneLineText(
+                                                text = pair.first,
+                                                modifier = Modifier.padding(10.dp)
                                             )
-                                        },
-                                        modifier = Modifier.padding(5.dp)
-                                    ) {
-                                        Icon(
-                                            imageVector = if (dashboardState.isCollapsed[sharedState.dashboardBottomBarIdx][idx]) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
-                                            contentDescription = null
-                                        )
+                                            IconButton(
+                                                onClick = {
+                                                    updateCollapsible(
+                                                        dashboardState.isCollapsed[sharedState.dashboardBottomBarIdx].mapIndexed { index, col ->
+                                                            if (idx == index) !dashboardState.isCollapsed[sharedState.dashboardBottomBarIdx][idx] else col
+                                                        }, sharedState.dashboardBottomBarIdx
+                                                    )
+                                                },
+                                                modifier = Modifier.padding(5.dp)
+                                            ) {
+                                                Icon(
+                                                    imageVector = if (dashboardState.isCollapsed[sharedState.dashboardBottomBarIdx][idx]) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                                                    contentDescription = null
+                                                )
+                                            }
+                                        }
+                                    }
+                                    items(items = pair.second) { task ->
+                                        AnimatedVisibility(!dashboardState.isCollapsed[sharedState.dashboardBottomBarIdx][idx]) {
+                                            DashboardList(
+                                                windowInfo = windowInfo,
+                                                task = task,
+                                                navigateToProfile = { navController.navigate("${Routes.PROFILE}/$it") },
+                                                openViewDialog = {
+                                                    updateViewAssigneeDialogState(task.assignees)
+                                                    openDialog(DashboardDialogs.VIEW)
+                                                },
+                                                onTitleClick = {
+                                                    if (isCreator) {
+                                                        updateEditNameDialogState(
+                                                            EditNameDialogState(
+                                                                task.title,
+                                                                task.taskId
+                                                            )
+                                                        )
+                                                        openDialog(DashboardDialogs.NAME)
+                                                    }
+                                                },
+                                                onStatusClick = {
+                                                    if (!isCreator) {
+                                                        updateRadioDialogState(
+                                                            RadioButtonDialogState(
+                                                                listOf("OPEN", "IN PROGRESS", "ON HOLD", "COMPLETE"),
+                                                                task.status,
+                                                                task.taskId
+                                                            )
+                                                        )
+                                                        openDialog(DashboardDialogs.STATUS)
+                                                    }
+                                                },
+                                                onAssigneeClick = {
+                                                    if (isCreator) {
+                                                        updateSearchDialogState(
+                                                            SearchUserDialogState(
+                                                                task.assignees,
+                                                                task.taskId
+                                                            )
+                                                        )
+                                                        openDialog(DashboardDialogs.ASSIGNEE)
+                                                    }
+                                                },
+                                                onPriorityClick = {
+                                                    if (isCreator) {
+                                                        updateRadioDialogState(
+                                                            RadioButtonDialogState(
+                                                                listOf("LOW", "NORMAL", "HIGH", "URGENT"),
+                                                                task.priority,
+                                                                task.taskId
+                                                            )
+                                                        )
+                                                        openDialog(DashboardDialogs.PRIORITY)
+                                                    }
+                                                },
+                                                onDueClick = {
+                                                    if (isCreator) {
+                                                        updateDateDialogState(
+                                                            DateDialogState(
+                                                                selected = task.due,
+                                                                datePickerEnabled = false,
+                                                                timePickerEnabled = false,
+                                                                taskId = task.taskId
+                                                            )
+                                                        )
+                                                        openDialog(DashboardDialogs.DUE)
+                                                    }
+                                                },
+                                                onTypeClick = {
+                                                    if (isCreator) {
+                                                        updateRadioDialogState(
+                                                            RadioButtonDialogState(
+                                                                listOf("TASK", "MILESTONE"),
+                                                                task.type,
+                                                                task.taskId
+                                                            )
+                                                        )
+                                                        openDialog(DashboardDialogs.TYPE)
+                                                    }
+                                                },
+                                                onViewClick = { navController.navigate("${Routes.ABOUT_TASK}/${task.taskId}") }
+                                            )
+                                        }
                                     }
                                 }
                             }
-                            items(items = pair.second) { task ->
-                                AnimatedVisibility(!dashboardState.isCollapsed[sharedState.dashboardBottomBarIdx][idx]) {
-                                    DashboardList(
-                                        windowInfo = windowInfo,
-                                        task = task,
-                                        navigateToProfile = { navController.navigate("Profile/$it") },
-                                        openViewDialog = {
-                                            updateViewAssigneeDialogState(task.assignees)
-                                            openDialog(DashboardDialogs.VIEW)
-                                        },
-                                        onTitleClick = {
-                                            if (isCreator) {
-                                                updateEditNameDialogState(
-                                                    EditNameDialogState(
-                                                        task.title,
-                                                        task.taskId
-                                                    )
-                                                )
-                                                openDialog(DashboardDialogs.NAME)
-                                            }
-                                        },
-                                        onStatusClick = {
-                                            if (!isCreator) {
-                                                updateRadioDialogState(
-                                                    RadioButtonDialogState(
-                                                        listOf("OPEN", "IN PROGRESS", "ON HOLD", "COMPLETE"),
-                                                        task.status,
-                                                        task.taskId
-                                                    )
-                                                )
-                                                openDialog(DashboardDialogs.STATUS)
-                                            }
-                                        },
-                                        onAssigneeClick = {
-                                            if (isCreator) {
-                                                updateSearchDialogState(
-                                                    SearchUserDialogState(
-                                                        task.assignees,
-                                                        task.taskId
-                                                    )
-                                                )
-                                                openDialog(DashboardDialogs.ASSIGNEE)
-                                            }
-                                        },
-                                        onPriorityClick = {
-                                            if (isCreator) {
-                                                updateRadioDialogState(
-                                                    RadioButtonDialogState(
-                                                        listOf("LOW", "NORMAL", "HIGH", "URGENT"),
-                                                        task.priority,
-                                                        task.taskId
-                                                    )
-                                                )
-                                                openDialog(DashboardDialogs.PRIORITY)
-                                            }
-                                        },
-                                        onDueClick = {
-                                            if (isCreator) {
-                                                updateDateDialogState(
-                                                    DateDialogState(
-                                                        selected = task.due,
-                                                        datePickerEnabled = false,
-                                                        timePickerEnabled = false,
-                                                        taskId = task.taskId
-                                                    )
-                                                )
-                                                openDialog(DashboardDialogs.DUE)
-                                            }
-                                        },
-                                        onTypeClick = {
-                                            if (isCreator) {
-                                                updateRadioDialogState(
-                                                    RadioButtonDialogState(
-                                                        listOf("TASK", "MILESTONE"),
-                                                        task.type,
-                                                        task.taskId
-                                                    )
-                                                )
-                                                openDialog(DashboardDialogs.TYPE)
-                                            }
-                                        },
-                                        onViewClick = { navController.navigate("AboutTask/${task.taskId}") }
-                                    )
-                                }
+                        } else {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .verticalScroll(rememberScrollState())
+                            ) {
+                                Spacer(modifier = Modifier.padding(100.dp))
                             }
                         }
                     }
-                }
-                1 -> {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(
-                            when (windowInfo.screenWidthInfo) {
-                                is WindowInfo.WindowType.Compact -> 2
-                                is WindowInfo.WindowType.Medium -> 3
-                                is WindowInfo.WindowType.Expanded -> 6
+                    1 -> {
+                        if (tasks.isNotEmpty()) {
+                            LazyVerticalGrid(
+                                columns = GridCells.Fixed(
+                                    when (windowInfo.screenWidthInfo) {
+                                        is WindowInfo.WindowType.Compact -> 2
+                                        is WindowInfo.WindowType.Medium -> 3
+                                        is WindowInfo.WindowType.Expanded -> 6
+                                    }
+                                )
+                            ) {
+                                tasks.forEachIndexed { idx, pair ->
+                                    header {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            OneLineText(
+                                                text = pair.first,
+                                                modifier = Modifier.padding(10.dp)
+                                            )
+                                            IconButton(
+                                                onClick = {
+                                                    updateCollapsible(
+                                                        dashboardState.isCollapsed[sharedState.dashboardBottomBarIdx].mapIndexed { index, col ->
+                                                            if (idx == index) !dashboardState.isCollapsed[sharedState.dashboardBottomBarIdx][idx] else col
+                                                        }, sharedState.dashboardBottomBarIdx
+                                                    )
+                                                },
+                                                modifier = Modifier.padding(5.dp)
+                                            ) {
+                                                Icon(
+                                                    imageVector = if (dashboardState.isCollapsed[sharedState.dashboardBottomBarIdx][idx]) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                                                    contentDescription = null
+                                                )
+                                            }
+                                        }
+                                    }
+                                    items(items = pair.second) { task ->
+                                        AnimatedVisibility(!dashboardState.isCollapsed[sharedState.dashboardBottomBarIdx][idx]) {
+                                            DashboardGrid(
+                                                task = task,
+                                                navigateToProfile = { navController.navigate("${Routes.PROFILE}/$it") },
+                                                openViewDialog = {
+                                                    updateViewAssigneeDialogState(task.assignees)
+                                                    openDialog(DashboardDialogs.VIEW)
+                                                },
+                                                onTitleClick = {
+                                                    if (isCreator) {
+                                                        updateEditNameDialogState(
+                                                            EditNameDialogState(
+                                                                task.title,
+                                                                task.taskId
+                                                            )
+                                                        )
+                                                        openDialog(DashboardDialogs.NAME)
+                                                    }
+                                                },
+                                                onStatusClick = {
+                                                    if (!isCreator) {
+                                                        updateRadioDialogState(
+                                                            RadioButtonDialogState(
+                                                                listOf("OPEN", "IN PROGRESS", "ON HOLD", "COMPLETE"),
+                                                                task.status,
+                                                                task.taskId
+                                                            )
+                                                        )
+                                                        openDialog(DashboardDialogs.STATUS)
+                                                    }
+                                                },
+                                                onAssigneeClick = {
+                                                    if (isCreator) {
+                                                        updateSearchDialogState(
+                                                            SearchUserDialogState(
+                                                                task.assignees,
+                                                                task.taskId
+                                                            )
+                                                        )
+                                                        openDialog(DashboardDialogs.ASSIGNEE)
+                                                    }
+                                                },
+                                                onPriorityClick = {
+                                                    if (isCreator) {
+                                                        updateRadioDialogState(
+                                                            RadioButtonDialogState(
+                                                                listOf("LOW", "NORMAL", "HIGH", "URGENT"),
+                                                                task.priority,
+                                                                task.taskId
+                                                            )
+                                                        )
+                                                        openDialog(DashboardDialogs.PRIORITY)
+                                                    }
+                                                },
+                                                onDueClick = {
+                                                    if (isCreator) {
+                                                        updateDateDialogState(
+                                                            DateDialogState(
+                                                                selected = task.due,
+                                                                datePickerEnabled = false,
+                                                                timePickerEnabled = false,
+                                                                taskId = task.taskId
+                                                            )
+                                                        )
+                                                        openDialog(DashboardDialogs.DUE)
+                                                    }
+                                                },
+                                                onTypeClick = {
+                                                    if (isCreator) {
+                                                        updateRadioDialogState(
+                                                            RadioButtonDialogState(
+                                                                listOf("TASK", "MILESTONE"),
+                                                                task.type,
+                                                                task.taskId
+                                                            )
+                                                        )
+                                                        openDialog(DashboardDialogs.TYPE)
+                                                    }
+                                                },
+                                                onViewClick = { navController.navigate("${Routes.ABOUT_TASK}/${task.taskId}") }
+                                            )
+                                        }
+                                    }
+                                }
                             }
+                        } else {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .verticalScroll(rememberScrollState())
+                            ) {
+                                Spacer(modifier = Modifier.padding(100.dp))
+                            }
+                        }
+                    }
+                    2 -> {
+                        Calendar(
+                            tasks = rawTasks,
+                            calendarTabIdx = sharedState.calendarTabIdx,
+                            updateCalendarIdx = { updateSharedState(sharedState.copy(calendarTabIdx = it)) },
+                            navigate = { navController.navigate("${Routes.ABOUT_TASK}/$it") }
                         )
-                    ) {
-                        tasks.forEachIndexed { idx, pair ->
-                            header {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    OneLineText(
-                                        text = pair.first,
-                                        modifier = Modifier.padding(10.dp)
-                                    )
-                                    IconButton(
-                                        onClick = {
-                                            updateCollapsible(
-                                                dashboardState.isCollapsed[sharedState.dashboardBottomBarIdx].mapIndexed { index, col ->
-                                                    if (idx == index) !dashboardState.isCollapsed[sharedState.dashboardBottomBarIdx][idx] else col
-                                                }, sharedState.dashboardBottomBarIdx
-                                            )
-                                        },
-                                        modifier = Modifier.padding(5.dp)
-                                    ) {
-                                        Icon(
-                                            imageVector = if (dashboardState.isCollapsed[sharedState.dashboardBottomBarIdx][idx]) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
-                                            contentDescription = null
-                                        )
-                                    }
-                                }
-                            }
-                            items(items = pair.second) { task ->
-                                AnimatedVisibility(!dashboardState.isCollapsed[sharedState.dashboardBottomBarIdx][idx]) {
-                                    DashboardGrid(
-                                        task = task,
-                                        navigateToProfile = { navController.navigate("Profile/$it") },
-                                        openViewDialog = {
-                                            updateViewAssigneeDialogState(task.assignees)
-                                            openDialog(DashboardDialogs.VIEW)
-                                        },
-                                        onTitleClick = {
-                                            if (isCreator) {
-                                                updateEditNameDialogState(
-                                                    EditNameDialogState(
-                                                        task.title,
-                                                        task.taskId
-                                                    )
-                                                )
-                                                openDialog(DashboardDialogs.NAME)
-                                            }
-                                        },
-                                        onStatusClick = {
-                                            if (!isCreator) {
-                                                updateRadioDialogState(
-                                                    RadioButtonDialogState(
-                                                        listOf("OPEN", "IN PROGRESS", "ON HOLD", "COMPLETE"),
-                                                        task.status,
-                                                        task.taskId
-                                                    )
-                                                )
-                                                openDialog(DashboardDialogs.STATUS)
-                                            }
-                                        },
-                                        onAssigneeClick = {
-                                            if (isCreator) {
-                                                updateSearchDialogState(
-                                                    SearchUserDialogState(
-                                                        task.assignees,
-                                                        task.taskId
-                                                    )
-                                                )
-                                                openDialog(DashboardDialogs.ASSIGNEE)
-                                            }
-                                        },
-                                        onPriorityClick = {
-                                            if (isCreator) {
-                                                updateRadioDialogState(
-                                                    RadioButtonDialogState(
-                                                        listOf("LOW", "NORMAL", "HIGH", "URGENT"),
-                                                        task.priority,
-                                                        task.taskId
-                                                    )
-                                                )
-                                                openDialog(DashboardDialogs.PRIORITY)
-                                            }
-                                        },
-                                        onDueClick = {
-                                            if (isCreator) {
-                                                updateDateDialogState(
-                                                    DateDialogState(
-                                                        selected = task.due,
-                                                        datePickerEnabled = false,
-                                                        timePickerEnabled = false,
-                                                        taskId = task.taskId
-                                                    )
-                                                )
-                                                openDialog(DashboardDialogs.DUE)
-                                            }
-                                        },
-                                        onTypeClick = {
-                                            if (isCreator) {
-                                                updateRadioDialogState(
-                                                    RadioButtonDialogState(
-                                                        listOf("TASK", "MILESTONE"),
-                                                        task.type,
-                                                        task.taskId
-                                                    )
-                                                )
-                                                openDialog(DashboardDialogs.TYPE)
-                                            }
-                                        },
-                                        onViewClick = { navController.navigate("AboutTask/${task.taskId}") }
-                                    )
-                                }
-                            }
-                        }
                     }
-                }
-                2 -> {
-                    Calendar(
-                        tasks = rawTasks,
-                        calendarTabIdx = sharedState.calendarTabIdx,
-                        updateCalendarIdx = { updateSharedState(sharedState.copy(calendarTabIdx = it)) },
-                        navigate = { navController.navigate("AboutTask/$it") }
-                    )
                 }
             }
         }

@@ -1,7 +1,6 @@
 package com.serrano.dictproject.activity
 
 import android.content.Context
-import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -30,21 +29,16 @@ import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.serrano.dictproject.customui.AddAttachmentMenu
-import com.serrano.dictproject.customui.AddChecklistMenu
-import com.serrano.dictproject.customui.AddCommentMenu
-import com.serrano.dictproject.customui.AddSubtaskMenu
-import com.serrano.dictproject.customui.AttachmentBox
-import com.serrano.dictproject.customui.ChecklistBox
-import com.serrano.dictproject.customui.CommentBox
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.serrano.dictproject.customui.CustomTab
 import com.serrano.dictproject.customui.ErrorComposable
 import com.serrano.dictproject.customui.Loading
-import com.serrano.dictproject.customui.OneLineText
 import com.serrano.dictproject.customui.RememberWindowInfo
-import com.serrano.dictproject.customui.SubtaskBox
-import com.serrano.dictproject.customui.TextWithEditButton
 import com.serrano.dictproject.customui.WindowInfo
+import com.serrano.dictproject.customui.button.CustomButton
+import com.serrano.dictproject.customui.button.TextWithEditButton
+import com.serrano.dictproject.customui.dialog.ConfirmDialog
 import com.serrano.dictproject.customui.dialog.DateTimePickerDialog
 import com.serrano.dictproject.customui.dialog.EditAssigneeDialog
 import com.serrano.dictproject.customui.dialog.EditNameDialog
@@ -54,6 +48,15 @@ import com.serrano.dictproject.customui.dialog.ViewAssigneeDialog
 import com.serrano.dictproject.customui.dropdown.DueDropDown
 import com.serrano.dictproject.customui.dropdown.PriorityDropDown
 import com.serrano.dictproject.customui.dropdown.StatusDropDown
+import com.serrano.dictproject.customui.menu.AddAttachmentMenu
+import com.serrano.dictproject.customui.menu.AddChecklistMenu
+import com.serrano.dictproject.customui.menu.AddCommentMenu
+import com.serrano.dictproject.customui.menu.AddSubtaskMenu
+import com.serrano.dictproject.customui.menu.AttachmentBox
+import com.serrano.dictproject.customui.menu.ChecklistBox
+import com.serrano.dictproject.customui.menu.CommentBox
+import com.serrano.dictproject.customui.menu.SubtaskBox
+import com.serrano.dictproject.customui.text.OneLineText
 import com.serrano.dictproject.datastore.Preferences
 import com.serrano.dictproject.ui.theme.DICTProjectTheme
 import com.serrano.dictproject.utils.AboutTaskDialogs
@@ -62,16 +65,20 @@ import com.serrano.dictproject.utils.AddAttachmentState
 import com.serrano.dictproject.utils.AddChecklistState
 import com.serrano.dictproject.utils.AddCommentState
 import com.serrano.dictproject.utils.AddSubtaskState
+import com.serrano.dictproject.utils.ConfirmDialogState
 import com.serrano.dictproject.utils.DateDialogState
+import com.serrano.dictproject.utils.DateUtils
 import com.serrano.dictproject.utils.DialogsState
 import com.serrano.dictproject.utils.EditNameDialogState
+import com.serrano.dictproject.utils.FileUtils
+import com.serrano.dictproject.utils.MiscUtils
 import com.serrano.dictproject.utils.ProcessState
 import com.serrano.dictproject.utils.RadioButtonDialogState
+import com.serrano.dictproject.utils.Routes
 import com.serrano.dictproject.utils.SearchState
 import com.serrano.dictproject.utils.SearchUserDialogState
-import com.serrano.dictproject.utils.Task
-import com.serrano.dictproject.utils.User
-import com.serrano.dictproject.utils.Utils
+import com.serrano.dictproject.utils.TaskState
+import com.serrano.dictproject.utils.UserDTO
 import java.time.LocalDateTime
 
 @Composable
@@ -83,53 +90,62 @@ fun AboutTask(
     paddingValues: PaddingValues,
     context: Context,
     process: ProcessState,
-    task: Task,
+    task: TaskState,
     dialogsState: DialogsState,
     aboutTaskState: AboutTaskState,
-    updateTabIdx: (Int) -> Unit,
     updateAddSubtaskState: (AddSubtaskState) -> Unit,
     updateAddCommentState: (AddCommentState) -> Unit,
     updateAddChecklistState: (AddChecklistState) -> Unit,
     updateAddAttachmentState: (AddAttachmentState) -> Unit,
+    updateConfirmDialogState: (ConfirmDialogState) -> Unit,
     updateDialogState: (AboutTaskDialogs) -> Unit,
-    updateTask: (Task) -> Unit,
+    updateTask: (TaskState) -> Unit,
     updateRadioDialogState: (RadioButtonDialogState) -> Unit,
     updateEditNameDialogState: (EditNameDialogState) -> Unit,
     updateDateDialogState: (DateDialogState) -> Unit,
     updateSearchDialogState: (SearchUserDialogState) -> Unit,
     updateSearchState: (SearchState) -> Unit,
-    updateViewAssigneeDialogState: (List<User>) -> Unit,
-    changeAssignee: (Int, List<Int>, () -> Unit) -> Unit,
+    updateViewAssigneeDialogState: (List<UserDTO>) -> Unit,
+    changeAssignee: (Int, List<UserDTO>, () -> Unit) -> Unit,
     changeName: (Int, String, () -> Unit) -> Unit,
-    searchUser: (String, (List<User>) -> Unit) -> Unit,
+    searchUser: (String, (List<UserDTO>) -> Unit) -> Unit,
     changeDue: (Int, LocalDateTime, () -> Unit) -> Unit,
     changePriority: (Int, String, () -> Unit) -> Unit,
     changeStatus: (Int, String, () -> Unit) -> Unit,
     changeType: (Int, String, () -> Unit) -> Unit,
     changeDescription: (Int, String, () -> Unit) -> Unit,
-    sendComment: (() -> Unit) -> Unit,
-    addChecklist: (() -> Unit) -> Unit,
-    addSubtask: (() -> Unit) -> Unit,
-    uploadAttachment: (() -> Unit) -> Unit,
-    changeSubtaskDescription: (Int, String, () -> Unit) -> Unit,
-    changeSubtaskPriority: (Int, String, () -> Unit) -> Unit,
-    changeSubtaskDueDate: (Int, LocalDateTime, () -> Unit) -> Unit,
-    editSubtaskAssignees: (Int, List<Int>, () -> Unit) -> Unit,
-    changeSubtaskType: (Int, String, () -> Unit) -> Unit,
-    changeSubtaskStatus: (Int, String, () -> Unit) -> Unit,
-    toggleChecklist: (Int, Int, Boolean, () -> Unit) -> Unit,
-    likeComment: (Int, Int, () -> Unit) -> Unit,
-    downloadAttachment: (String, String) -> Unit
+    sendComment: () -> Unit,
+    addChecklist: () -> Unit,
+    addSubtask: () -> Unit,
+    uploadAttachment: () -> Unit,
+    changeSubtaskDescription: (Int, String) -> Unit,
+    changeSubtaskPriority: (Int, String) -> Unit,
+    changeSubtaskDueDate: (Int, LocalDateTime) -> Unit,
+    editSubtaskAssignees: (Int, List<UserDTO>) -> Unit,
+    changeSubtaskType: (Int, String) -> Unit,
+    changeSubtaskStatus: (Int, String) -> Unit,
+    toggleChecklist: (Int, Boolean) -> Unit,
+    likeComment: (Int, Int) -> Unit,
+    downloadAttachment: (String, String) -> Unit,
+    refreshTaskInfo: () -> Unit,
+    deleteTask: (Int, () -> Unit) -> Unit,
+    deleteComment: (Int) -> Unit,
+    deleteSubtask: (Int) -> Unit,
+    deleteChecklist: (Int) -> Unit,
+    deleteAttachment: (Int) -> Unit
 ) {
+    val refreshState = rememberSwipeRefreshState(isRefreshing = task.isRefreshing)
     val removeDialog: () -> Unit = { updateDialogState(AboutTaskDialogs.NONE) }
     val radioSelect: (String) -> Unit = { updateRadioDialogState(dialogsState.radioButtonDialogState.copy(selected = it)) }
     val openDialog: (AboutTaskDialogs) -> Unit = { updateDialogState(it) }
     val updateDatePicker: (Boolean) -> Unit = { updateDateDialogState(dialogsState.dateDialogState.copy(datePickerEnabled = it)) }
     val updateTimePicker: (Boolean) -> Unit = { updateDateDialogState(dialogsState.dateDialogState.copy(timePickerEnabled = it)) }
     val selectDateTime: (LocalDateTime) -> Unit = { updateDateDialogState(dialogsState.dateDialogState.copy(selected = it, datePickerEnabled = false, timePickerEnabled = false)) }
-    val navigateToProfile: (Int) -> Unit = { navController.navigate("Profile/$it") }
+    val navigateToProfile: (Int) -> Unit = { navController.navigate("${Routes.PROFILE}/$it") }
     val editTextDialog: (String) -> Unit = { updateEditNameDialogState(dialogsState.editNameDialogState.copy(name = it)) }
-    val onUserAdd: (User) -> Unit = { user ->
+
+
+    val onUserAdd: (UserDTO) -> Unit = { user ->
         updateSearchDialogState(
             dialogsState.searchUserDialogState.copy(
                 users = if (user in dialogsState.searchUserDialogState.users) {
@@ -138,7 +154,7 @@ fun AboutTask(
             )
         )
     }
-    val onUserRemove: (User) -> Unit = { user ->
+    val onUserRemove: (UserDTO) -> Unit = { user ->
         updateSearchDialogState(
             dialogsState.searchUserDialogState.copy(
                 users = if (user in dialogsState.searchUserDialogState.users) {
@@ -147,6 +163,7 @@ fun AboutTask(
             )
         )
     }
+
 
     val statusComposable: @Composable () -> Unit = {
         Row(
@@ -169,7 +186,7 @@ fun AboutTask(
                     )
                     openDialog(AboutTaskDialogs.TASK_STATUS)
                 } else {
-                    Toast.makeText(context, "Only task assignees can edit status.", Toast.LENGTH_LONG).show()
+                    MiscUtils.toast(context, "Only task assignees can edit status.")
                 }
             }
         }
@@ -195,7 +212,7 @@ fun AboutTask(
                     )
                     openDialog(AboutTaskDialogs.TASK_PRIORITY)
                 } else {
-                    Toast.makeText(context, "Only task creator can edit priority.", Toast.LENGTH_LONG).show()
+                    MiscUtils.toast(context, "Only task creator can edit priority.")
                 }
             }
         }
@@ -224,7 +241,7 @@ fun AboutTask(
                         )
                         openDialog(AboutTaskDialogs.TASK_DUE)
                     } else {
-                        Toast.makeText(context, "Only task creator can edit due date.", Toast.LENGTH_LONG).show()
+                        MiscUtils.toast(context, "Only task creator can edit due date.")
                     }
                 },
                 includeTime = true
@@ -241,7 +258,7 @@ fun AboutTask(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             OneLineText(text = "Task Started: ")
-            OneLineText(text = Utils.dateTimeToDateTimeString(task.sentDate))
+            OneLineText(text = DateUtils.dateTimeToDateTimeString(task.sentDate))
         }
     }
     val assigneesComposable: @Composable () -> Unit = {
@@ -264,7 +281,7 @@ fun AboutTask(
                             }
                         ) {
                             Icon(
-                                bitmap = Utils.encodedStringToImage(it.image),
+                                bitmap = FileUtils.encodedStringToImage(it.image),
                                 contentDescription = null,
                                 tint = Color.Unspecified
                             )
@@ -282,7 +299,7 @@ fun AboutTask(
                             )
                             openDialog(AboutTaskDialogs.TASK_ASSIGNEE)
                         } else {
-                            Toast.makeText(context, "Only task creator can edit assignees.", Toast.LENGTH_LONG).show()
+                            MiscUtils.toast(context, "Only task creator can edit assignees.")
                         }
                     },
                     modifier = Modifier
@@ -312,7 +329,7 @@ fun AboutTask(
                 OneLineText(text = task.creator.name)
                 IconButton(onClick = { navigateToProfile(task.creator.id) }) {
                     Icon(
-                        bitmap = Utils.encodedStringToImage(task.creator.image),
+                        bitmap = FileUtils.encodedStringToImage(task.creator.image),
                         contentDescription = null,
                         tint = Color.Unspecified
                     )
@@ -326,7 +343,7 @@ fun AboutTask(
             Loading(paddingValues)
         }
         is ProcessState.Error -> {
-            ErrorComposable(navController, paddingValues, process.message)
+            ErrorComposable(navController, paddingValues, process.message, refreshState, refreshTaskInfo)
         }
         is ProcessState.Success -> {
             Box(
@@ -335,522 +352,603 @@ fun AboutTask(
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState()),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+                SwipeRefresh(state = refreshState, onRefresh = refreshTaskInfo) {
                     Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp)
-                            .border(
-                                BorderStroke(width = 2.dp, Color.Black),
-                                MaterialTheme.shapes.extraSmall
-                            )
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState()),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceEvenly
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp)
+                                .border(
+                                    BorderStroke(width = 2.dp, Color.Black),
+                                    MaterialTheme.shapes.extraSmall
+                                )
                         ) {
-                            OneLineText(
-                                text = "ID: ${task.taskId}",
-                                modifier = Modifier
-                                    .padding(15.dp)
-                                    .fillMaxWidth()
-                                    .weight(1f)
-                                    .border(
-                                        BorderStroke(
-                                            2.dp,
-                                            MaterialTheme.colorScheme.onPrimaryContainer
-                                        ),
-                                        MaterialTheme.shapes.small
-                                    )
-                            )
-                            OneLineText(
-                                text = "TYPE: ${task.type}",
-                                modifier = Modifier
-                                    .padding(15.dp)
-                                    .fillMaxWidth()
-                                    .weight(1f)
-                                    .border(
-                                        BorderStroke(
-                                            2.dp,
-                                            MaterialTheme.colorScheme.onPrimaryContainer
-                                        ),
-                                        MaterialTheme.shapes.small
-                                    )
-                                    .clickable {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                OneLineText(
+                                    text = "ID: ${task.taskId}",
+                                    modifier = Modifier
+                                        .padding(15.dp)
+                                        .fillMaxWidth()
+                                        .weight(1f)
+                                        .border(
+                                            BorderStroke(
+                                                2.dp,
+                                                MaterialTheme.colorScheme.onPrimaryContainer
+                                            ),
+                                            MaterialTheme.shapes.small
+                                        )
+                                )
+                                OneLineText(
+                                    text = "TYPE: ${task.type}",
+                                    modifier = Modifier
+                                        .padding(15.dp)
+                                        .fillMaxWidth()
+                                        .weight(1f)
+                                        .border(
+                                            BorderStroke(
+                                                2.dp,
+                                                MaterialTheme.colorScheme.onPrimaryContainer
+                                            ),
+                                            MaterialTheme.shapes.small
+                                        )
+                                        .clickable {
+                                            if (preferences.id == task.creator.id) {
+                                                updateRadioDialogState(
+                                                    RadioButtonDialogState(
+                                                        listOf("TASK", "MILESTONE"),
+                                                        task.type,
+                                                        task.taskId
+                                                    )
+                                                )
+                                                openDialog(AboutTaskDialogs.TASK_TYPE)
+                                            } else {
+                                                MiscUtils.toast(
+                                                    context,
+                                                    "Only task creator can edit type."
+                                                )
+                                            }
+                                        }
+                                )
+                            }
+                            Column(modifier = Modifier.padding(5.dp)) {
+                                TextWithEditButton(
+                                    text = task.title,
+                                    onEditButtonClick = {
                                         if (preferences.id == task.creator.id) {
-                                            updateRadioDialogState(
-                                                RadioButtonDialogState(
-                                                    listOf("TASK", "MILESTONE"),
-                                                    task.type,
+                                            updateEditNameDialogState(
+                                                EditNameDialogState(
+                                                    task.title,
                                                     task.taskId
                                                 )
                                             )
-                                            openDialog(AboutTaskDialogs.TASK_TYPE)
+                                            openDialog(AboutTaskDialogs.TASK_NAME)
                                         } else {
-                                            Toast
-                                                .makeText(
-                                                    context,
-                                                    "Only task creator can edit type.",
-                                                    Toast.LENGTH_LONG
-                                                )
-                                                .show()
+                                            MiscUtils.toast(context, "Only task creator can edit name.")
+                                        }
+                                    },
+                                    style = MaterialTheme.typography.headlineMedium,
+                                    isOneLine = false
+                                )
+                            }
+                            when (windowInfo.screenWidthInfo) {
+                                is WindowInfo.WindowType.Compact -> {
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.SpaceBetween,
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        statusComposable()
+                                        priorityComposable()
+                                        dueComposable()
+                                        sentDateComposable()
+                                        assigneesComposable()
+                                        creatorComposable()
+                                    }
+                                }
+                                is WindowInfo.WindowType.Medium -> {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            verticalArrangement = Arrangement.SpaceBetween,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .weight(1f)
+                                        ) {
+                                            statusComposable()
+                                            priorityComposable()
+                                            dueComposable()
+                                        }
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            verticalArrangement = Arrangement.SpaceBetween,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .weight(1f)
+                                        ) {
+                                            sentDateComposable()
+                                            assigneesComposable()
+                                            creatorComposable()
                                         }
                                     }
-                            )
-                        }
-                        Column(modifier = Modifier.padding(5.dp)) {
-                            TextWithEditButton(
-                                text = task.title,
-                                onEditButtonClick = {
-                                    if (preferences.id == task.creator.id) {
-                                        updateEditNameDialogState(
-                                            EditNameDialogState(
-                                                task.title,
-                                                task.taskId
-                                            )
-                                        )
-                                        openDialog(AboutTaskDialogs.TASK_NAME)
-                                    } else {
-                                        Toast.makeText(context, "Only task creator can edit name.", Toast.LENGTH_LONG).show()
-                                    }
-                                },
-                                style = MaterialTheme.typography.headlineMedium,
-                                isOneLine = false
-                            )
-                        }
-                        when (windowInfo.screenWidthInfo) {
-                            is WindowInfo.WindowType.Compact -> {
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.SpaceBetween,
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    statusComposable()
-                                    priorityComposable()
-                                    dueComposable()
-                                    sentDateComposable()
-                                    assigneesComposable()
-                                    creatorComposable()
                                 }
-                            }
-                            is WindowInfo.WindowType.Medium -> {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.SpaceBetween,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .weight(1f)
+                                is WindowInfo.WindowType.Expanded -> {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        statusComposable()
-                                        priorityComposable()
-                                        dueComposable()
-                                    }
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.SpaceBetween,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .weight(1f)
-                                    ) {
-                                        sentDateComposable()
-                                        assigneesComposable()
-                                        creatorComposable()
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            verticalArrangement = Arrangement.SpaceBetween,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .weight(1f)
+                                        ) {
+                                            statusComposable()
+                                            priorityComposable()
+                                        }
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            verticalArrangement = Arrangement.SpaceBetween,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .weight(1f)
+                                        ) {
+                                            dueComposable()
+                                            sentDateComposable()
+                                        }
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            verticalArrangement = Arrangement.SpaceBetween,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .weight(1f)
+                                        ) {
+                                            assigneesComposable()
+                                            creatorComposable()
+                                        }
                                     }
                                 }
                             }
-                            is WindowInfo.WindowType.Expanded -> {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.SpaceBetween,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .weight(1f)
-                                    ) {
-                                        statusComposable()
-                                        priorityComposable()
-                                    }
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.SpaceBetween,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .weight(1f)
-                                    ) {
-                                        dueComposable()
-                                        sentDateComposable()
-                                    }
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.SpaceBetween,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .weight(1f)
-                                    ) {
-                                        assigneesComposable()
-                                        creatorComposable()
-                                    }
-                                }
-                            }
-                        }
-                        Column(modifier = Modifier.padding(5.dp)) {
-                            TextWithEditButton(
-                                text = task.description,
-                                onEditButtonClick = {
-                                    if (preferences.id == task.creator.id) {
-                                        updateEditNameDialogState(
-                                            EditNameDialogState(
-                                                task.description,
-                                                task.taskId
+                            Column(modifier = Modifier.padding(5.dp)) {
+                                TextWithEditButton(
+                                    text = task.description,
+                                    onEditButtonClick = {
+                                        if (preferences.id == task.creator.id) {
+                                            updateEditNameDialogState(
+                                                EditNameDialogState(
+                                                    task.description,
+                                                    task.taskId
+                                                )
                                             )
-                                        )
-                                        openDialog(AboutTaskDialogs.TASK_DESCRIPTION)
-                                    } else {
-                                        Toast.makeText(context, "Only task creator can edit description.", Toast.LENGTH_LONG).show()
-                                    }
-                                },
-                                style = MaterialTheme.typography.titleMedium,
-                                isOneLine = false,
-                                isJustify = true
-                            )
-                        }
-                    }
-                    CustomTab(
-                        tabIndex = aboutTaskState.tabIndex,
-                        tabs = listOf("Comment", "Checklist", "Subtask", "Attachment"),
-                        onTabClick = { updateTabIdx(it) }
-                    )
-                    when (aboutTaskState.tabIndex) {
-                        0 -> {
-                            Column(
-                                modifier = Modifier.padding(10.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                AddCommentMenu(
-                                    commentInput = aboutTaskState.addCommentState.description,
-                                    buttonEnabled = aboutTaskState.addCommentState.buttonEnabled,
-                                    onCommentInputChange = {
-                                        updateAddCommentState(
-                                            aboutTaskState.addCommentState.copy(
-                                                description = it
-                                            )
-                                        )
+                                            openDialog(AboutTaskDialogs.TASK_DESCRIPTION)
+                                        } else {
+                                            MiscUtils.toast(context, "Only task creator can edit description.")
+                                        }
                                     },
-                                    sendComment = {
-                                        sendComment {
+                                    style = MaterialTheme.typography.titleMedium,
+                                    isOneLine = false,
+                                    isJustify = true
+                                )
+                            }
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            CustomButton(
+                                text = "DASHBOARD",
+                                onClick = { navController.navigate(Routes.DASHBOARD) },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f)
+                            )
+                            if (preferences.id == task.creator.id) {
+                                CustomButton(
+                                    text = "DELETE TASK",
+                                    onClick = {
+                                        updateConfirmDialogState(
+                                            aboutTaskState.confirmDialogState.copy(
+                                                id = task.taskId,
+                                                placeholder = "task",
+                                                onYesClick = { id ->
+                                                    removeDialog()
+                                                    deleteTask(id) {
+                                                        navController.navigate(Routes.DASHBOARD)
+                                                    }
+                                                },
+                                                onCancelClick = removeDialog
+                                            )
+                                        )
+                                        openDialog(AboutTaskDialogs.CONFIRM)
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .weight(1f),
+                                    enabled = task.deleteButtonEnabled
+                                )
+                            }
+                        }
+                        CustomTab(
+                            tabIndex = task.tabIndex,
+                            tabs = listOf("Comment", "Checklist", "Subtask", "Attachment"),
+                            onTabClick = { updateTask(task.copy(tabIndex = it)) }
+                        )
+                        when (task.tabIndex) {
+                            0 -> {
+                                Column(
+                                    modifier = Modifier.padding(10.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    AddCommentMenu(
+                                        commentInput = aboutTaskState.addCommentState.description,
+                                        buttonEnabled = aboutTaskState.addCommentState.buttonEnabled,
+                                        onCommentInputChange = {
                                             updateAddCommentState(
                                                 aboutTaskState.addCommentState.copy(
-                                                    description = ""
+                                                    description = it
                                                 )
+                                            )
+                                        },
+                                        sendComment = sendComment,
+                                        commentReply = task.comments
+                                            .filter { comment -> aboutTaskState.addCommentState.reply.any { it == comment.commentId } }
+                                            .map { it.description },
+                                        mentions = aboutTaskState.addCommentState.mentions,
+                                        onAddMentionsMenu = {
+                                            updateSearchDialogState(
+                                                SearchUserDialogState(
+                                                    aboutTaskState.addCommentState.mentions,
+                                                    0
+                                                )
+                                            )
+                                            openDialog(AboutTaskDialogs.COMMENT_MENTIONS)
+                                        },
+                                        onRemoveReply = { updateAddCommentState(aboutTaskState.addCommentState.copy(reply = emptyList())) }
+                                    )
+                                    if (task.comments.isNotEmpty()) {
+                                        OneLineText(
+                                            text = "COMMENTS",
+                                            style = MaterialTheme.typography.headlineSmall
+                                        )
+                                        task.comments.forEach { comment ->
+                                            CommentBox(
+                                                currentUserId = preferences.id,
+                                                comment = comment,
+                                                onUserClick = navigateToProfile,
+                                                onReplyClick = {
+                                                    updateAddCommentState(
+                                                        aboutTaskState.addCommentState.copy(
+                                                            mentions = listOf(it.user),
+                                                            reply = listOf(it.commentId)
+                                                        )
+                                                    )
+                                                },
+                                                onLikeClick = { commentId ->
+                                                    likeComment(preferences.id, commentId)
+                                                },
+                                                onDeleteClick = { commentId ->
+                                                    updateConfirmDialogState(
+                                                        aboutTaskState.confirmDialogState.copy(
+                                                            id = commentId,
+                                                            placeholder = "comment",
+                                                            onYesClick = { id ->
+                                                                removeDialog()
+                                                                deleteComment(id)
+                                                            },
+                                                            onCancelClick = removeDialog
+                                                        )
+                                                    )
+                                                    openDialog(AboutTaskDialogs.CONFIRM)
+                                                },
+                                                commentReply = task.comments
+                                                    .filter { com -> comment.replyId.any { com.commentId == it } }
+                                                    .map { it.description }
                                             )
                                         }
                                     }
-                                )
-                                if (task.comments.isNotEmpty()) {
-                                    OneLineText(
-                                        text = "COMMENTS",
-                                        style = MaterialTheme.typography.headlineSmall
-                                    )
-                                    task.comments.forEachIndexed { idx, comment ->
-                                        CommentBox(
-                                            currentUserId = preferences.id,
-                                            comment = comment,
-                                            likeIconEnabled = aboutTaskState.addCommentState.likeIconsEnabled[idx],
-                                            onUserClick = navigateToProfile,
-                                            onReplyClick = {
-                                                updateAddCommentState(
-                                                    aboutTaskState.addCommentState.copy(
-                                                        description = it
-                                                    )
+                                }
+                            }
+                            1 -> {
+                                Column(
+                                    modifier = Modifier.padding(10.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    AddChecklistMenu(
+                                        checklistInput = aboutTaskState.addChecklistState.description,
+                                        buttonEnabled = aboutTaskState.addChecklistState.buttonEnabled,
+                                        assigneesAdded = aboutTaskState.addChecklistState.assignees,
+                                        updateChecklistInput = {
+                                            updateAddChecklistState(
+                                                aboutTaskState.addChecklistState.copy(
+                                                    description = it
                                                 )
-                                            },
-                                            onLikeClick = { commentId ->
-                                                likeComment(idx, commentId) {
-                                                    updateTask(
-                                                        task.copy(
-                                                            comments = task.comments.map { comment ->
-                                                                if (comment.commentId == commentId) {
-                                                                    comment.copy(
-                                                                        likesId = if (comment.likesId.any { it == preferences.id }) {
-                                                                            comment.likesId - preferences.id
-                                                                        } else {
-                                                                            comment.likesId + preferences.id
-                                                                        }
-                                                                    )
-                                                                } else comment
-                                                            }
+                                            )
+                                        },
+                                        onUserClick = {
+                                            updateViewAssigneeDialogState(aboutTaskState.addChecklistState.assignees)
+                                            openDialog(AboutTaskDialogs.VIEW)
+                                        },
+                                        onPersonAddClick = {
+                                            updateSearchDialogState(
+                                                SearchUserDialogState(
+                                                    aboutTaskState.addChecklistState.assignees,
+                                                    0
+                                                )
+                                            )
+                                            openDialog(AboutTaskDialogs.CHECKLIST_ASSIGNEE)
+                                        },
+                                        addChecklist = addChecklist
+                                    )
+                                    if (task.checklists.isNotEmpty()) {
+                                        OneLineText(
+                                            text = "CHECKLISTS",
+                                            style = MaterialTheme.typography.headlineSmall
+                                        )
+                                        task.checklists.forEach { checklist ->
+                                            ChecklistBox(
+                                                currentUserId = preferences.id,
+                                                checklist = checklist,
+                                                onChecklistChange = { id, check ->
+                                                    if (checklist.assignees.any { it.id == preferences.id }) {
+                                                        toggleChecklist(id, check)
+                                                    } else {
+                                                        MiscUtils.toast(context, "Only checklist assignees can edit the checklist.")
+                                                    }
+                                                },
+                                                openViewDialog = {
+                                                    updateViewAssigneeDialogState(checklist.assignees)
+                                                    openDialog(AboutTaskDialogs.VIEW)
+                                                },
+                                                navigateToProfile = navigateToProfile,
+                                                onDeleteClick = { checklistId ->
+                                                    updateConfirmDialogState(
+                                                        aboutTaskState.confirmDialogState.copy(
+                                                            id = checklistId,
+                                                            placeholder = "checklist",
+                                                            onYesClick = { id ->
+                                                                removeDialog()
+                                                                deleteChecklist(id)
+                                                            },
+                                                            onCancelClick = removeDialog
                                                         )
                                                     )
+                                                    openDialog(AboutTaskDialogs.CONFIRM)
                                                 }
-                                            }
-                                        )
+                                            )
+                                        }
                                     }
                                 }
                             }
-                        }
-                        1 -> {
-                            Column(
-                                modifier = Modifier.padding(10.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                AddChecklistMenu(
-                                    checklistInput = aboutTaskState.addChecklistState.description,
-                                    buttonEnabled = aboutTaskState.addChecklistState.buttonEnabled,
-                                    assigneesAdded = aboutTaskState.addChecklistState.assignees,
-                                    updateChecklistInput = {
-                                        updateAddChecklistState(
-                                            aboutTaskState.addChecklistState.copy(
-                                                description = it
+                            2 -> {
+                                Column(
+                                    modifier = Modifier.padding(10.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    AddSubtaskMenu(
+                                        windowInfo = windowInfo,
+                                        addSubtaskState = aboutTaskState.addSubtaskState,
+                                        onDescriptionChange = { updateAddSubtaskState(aboutTaskState.addSubtaskState.copy(description = it)) },
+                                        onOpenDueDialog = {
+                                            updateDateDialogState(
+                                                DateDialogState(
+                                                    selected = aboutTaskState.addSubtaskState.due,
+                                                    datePickerEnabled = false,
+                                                    timePickerEnabled = false,
+                                                    taskId = 0
+                                                )
                                             )
-                                        )
-                                    },
-                                    onUserClick = {
-                                        updateViewAssigneeDialogState(aboutTaskState.addChecklistState.assignees)
-                                        openDialog(AboutTaskDialogs.VIEW)
-                                    },
-                                    onPersonAddClick = {
-                                        updateSearchDialogState(
-                                            SearchUserDialogState(
-                                                aboutTaskState.addChecklistState.assignees,
-                                                0
+                                            openDialog(AboutTaskDialogs.SUB_ADD_DUE)
+                                        },
+                                        onOpenPriorityDialog = {
+                                            updateRadioDialogState(
+                                                RadioButtonDialogState(
+                                                    listOf("LOW", "NORMAL", "HIGH", "URGENT"),
+                                                    aboutTaskState.addSubtaskState.priority,
+                                                    0
+                                                )
                                             )
-                                        )
-                                        openDialog(AboutTaskDialogs.CHECKLIST_ASSIGNEE)
-                                    },
-                                    addChecklist = { addChecklist { updateAddChecklistState(aboutTaskState.addChecklistState.copy(description = "", assignees = emptyList())) } }
-                                )
-                                if (task.checklists.isNotEmpty()) {
-                                    OneLineText(
-                                        text = "CHECKLISTS",
-                                        style = MaterialTheme.typography.headlineSmall
+                                            openDialog(AboutTaskDialogs.SUB_ADD_PRIORITY)
+                                        },
+                                        onOpenTypeDialog = {
+                                            updateRadioDialogState(
+                                                RadioButtonDialogState(
+                                                    listOf("TASK", "MILESTONE"),
+                                                    aboutTaskState.addSubtaskState.type,
+                                                    0
+                                                )
+                                            )
+                                            openDialog(AboutTaskDialogs.SUB_ADD_TYPE)
+                                        },
+                                        onOpenAssigneeDialog = {
+                                            updateSearchDialogState(
+                                                SearchUserDialogState(
+                                                    aboutTaskState.addSubtaskState.assignees,
+                                                    0
+                                                )
+                                            )
+                                            openDialog(AboutTaskDialogs.SUB_ADD_ASSIGNEE)
+                                        },
+                                        onUserClick = {
+                                            updateViewAssigneeDialogState(aboutTaskState.addSubtaskState.assignees)
+                                            openDialog(AboutTaskDialogs.VIEW)
+                                        },
+                                        addSubtask = addSubtask
                                     )
-                                    task.checklists.forEachIndexed { idx, checklist ->
-                                        ChecklistBox(
-                                            checklist = checklist,
-                                            buttonEnabled = aboutTaskState.addChecklistState.buttonsEnabled[idx],
-                                            onChecklistChange = { id, check ->
-                                                if (checklist.assignees.any { it.id == preferences.id }) {
-                                                    toggleChecklist(idx, id, check) {
-                                                        updateTask(
-                                                            task.copy(
-                                                                checklists = task.checklists.map {
-                                                                    if (it.checklistId == id) it.copy(isChecked = check) else it
-                                                                }
+                                    if (task.subtasks.isNotEmpty()) {
+                                        OneLineText(
+                                            text = "SUBTASKS",
+                                            style = MaterialTheme.typography.headlineSmall
+                                        )
+                                        task.subtasks.forEach { subtask ->
+                                            SubtaskBox(
+                                                currentUserId = preferences.id,
+                                                windowInfo = windowInfo,
+                                                task = subtask,
+                                                navigateToProfile = navigateToProfile,
+                                                openViewDialog = {
+                                                    updateViewAssigneeDialogState(subtask.assignees)
+                                                    openDialog(AboutTaskDialogs.VIEW)
+                                                },
+                                                onDescriptionClick = {
+                                                    if (subtask.creator.id == preferences.id) {
+                                                        updateEditNameDialogState(
+                                                            EditNameDialogState(
+                                                                subtask.description,
+                                                                subtask.subtaskId
                                                             )
                                                         )
+                                                        openDialog(AboutTaskDialogs.SUB_EDIT_DESCRIPTION)
+                                                    } else {
+                                                        MiscUtils.toast(context, "Only subtask creator can edit description.")
                                                     }
-                                                } else {
-                                                    Toast.makeText(context, "Only checklist assignees can edit the checklist.", Toast.LENGTH_LONG).show()
-                                                }
-                                            },
-                                            openViewDialog = {
-                                                updateViewAssigneeDialogState(checklist.assignees)
-                                                openDialog(AboutTaskDialogs.VIEW)
-                                            },
-                                            navigateToProfile = navigateToProfile
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                        2 -> {
-                            Column(
-                                modifier = Modifier.padding(10.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                AddSubtaskMenu(
-                                    windowInfo = windowInfo,
-                                    addSubtaskState = aboutTaskState.addSubtaskState,
-                                    onDescriptionChange = { updateAddSubtaskState(aboutTaskState.addSubtaskState.copy(description = it)) },
-                                    onOpenDueDialog = {
-                                        updateDateDialogState(
-                                            DateDialogState(
-                                                selected = aboutTaskState.addSubtaskState.due,
-                                                datePickerEnabled = false,
-                                                timePickerEnabled = false,
-                                                taskId = 0
-                                            )
-                                        )
-                                        openDialog(AboutTaskDialogs.SUB_ADD_DUE)
-                                    },
-                                    onOpenPriorityDialog = {
-                                        updateRadioDialogState(
-                                            RadioButtonDialogState(
-                                                listOf("LOW", "NORMAL", "HIGH", "URGENT"),
-                                                aboutTaskState.addSubtaskState.priority,
-                                                0
-                                            )
-                                        )
-                                        openDialog(AboutTaskDialogs.SUB_ADD_PRIORITY)
-                                    },
-                                    onOpenTypeDialog = {
-                                        updateRadioDialogState(
-                                            RadioButtonDialogState(
-                                                listOf("TASK", "MILESTONE"),
-                                                aboutTaskState.addSubtaskState.type,
-                                                0
-                                            )
-                                        )
-                                        openDialog(AboutTaskDialogs.SUB_ADD_TYPE)
-                                    },
-                                    onOpenAssigneeDialog = {
-                                        updateSearchDialogState(
-                                            SearchUserDialogState(
-                                                aboutTaskState.addSubtaskState.assignees,
-                                                0
-                                            )
-                                        )
-                                        openDialog(AboutTaskDialogs.SUB_ADD_ASSIGNEE)
-                                    },
-                                    onUserClick = {
-                                        updateViewAssigneeDialogState(aboutTaskState.addSubtaskState.assignees)
-                                        openDialog(AboutTaskDialogs.VIEW)
-                                    },
-                                    addSubtask = { addSubtask { updateAddSubtaskState(AddSubtaskState()) } }
-                                )
-                                if (task.subtasks.isNotEmpty()) {
-                                    OneLineText(
-                                        text = "SUBTASKS",
-                                        style = MaterialTheme.typography.headlineSmall
-                                    )
-                                    task.subtasks.forEach { subtask ->
-                                        SubtaskBox(
-                                            windowInfo = windowInfo,
-                                            task = subtask,
-                                            navigateToProfile = navigateToProfile,
-                                            openViewDialog = {
-                                                updateViewAssigneeDialogState(subtask.assignees)
-                                                openDialog(AboutTaskDialogs.VIEW)
-                                            },
-                                            onDescriptionClick = {
-                                                if (subtask.creator.id == preferences.id) {
-                                                    updateEditNameDialogState(
-                                                        EditNameDialogState(
-                                                            subtask.description,
-                                                            subtask.subtaskId
+                                                },
+                                                onStatusClick = {
+                                                    if (subtask.assignees.any { it.id == preferences.id }) {
+                                                        updateRadioDialogState(
+                                                            RadioButtonDialogState(
+                                                                listOf("OPEN", "IN PROGRESS", "ON HOLD", "COMPLETE"),
+                                                                subtask.status,
+                                                                subtask.subtaskId
+                                                            )
+                                                        )
+                                                        openDialog(AboutTaskDialogs.SUB_EDIT_STATUS)
+                                                    } else {
+                                                        MiscUtils.toast(context, "Only subtask assignees can edit status.")
+                                                    }
+                                                },
+                                                onAssigneeClick = {
+                                                    if (subtask.creator.id == preferences.id) {
+                                                        updateSearchDialogState(
+                                                            SearchUserDialogState(
+                                                                subtask.assignees,
+                                                                subtask.subtaskId
+                                                            )
+                                                        )
+                                                        openDialog(AboutTaskDialogs.SUB_EDIT_ASSIGNEE)
+                                                    } else {
+                                                        MiscUtils.toast(context, "Only subtask creator can edit assignees.")
+                                                    }
+                                                },
+                                                onPriorityClick = {
+                                                    if (subtask.creator.id == preferences.id) {
+                                                        updateRadioDialogState(
+                                                            RadioButtonDialogState(
+                                                                listOf("LOW", "NORMAL", "HIGH", "URGENT"),
+                                                                subtask.priority,
+                                                                subtask.subtaskId
+                                                            )
+                                                        )
+                                                        openDialog(AboutTaskDialogs.SUB_EDIT_PRIORITY)
+                                                    } else {
+                                                        MiscUtils.toast(context, "Only subtask creator can edit priority.")
+                                                    }
+                                                },
+                                                onDueClick = {
+                                                    if (subtask.creator.id == preferences.id) {
+                                                        updateDateDialogState(
+                                                            DateDialogState(
+                                                                selected = subtask.due,
+                                                                datePickerEnabled = false,
+                                                                timePickerEnabled = false,
+                                                                taskId = subtask.subtaskId
+                                                            )
+                                                        )
+                                                        openDialog(AboutTaskDialogs.SUB_EDIT_DUE)
+                                                    } else {
+                                                        MiscUtils.toast(context, "Only subtask creator can edit due date.")
+                                                    }
+                                                },
+                                                onTypeClick = {
+                                                    if (subtask.creator.id == preferences.id) {
+                                                        updateRadioDialogState(
+                                                            RadioButtonDialogState(
+                                                                listOf("TASK", "MILESTONE"),
+                                                                subtask.type,
+                                                                subtask.subtaskId
+                                                            )
+                                                        )
+                                                        openDialog(AboutTaskDialogs.SUB_EDIT_TYPE)
+                                                    } else {
+                                                        MiscUtils.toast(context, "Only subtask creator can edit type.")
+                                                    }
+                                                },
+                                                onDeleteClick = { subtaskId ->
+                                                    updateConfirmDialogState(
+                                                        aboutTaskState.confirmDialogState.copy(
+                                                            id = subtaskId,
+                                                            placeholder = "subtask",
+                                                            onYesClick = { id ->
+                                                                removeDialog()
+                                                                deleteSubtask(id)
+                                                            },
+                                                            onCancelClick = removeDialog
                                                         )
                                                     )
-                                                    openDialog(AboutTaskDialogs.SUB_EDIT_DESCRIPTION)
-                                                } else {
-                                                    Toast.makeText(context, "Only subtask creator can edit description.", Toast.LENGTH_LONG).show()
+                                                    openDialog(AboutTaskDialogs.CONFIRM)
                                                 }
-                                            },
-                                            onStatusClick = {
-                                                if (subtask.assignees.any { it.id == preferences.id }) {
-                                                    updateRadioDialogState(
-                                                        RadioButtonDialogState(
-                                                            listOf("OPEN", "IN PROGRESS", "ON HOLD", "COMPLETE"),
-                                                            subtask.status,
-                                                            subtask.subtaskId
-                                                        )
-                                                    )
-                                                    openDialog(AboutTaskDialogs.SUB_EDIT_STATUS)
-                                                } else {
-                                                    Toast.makeText(context, "Only subtask assignees can edit status.", Toast.LENGTH_LONG).show()
-                                                }
-                                            },
-                                            onAssigneeClick = {
-                                                if (subtask.creator.id == preferences.id) {
-                                                    updateSearchDialogState(
-                                                        SearchUserDialogState(
-                                                            subtask.assignees,
-                                                            subtask.subtaskId
-                                                        )
-                                                    )
-                                                    openDialog(AboutTaskDialogs.SUB_EDIT_ASSIGNEE)
-                                                } else {
-                                                    Toast.makeText(context, "Only subtask creator can edit assignees.", Toast.LENGTH_LONG).show()
-                                                }
-                                            },
-                                            onPriorityClick = {
-                                                if (subtask.creator.id == preferences.id) {
-                                                    updateRadioDialogState(
-                                                        RadioButtonDialogState(
-                                                            listOf("LOW", "NORMAL", "HIGH", "URGENT"),
-                                                            subtask.priority,
-                                                            subtask.subtaskId
-                                                        )
-                                                    )
-                                                    openDialog(AboutTaskDialogs.SUB_EDIT_PRIORITY)
-                                                } else {
-                                                    Toast.makeText(context, "Only subtask creator can edit priority.", Toast.LENGTH_LONG).show()
-                                                }
-                                            },
-                                            onDueClick = {
-                                                if (subtask.creator.id == preferences.id) {
-                                                    updateDateDialogState(
-                                                        DateDialogState(
-                                                            selected = subtask.due,
-                                                            datePickerEnabled = false,
-                                                            timePickerEnabled = false,
-                                                            taskId = subtask.subtaskId
-                                                        )
-                                                    )
-                                                    openDialog(AboutTaskDialogs.SUB_EDIT_DUE)
-                                                } else {
-                                                    Toast.makeText(context, "Only subtask creator can edit due date.", Toast.LENGTH_LONG).show()
-                                                }
-                                            },
-                                            onTypeClick = {
-                                                if (subtask.creator.id == preferences.id) {
-                                                    updateRadioDialogState(
-                                                        RadioButtonDialogState(
-                                                            listOf("TASK", "MILESTONE"),
-                                                            subtask.type,
-                                                            subtask.subtaskId
-                                                        )
-                                                    )
-                                                    openDialog(AboutTaskDialogs.SUB_EDIT_TYPE)
-                                                } else {
-                                                    Toast.makeText(context, "Only subtask creator can edit type.", Toast.LENGTH_LONG).show()
-                                                }
-                                            }
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                        3 -> {
-                            Column(
-                                modifier = Modifier.padding(10.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                AddAttachmentMenu(
-                                    attachmentState = aboutTaskState.addAttachmentState,
-                                    onFilePicked = {
-                                        if (it != null) {
-                                            updateAddAttachmentState(
-                                                aboutTaskState.addAttachmentState.copy(fileUri = it)
                                             )
                                         }
-                                    },
-                                    onFileUpload = { uploadAttachment { updateAddAttachmentState(AddAttachmentState()) } },
-                                    context = context
-                                )
-                                if (task.attachments.isNotEmpty()) {
-                                    OneLineText(
-                                        text = "ATTACHMENTS",
-                                        style = MaterialTheme.typography.headlineSmall
+                                    }
+                                }
+                            }
+                            3 -> {
+                                Column(
+                                    modifier = Modifier.padding(10.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    AddAttachmentMenu(
+                                        attachmentState = aboutTaskState.addAttachmentState,
+                                        onFilePicked = {
+                                            if (it != null) {
+                                                updateAddAttachmentState(
+                                                    aboutTaskState.addAttachmentState.copy(fileUri = it)
+                                                )
+                                            }
+                                        },
+                                        onFileUpload = uploadAttachment,
+                                        context = context
                                     )
-                                    task.attachments.forEach { attachment ->
-                                        AttachmentBox(
-                                            attachment = attachment,
-                                            onUserClick = navigateToProfile,
-                                            onDownload = { downloadAttachment(attachment.fileName, attachment.attachmentPath) }
+                                    if (task.attachments.isNotEmpty()) {
+                                        OneLineText(
+                                            text = "ATTACHMENTS",
+                                            style = MaterialTheme.typography.headlineSmall
                                         )
+                                        task.attachments.forEach { attachment ->
+                                            AttachmentBox(
+                                                currentUserId = preferences.id,
+                                                attachment = attachment,
+                                                onUserClick = navigateToProfile,
+                                                onDownload = {
+                                                    downloadAttachment(attachment.fileName, attachment.attachmentPath)
+                                                },
+                                                onDeleteClick = { attachmentId ->
+                                                    updateConfirmDialogState(
+                                                        aboutTaskState.confirmDialogState.copy(
+                                                            id = attachmentId,
+                                                            placeholder = "attachment",
+                                                            onYesClick = { id ->
+                                                                removeDialog()
+                                                                deleteAttachment(id)
+                                                            },
+                                                            onCancelClick = removeDialog
+                                                        )
+                                                    )
+                                                    openDialog(AboutTaskDialogs.CONFIRM)
+                                                }
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -880,7 +978,7 @@ fun AboutTask(
                             onUserClick = navigateToProfile,
                             onDismissRequest = removeDialog,
                             onApplyClick = { taskId, assignees ->
-                                changeAssignee(taskId, assignees.map { it.id }) {
+                                changeAssignee(taskId, assignees) {
                                     updateTask(task.copy(assignees = assignees))
                                 }
                             },
@@ -967,6 +1065,17 @@ fun AboutTask(
                             onTextChange = editTextDialog
                         )
                     }
+                    AboutTaskDialogs.COMMENT_MENTIONS -> {
+                        EditAssigneeDialog(
+                            taskAssignees = task.assignees,
+                            searchUserDialogState = dialogsState.searchUserDialogState,
+                            onUserAdd = onUserAdd,
+                            onUserRemove = onUserRemove,
+                            onUserClick = navigateToProfile,
+                            onDismissRequest = removeDialog,
+                            onApplyClick = { _, mentions -> updateAddCommentState(aboutTaskState.addCommentState.copy(mentions = mentions)) }
+                        )
+                    }
                     AboutTaskDialogs.CHECKLIST_ASSIGNEE -> {
                         EditAssigneeDialog(
                             taskAssignees = task.assignees,
@@ -1023,17 +1132,7 @@ fun AboutTask(
                             text = "Description",
                             editNameDialogState = dialogsState.editNameDialogState,
                             onDismissRequest = removeDialog,
-                            onApplyClick = { taskId, description ->
-                                changeSubtaskDescription(taskId, description) {
-                                    updateTask(
-                                        task.copy(
-                                            subtasks = task.subtasks.map {
-                                                if (it.subtaskId == taskId) it.copy(description = description) else it
-                                            }
-                                        )
-                                    )
-                                }
-                            },
+                            onApplyClick = changeSubtaskDescription,
                             onTextChange = editTextDialog
                         )
                     }
@@ -1041,17 +1140,7 @@ fun AboutTask(
                         RadioButtonDialog(
                             text = "Status",
                             radioButtonDialogState = dialogsState.radioButtonDialogState,
-                            onApplyClick = { taskId, status ->
-                                changeSubtaskStatus(taskId, status) {
-                                    updateTask(
-                                        task.copy(
-                                            subtasks = task.subtasks.map {
-                                                if (it.subtaskId == taskId) it.copy(status = status) else it
-                                            }
-                                        )
-                                    )
-                                }
-                            },
+                            onApplyClick = changeSubtaskStatus,
                             onDismissRequest = removeDialog,
                             onRadioSelect = radioSelect
                         )
@@ -1064,34 +1153,14 @@ fun AboutTask(
                             onUserRemove = onUserRemove,
                             onUserClick = navigateToProfile,
                             onDismissRequest = removeDialog,
-                            onApplyClick = { taskId, assignee ->
-                                editSubtaskAssignees(taskId, assignee.map { it.id }) {
-                                    updateTask(
-                                        task.copy(
-                                            subtasks = task.subtasks.map {
-                                                if (it.subtaskId == taskId) it.copy(assignees = assignee) else it
-                                            }
-                                        )
-                                    )
-                                }
-                            }
+                            onApplyClick = editSubtaskAssignees
                         )
                     }
                     AboutTaskDialogs.SUB_EDIT_PRIORITY -> {
                         RadioButtonDialog(
                             text = "Priority",
                             radioButtonDialogState = dialogsState.radioButtonDialogState,
-                            onApplyClick = { taskId, priority ->
-                                changeSubtaskPriority(taskId, priority) {
-                                    updateTask(
-                                        task.copy(
-                                            subtasks = task.subtasks.map {
-                                                if (it.subtaskId == taskId) it.copy(priority = priority) else it
-                                            }
-                                        )
-                                    )
-                                }
-                            },
+                            onApplyClick = changeSubtaskPriority,
                             onDismissRequest = removeDialog,
                             onRadioSelect = radioSelect
                         )
@@ -1101,17 +1170,7 @@ fun AboutTask(
                             text = "Due Date",
                             dateDialogState = dialogsState.dateDialogState,
                             onDismissRequest = removeDialog,
-                            onApplyClick = { taskId, due ->
-                                changeSubtaskDueDate(taskId, due) {
-                                    updateTask(
-                                        task.copy(
-                                            subtasks = task.subtasks.map {
-                                                if (it.subtaskId == taskId) it.copy(due = due) else it
-                                            }
-                                        )
-                                    )
-                                }
-                            },
+                            onApplyClick = changeSubtaskDueDate,
                             datePicker = updateDatePicker,
                             timePicker = updateTimePicker,
                             selected = selectDateTime
@@ -1121,27 +1180,24 @@ fun AboutTask(
                         RadioButtonDialog(
                             text = "Type",
                             radioButtonDialogState = dialogsState.radioButtonDialogState,
-                            onApplyClick = { taskId, type ->
-                                changeSubtaskType(taskId, type) {
-                                    updateTask(
-                                        task.copy(
-                                            subtasks = task.subtasks.map {
-                                                if (it.subtaskId == taskId) it.copy(type = type) else it
-                                            }
-                                        )
-                                    )
-                                }
-                            },
+                            onApplyClick = changeSubtaskType,
                             onDismissRequest = removeDialog,
                             onRadioSelect = radioSelect
                         )
                     }
-
                     AboutTaskDialogs.VIEW -> {
                         ViewAssigneeDialog(
                             assignees = dialogsState.viewAssigneeDialogState,
                             onUserClick = navigateToProfile,
                             onDismissRequest = removeDialog
+                        )
+                    }
+                    AboutTaskDialogs.CONFIRM -> {
+                        ConfirmDialog(
+                            id = aboutTaskState.confirmDialogState.id,
+                            placeholder = aboutTaskState.confirmDialogState.placeholder,
+                            onYesClick = aboutTaskState.confirmDialogState.onYesClick,
+                            onCancelClick = aboutTaskState.confirmDialogState.onCancelClick
                         )
                     }
                 }
@@ -1157,12 +1213,12 @@ fun AboutTaskPrev() {
         AboutTask(
             windowInfo = RememberWindowInfo(),
             aboutTaskDialogs = AboutTaskDialogs.NONE,
-            preferences = Preferences(),
+            preferences = Preferences(id = 2),
             navController = rememberNavController(),
             paddingValues = PaddingValues(0.dp),
             context = LocalContext.current,
             process = ProcessState.Success,
-            task = Task(),
+            task = TaskState(),
             dialogsState = DialogsState(
                 EditNameDialogState(),
                 SearchUserDialogState(),
@@ -1172,11 +1228,11 @@ fun AboutTaskPrev() {
                 emptyList()
             ),
             aboutTaskState = AboutTaskState(),
-            updateTabIdx = {},
             updateAddCommentState = {},
             updateAddChecklistState = {},
             updateAddSubtaskState = {},
             updateAddAttachmentState = {},
+            updateConfirmDialogState = {},
             updateDialogState = {},
             updateTask = {},
             updateRadioDialogState = {},
@@ -1193,19 +1249,25 @@ fun AboutTaskPrev() {
             changeStatus = { _, _, _ -> },
             changeType = { _, _, _ -> },
             changeDescription = { _, _, _ -> },
-            sendComment = { _ -> },
-            addChecklist = { _ -> },
-            addSubtask = { _ -> },
-            uploadAttachment = { _ -> },
-            changeSubtaskDescription = { _, _, _ -> },
-            changeSubtaskPriority = { _, _, _ -> },
-            changeSubtaskDueDate = { _, _, _ -> },
-            changeSubtaskStatus = { _, _, _ -> },
-            changeSubtaskType = { _, _, _ -> },
-            editSubtaskAssignees = { _, _, _ -> },
-            toggleChecklist = { _, _, _, _ -> },
-            likeComment = { _, _, _ -> },
-            downloadAttachment = { _, _ -> }
+            sendComment = {},
+            addChecklist = {},
+            addSubtask = {},
+            uploadAttachment = {},
+            changeSubtaskDescription = { _, _ -> },
+            changeSubtaskPriority = { _, _ -> },
+            changeSubtaskDueDate = { _, _ -> },
+            changeSubtaskStatus = { _, _ -> },
+            changeSubtaskType = { _, _ -> },
+            editSubtaskAssignees = { _, _ -> },
+            toggleChecklist = { _, _ -> },
+            likeComment = { _, _ -> },
+            downloadAttachment = { _, _ -> },
+            refreshTaskInfo = {},
+            deleteTask = { _, _ -> },
+            deleteComment = {},
+            deleteSubtask = {},
+            deleteChecklist = {},
+            deleteAttachment = {}
         )
     }
 }

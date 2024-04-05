@@ -1,28 +1,34 @@
 package com.serrano.dictproject.viewmodel
 
 import android.app.Application
-import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.serrano.dictproject.api.ApiRepository
 import com.serrano.dictproject.datastore.PreferencesRepository
+import com.serrano.dictproject.room.Dao
+import com.serrano.dictproject.room.toEntity
+import com.serrano.dictproject.utils.FileUtils
 import com.serrano.dictproject.utils.MessageBody
+import com.serrano.dictproject.utils.MiscUtils
 import com.serrano.dictproject.utils.Resource
 import com.serrano.dictproject.utils.SendMessageDialogs
 import com.serrano.dictproject.utils.SendMessageState
-import com.serrano.dictproject.utils.User
-import com.serrano.dictproject.utils.Utils
+import com.serrano.dictproject.utils.Tags
+import com.serrano.dictproject.utils.UserDTO
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import javax.inject.Inject
 
 @HiltViewModel
 class SendMessageViewModel @Inject constructor(
     private val apiRepository: ApiRepository,
     private val preferencesRepository: PreferencesRepository,
+    private val dao: Dao,
     application: Application
 ): AndroidViewModel(application) {
 
@@ -45,12 +51,17 @@ class SendMessageViewModel @Inject constructor(
             try {
                 updateSendMessageState(_sendMessageState.value.copy(buttonEnabled = false))
 
-                Utils.checkAuthentication(getApplication(), preferencesRepository, apiRepository)
-
                 if (_sendMessageState.value.receiver != null) {
+                    val files = _sendMessageState.value.fileUris.map { FileUtils.getFileFromUri(getApplication(), it) }
+
+                    MiscUtils.checkAuthentication(getApplication(), preferencesRepository, apiRepository)
+
                     when (
                         val response = apiRepository.messageUser(
-                            MessageBody(
+                            file = files.map { file ->
+                                MultipartBody.Part.createFormData("file", file.name, file.asRequestBody())
+                            },
+                            messageBody = MessageBody(
                                 _sendMessageState.value.receiver!!.id,
                                 _sendMessageState.value.title,
                                 _sendMessageState.value.description
@@ -58,8 +69,17 @@ class SendMessageViewModel @Inject constructor(
                         )
                     ) {
                         is Resource.Success -> {
-                            Toast.makeText(getApplication(), "Message Sent Successfully!", Toast.LENGTH_LONG).show()
+                            MiscUtils.toast(getApplication(), "Message Sent Successfully!")
+
                             updateSendMessageState(_sendMessageState.value.copy(buttonEnabled = true))
+
+                            // save the sent message in local storage
+                            val message = response.data!!
+                            dao.inboxInsertMessages(
+                                listOf(message.toEntity(Tags.SENT_MESSAGE)),
+                                setOf(message.other.toEntity())
+                            )
+
                             navigate()
                         }
                         is Resource.ClientError -> {
@@ -87,6 +107,10 @@ class SendMessageViewModel @Inject constructor(
                             )
                         }
                     }
+
+                    files.forEach { file ->
+                        if (file.exists()) file.delete()
+                    }
                 } else {
                     updateSendMessageState(
                         _sendMessageState.value.copy(
@@ -101,28 +125,15 @@ class SendMessageViewModel @Inject constructor(
         }
     }
 
-    fun searchUser(searchQuery: String, onSuccess: (List<User>) -> Unit) {
+    fun searchUser(searchQuery: String, onSuccess: (List<UserDTO>) -> Unit) {
         viewModelScope.launch {
-            try {
-                Utils.checkAuthentication(getApplication(), preferencesRepository, apiRepository)
-
-                when (val response = apiRepository.searchUsers(searchQuery)) {
-                    is Resource.Success -> {
-                        onSuccess(response.data!!)
-                    }
-                    is Resource.ClientError -> {
-                        Toast.makeText(getApplication(), response.clientError?.message, Toast.LENGTH_LONG).show()
-                    }
-                    is Resource.GenericError -> {
-                        Toast.makeText(getApplication(), response.genericError, Toast.LENGTH_LONG).show()
-                    }
-                    is Resource.ServerError -> {
-                        Toast.makeText(getApplication(), response.serverError?.error, Toast.LENGTH_LONG).show()
-                    }
-                }
-            } catch (e: Exception) {
-                Toast.makeText(getApplication(), e.message, Toast.LENGTH_LONG).show()
-            }
+            MiscUtils.apiAddWrapper(
+                response = apiRepository.searchUsers(searchQuery),
+                onSuccess = onSuccess,
+                context = getApplication(),
+                preferencesRepository = preferencesRepository,
+                apiRepository = apiRepository
+            )
         }
     }
 }

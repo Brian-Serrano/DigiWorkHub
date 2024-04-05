@@ -71,7 +71,7 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
     // Dagger Hilt
-    implementation("com.google.dagger:hilt-android:2.48.1")
+    implementation("com.google.dagger:hilt-android:2.49")
     ksp("com.google.dagger:hilt-android-compiler:2.48.1")
     ksp("androidx.hilt:hilt-compiler:1.2.0")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
@@ -92,8 +92,14 @@ dependencies {
     implementation("com.auth0:java-jwt:4.2.1")
 
     // Compose
-    implementation("androidx.compose.material:material-icons-extended:1.6.3")
+    implementation("androidx.compose.material:material-icons-extended:1.6.4")
+    implementation("com.google.accompanist:accompanist-swiperefresh:0.27.0")
 
-    // Splash API
-    implementation("androidx.core:core-splashscreen:1.0.1")
+    // Room
+    implementation("androidx.room:room-runtime:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+    annotationProcessor("androidx.room:room-compiler:2.6.1")
+    ksp("androidx.room:room-compiler:2.6.1")
+
+    implementation("io.coil-kt:coil-compose:2.6.0")
 }

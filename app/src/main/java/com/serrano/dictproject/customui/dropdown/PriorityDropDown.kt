@@ -21,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.serrano.dictproject.customui.OneLineText
+import com.serrano.dictproject.customui.text.OneLineText
 
 @Composable
 fun PriorityDropDown(

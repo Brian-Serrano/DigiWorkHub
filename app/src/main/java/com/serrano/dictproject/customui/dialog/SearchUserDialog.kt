@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Icon
@@ -25,13 +26,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.serrano.dictproject.customui.CustomButton
 import com.serrano.dictproject.customui.CustomSearchBar
-import com.serrano.dictproject.customui.OneLineText
+import com.serrano.dictproject.customui.button.CustomButton
+import com.serrano.dictproject.customui.text.OneLineText
+import com.serrano.dictproject.utils.FileUtils
 import com.serrano.dictproject.utils.SearchState
 import com.serrano.dictproject.utils.SearchUserDialogState
-import com.serrano.dictproject.utils.User
-import com.serrano.dictproject.utils.Utils
+import com.serrano.dictproject.utils.UserDTO
 
 @Composable
 fun SearchUserDialog(
@@ -40,80 +41,84 @@ fun SearchUserDialog(
     searchState: SearchState,
     onUserClick: (Int) -> Unit,
     onDismissRequest: () -> Unit,
-    onApplyClick: (Int, List<User>) -> Unit,
+    onApplyClick: (Int, List<UserDTO>) -> Unit,
     onSearch: (String) -> Unit,
     onQueryChange: (String) -> Unit,
     onActiveChange: (Boolean) -> Unit,
     onTrailingIconClick: () -> Unit,
-    onUserAdd: (User) -> Unit,
-    onUserRemove: (User) -> Unit
+    onUserAdd: (UserDTO) -> Unit,
+    onUserRemove: (UserDTO) -> Unit
 ) {
     Box(modifier = Modifier
         .fillMaxSize()
         .background(Color(0x55000000)))
     Dialog(onDismissRequest = onDismissRequest) {
-        Column(
-            modifier = Modifier
-                .width(300.dp)
-                .height(500.dp)
-                .clip(MaterialTheme.shapes.extraSmall)
-                .background(MaterialTheme.colorScheme.secondaryContainer)
-                .padding(10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            OneLineText(
-                text = "Edit $text",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-            LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                items(searchUserDialogState.users) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(onClick = { onUserClick(it.id) }) {
-                            Icon(
-                                bitmap = Utils.encodedStringToImage(it.image),
-                                contentDescription = null,
-                                tint = Color.Unspecified
-                            )
-                        }
-                        OneLineText(text = it.name, modifier = Modifier.fillMaxWidth().weight(1f))
-                        IconButton(onClick = { onUserRemove(it) }) {
-                            Icon(
-                                imageVector = Icons.Filled.Remove,
-                                contentDescription = null,
-                                tint = Color.Red
-                            )
+        SelectionContainer {
+            Column(
+                modifier = Modifier
+                    .width(300.dp)
+                    .height(500.dp)
+                    .clip(MaterialTheme.shapes.extraSmall)
+                    .background(MaterialTheme.colorScheme.secondaryContainer)
+                    .padding(10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                OneLineText(
+                    text = "Edit $text",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                    items(searchUserDialogState.users) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            IconButton(onClick = { onUserClick(it.id) }) {
+                                Icon(
+                                    bitmap = FileUtils.encodedStringToImage(it.image),
+                                    contentDescription = null,
+                                    tint = Color.Unspecified
+                                )
+                            }
+                            OneLineText(text = it.name, modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f))
+                            IconButton(onClick = { onUserRemove(it) }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Remove,
+                                    contentDescription = null,
+                                    tint = Color.Red
+                                )
+                            }
                         }
                     }
                 }
-            }
-            CustomSearchBar(
-                placeHolder = "Search User",
-                searchState = searchState,
-                searchUserDialogState = searchUserDialogState,
-                onUserClick = onUserClick,
-                onQueryChange = onQueryChange,
-                onSearch = onSearch,
-                onActiveChange = onActiveChange,
-                onTrailingIconClick = onTrailingIconClick,
-                onUserAdd = onUserAdd
-            )
-            Row {
-                CustomButton(
-                    text = "APPLY",
-                    onClick = {
-                        onApplyClick(searchUserDialogState.taskId, searchUserDialogState.users)
-                        onDismissRequest()
-                    }
+                CustomSearchBar(
+                    placeHolder = "Search User",
+                    searchState = searchState,
+                    searchUserDialogState = searchUserDialogState,
+                    onUserClick = onUserClick,
+                    onQueryChange = onQueryChange,
+                    onSearch = onSearch,
+                    onActiveChange = onActiveChange,
+                    onTrailingIconClick = onTrailingIconClick,
+                    onUserAdd = onUserAdd
                 )
-                CustomButton(
-                    text = "CANCEL",
-                    onClick = onDismissRequest
-                )
+                Row {
+                    CustomButton(
+                        text = "APPLY",
+                        onClick = {
+                            onApplyClick(searchUserDialogState.taskId, searchUserDialogState.users)
+                            onDismissRequest()
+                        }
+                    )
+                    CustomButton(
+                        text = "CANCEL",
+                        onClick = onDismissRequest
+                    )
+                }
             }
         }
     }

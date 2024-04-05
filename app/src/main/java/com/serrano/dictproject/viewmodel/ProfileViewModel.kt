@@ -1,24 +1,28 @@
 package com.serrano.dictproject.viewmodel
 
 import android.app.Application
-import android.widget.Toast
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.serrano.dictproject.api.ApiRepository
 import com.serrano.dictproject.datastore.PreferencesRepository
+import com.serrano.dictproject.room.Dao
+import com.serrano.dictproject.room.toDTO
+import com.serrano.dictproject.room.toEntity
+import com.serrano.dictproject.utils.FileUtils
+import com.serrano.dictproject.utils.MiscUtils
 import com.serrano.dictproject.utils.ProcessState
-import com.serrano.dictproject.utils.ProfileData
+import com.serrano.dictproject.utils.ProfileDataDTO
 import com.serrano.dictproject.utils.ProfileDialogs
 import com.serrano.dictproject.utils.ProfileState
 import com.serrano.dictproject.utils.Resource
 import com.serrano.dictproject.utils.UserNameChange
 import com.serrano.dictproject.utils.UserRoleChange
-import com.serrano.dictproject.utils.Utils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -29,11 +33,12 @@ import javax.inject.Inject
 class ProfileViewModel @Inject constructor(
     private val apiRepository: ApiRepository,
     private val preferencesRepository: PreferencesRepository,
+    private val dao: Dao,
     application: Application
 ): AndroidViewModel(application) {
 
-    private val _user = MutableStateFlow(ProfileData())
-    val user: StateFlow<ProfileData> = _user.asStateFlow()
+    private val _user = MutableStateFlow(ProfileDataDTO())
+    val user: StateFlow<ProfileDataDTO> = _user.asStateFlow()
 
     private val _processState = MutableStateFlow<ProcessState>(ProcessState.Loading)
     val processState: StateFlow<ProcessState> = _processState.asStateFlow()
@@ -47,22 +52,34 @@ class ProfileViewModel @Inject constructor(
     fun getUser(userId: Int) {
         viewModelScope.launch {
             try {
-                Utils.checkAuthentication(getApplication(), preferencesRepository, apiRepository)
+                val localUser = dao.getProfileData(userId).first()
 
-                when (val user = apiRepository.getUser(userId)) {
-                    is Resource.Success -> {
-                        _user.value = user.data!!
-                        _processState.value = ProcessState.Success
+                if (localUser == null) {
+                    MiscUtils.checkAuthentication(getApplication(), preferencesRepository, apiRepository)
+
+                    when (val user = apiRepository.getUser(userId)) {
+                        is Resource.Success -> {
+                            _user.value = user.data!!
+
+                            // save fetched data locally
+                            dao.insertProfile(user.data.toEntity())
+
+                            _processState.value = ProcessState.Success
+                        }
+                        is Resource.ClientError -> {
+                            _processState.value = ProcessState.Error(user.clientError?.message ?: "")
+                        }
+                        is Resource.GenericError -> {
+                            _processState.value = ProcessState.Error(user.genericError ?: "")
+                        }
+                        is Resource.ServerError -> {
+                            _processState.value = ProcessState.Error(user.serverError?.error ?: "")
+                        }
                     }
-                    is Resource.ClientError -> {
-                        _processState.value = ProcessState.Error(user.clientError?.message ?: "")
-                    }
-                    is Resource.GenericError -> {
-                        _processState.value = ProcessState.Error(user.genericError ?: "")
-                    }
-                    is Resource.ServerError -> {
-                        _processState.value = ProcessState.Error(user.serverError?.error ?: "")
-                    }
+                } else {
+                    _user.value = localUser.toDTO()
+
+                    _processState.value = ProcessState.Success
                 }
             } catch (e: Exception) {
                 _processState.value = ProcessState.Error(e.message ?: "")
@@ -70,98 +87,101 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    fun changeUserName(name: String, onSuccess: () -> Unit) {
-        viewModelScope.launch {
-            try {
-                Utils.checkAuthentication(getApplication(), preferencesRepository, apiRepository)
+    fun refreshUser(userId: Int) {
+        viewModelScope.launch { 
+            updateProfileState(_profileState.value.copy(isRefreshing = true))
 
-                Toast.makeText(
-                    getApplication(),
-                    when (val response = apiRepository.changeUserName(UserNameChange(name))) {
-                        is Resource.Success -> {
-                            onSuccess()
-                            response.data?.message
-                        }
-                        is Resource.ClientError -> response.clientError?.message
-                        is Resource.GenericError -> response.genericError
-                        is Resource.ServerError -> response.serverError?.error
-                    },
-                    Toast.LENGTH_LONG
-                ).show()
-            } catch (e: Exception) {
-                Toast.makeText(getApplication(), e.message, Toast.LENGTH_LONG).show()
-            }
+            MiscUtils.apiAddWrapper(
+                response = apiRepository.getUser(userId),
+                onSuccess = { user ->
+                    _user.value = user
+
+                    // delete the previously save data
+                    dao.deleteProfileData(userId)
+
+                    // save fetched data locally
+                    dao.insertProfile(user.toEntity())
+
+                    MiscUtils.toast(getApplication(), "User loaded successfully.")
+
+                    _processState.value = ProcessState.Success
+                },
+                context = getApplication(),
+                preferencesRepository = preferencesRepository,
+                apiRepository = apiRepository
+            )
+
+            updateProfileState(_profileState.value.copy(isRefreshing = false))
         }
     }
 
-    fun changeUserRole(role: String, onSuccess: () -> Unit) {
+    fun changeUserName(name: String) {
         viewModelScope.launch {
-            try {
-                Utils.checkAuthentication(getApplication(), preferencesRepository, apiRepository)
+            MiscUtils.apiEditWrapper(
+                response = apiRepository.changeUserName(UserNameChange(name)),
+                onSuccess = {
+                    // update ui with the changed name
+                    updateUser(_user.value.copy(name = name))
 
-                Toast.makeText(
-                    getApplication(),
-                    when (val response = apiRepository.changeUserRole(UserRoleChange(role))) {
-                        is Resource.Success -> {
-                            onSuccess()
-                            response.data?.message
-                        }
-                        is Resource.ClientError -> response.clientError?.message
-                        is Resource.GenericError -> response.genericError
-                        is Resource.ServerError -> response.serverError?.error
-                    },
-                    Toast.LENGTH_LONG
-                ).show()
-            } catch (e: Exception) {
-                Toast.makeText(getApplication(), e.message, Toast.LENGTH_LONG).show()
-            }
+                    // change the name in the preferences
+                    preferencesRepository.changeName(name)
+
+                    // change the name in local storage
+                    dao.updateUserName(name, preferencesRepository.getData().first().id)
+                },
+                context = getApplication(),
+                preferencesRepository = preferencesRepository,
+                apiRepository = apiRepository
+            )
         }
     }
 
-    fun uploadImage(image: ImageBitmap, onSuccess: () -> Unit) {
+    fun changeUserRole(role: String) {
         viewModelScope.launch {
-            try {
-                val imageFile = Utils.bitmapToFile(image, getApplication())
-                val imagePart = MultipartBody.Part.createFormData("file", imageFile.name, imageFile.asRequestBody("images/*".toMediaTypeOrNull()))
+            MiscUtils.apiEditWrapper(
+                response = apiRepository.changeUserRole(UserRoleChange(role)),
+                onSuccess = {
+                    // update ui with the changed role
+                    updateUser(_user.value.copy(role = role))
 
-                Utils.checkAuthentication(getApplication(), preferencesRepository, apiRepository)
-
-                Toast.makeText(
-                    getApplication(),
-                    when (val response = apiRepository.uploadImage(imagePart)) {
-                        is Resource.Success -> {
-                            onSuccess()
-                            response.data?.message
-                        }
-                        is Resource.ClientError -> response.clientError?.message
-                        is Resource.GenericError -> response.genericError
-                        is Resource.ServerError -> response.serverError?.error
-                    },
-                    Toast.LENGTH_LONG
-                ).show()
-            } catch (e: Exception) {
-                Toast.makeText(getApplication(), e.message, Toast.LENGTH_LONG).show()
-            }
+                    // change the role in local storage
+                    dao.updateUserRole(role, preferencesRepository.getData().first().id)
+                },
+                context = getApplication(),
+                preferencesRepository = preferencesRepository,
+                apiRepository = apiRepository
+            )
         }
     }
 
-    fun changePreferencesName(name: String) {
+    fun uploadImage(image: ImageBitmap) {
         viewModelScope.launch {
-            try {
-                preferencesRepository.changeName(name)
-            } catch (e: Exception) {
-                Toast.makeText(getApplication(), e.message, Toast.LENGTH_LONG).show()
-            }
-        }
-    }
+            val imageFile = FileUtils.bitmapToFile(image, getApplication())
+            val imagePart = MultipartBody.Part.createFormData(
+                "file",
+                imageFile.name,
+                imageFile.asRequestBody("images/*".toMediaTypeOrNull())
+            )
 
-    fun changePreferencesImage(image: String) {
-        viewModelScope.launch {
-            try {
-                preferencesRepository.changeImage(image)
-            } catch (e: Exception) {
-                Toast.makeText(getApplication(), e.message, Toast.LENGTH_LONG).show()
-            }
+            MiscUtils.apiEditWrapper(
+                response = apiRepository.uploadImage(imagePart),
+                onSuccess = {
+                    // update ui with the changed role
+                    val encodedString = FileUtils.imageToEncodedString(image)
+                    updateUser(_user.value.copy(image = encodedString))
+
+                    // change the image in the preferences
+                    preferencesRepository.changeImage(encodedString)
+
+                    // change the image in local storage
+                    dao.updateUserImage(encodedString, preferencesRepository.getData().first().id)
+                },
+                context = getApplication(),
+                preferencesRepository = preferencesRepository,
+                apiRepository = apiRepository
+            )
+
+            if (imageFile.exists()) imageFile.delete()
         }
     }
 
@@ -169,7 +189,7 @@ class ProfileViewModel @Inject constructor(
         _profileState.value = newState
     }
 
-    fun updateUser(newUser: ProfileData) {
+    private fun updateUser(newUser: ProfileDataDTO) {
         _user.value = newUser
     }
 

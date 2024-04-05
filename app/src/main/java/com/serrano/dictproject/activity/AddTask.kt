@@ -23,27 +23,29 @@ import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.serrano.dictproject.customui.CustomButton
-import com.serrano.dictproject.customui.OneLineText
 import com.serrano.dictproject.customui.RememberWindowInfo
 import com.serrano.dictproject.customui.WindowInfo
+import com.serrano.dictproject.customui.button.CustomButton
 import com.serrano.dictproject.customui.dialog.DateTimePickerDialog
 import com.serrano.dictproject.customui.dialog.EditNameDialog
 import com.serrano.dictproject.customui.dialog.RadioButtonDialog
 import com.serrano.dictproject.customui.dialog.SearchUserDialog
 import com.serrano.dictproject.customui.dialog.ViewAssigneeDialog
 import com.serrano.dictproject.customui.dropdown.CustomDropDown2
+import com.serrano.dictproject.customui.text.OneLineText
 import com.serrano.dictproject.ui.theme.DICTProjectTheme
 import com.serrano.dictproject.utils.AddTaskDialogs
 import com.serrano.dictproject.utils.AddTaskState
 import com.serrano.dictproject.utils.DateDialogState
+import com.serrano.dictproject.utils.DateUtils
 import com.serrano.dictproject.utils.DialogsState
 import com.serrano.dictproject.utils.EditNameDialogState
+import com.serrano.dictproject.utils.FileUtils
 import com.serrano.dictproject.utils.RadioButtonDialogState
+import com.serrano.dictproject.utils.Routes
 import com.serrano.dictproject.utils.SearchState
 import com.serrano.dictproject.utils.SearchUserDialogState
-import com.serrano.dictproject.utils.User
-import com.serrano.dictproject.utils.Utils
+import com.serrano.dictproject.utils.UserDTO
 
 @Composable
 fun AddTask(
@@ -58,10 +60,10 @@ fun AddTask(
     updateEditNameDialogState: (EditNameDialogState) -> Unit,
     updateDateDialogState: (DateDialogState) -> Unit,
     updateSearchDialogState: (SearchUserDialogState) -> Unit,
-    updateViewAssigneeDialogState: (List<User>) -> Unit,
+    updateViewAssigneeDialogState: (List<UserDTO>) -> Unit,
     updateTaskState: (AddTaskState) -> Unit,
     updateSearchState: (SearchState) -> Unit,
-    searchUser: (String, (List<User>) -> Unit) -> Unit,
+    searchUser: (String, (List<UserDTO>) -> Unit) -> Unit,
     addTask: (() -> Unit) -> Unit
 ) {
 
@@ -148,7 +150,7 @@ fun AddTask(
     val dueComposable: @Composable RowScope.() -> Unit = {
         CustomDropDown2(
             text = "DUE DATE",
-            selected = Utils.dateTimeToDateTimeString(addTaskState.due),
+            selected = DateUtils.dateTimeToDateTimeString(addTaskState.due),
             onArrowClick = {
                 updateDateDialogState(
                     DateDialogState(
@@ -199,7 +201,7 @@ fun AddTask(
                     }
                 ) {
                     Icon(
-                        bitmap = Utils.encodedStringToImage(it.image),
+                        bitmap = FileUtils.encodedStringToImage(it.image),
                         contentDescription = null,
                         tint = Color.Unspecified
                     )
@@ -210,8 +212,19 @@ fun AddTask(
     val buttonComposable: @Composable RowScope.() -> Unit = {
         CustomButton(
             text = "ADD TASK",
-            onClick = { addTask { navController.navigate("Dashboard") } },
+            onClick = { addTask { navController.navigate(Routes.DASHBOARD) } },
             enabled = addTaskState.buttonEnabled,
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .padding(5.dp)
+        )
+    }
+
+    val backButtonComposable: @Composable RowScope.() -> Unit = {
+        CustomButton(
+            text = "DASHBOARD",
+            onClick = { navController.navigate(Routes.DASHBOARD) },
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
@@ -245,20 +258,23 @@ fun AddTask(
             )
             when (windowInfo.screenWidthInfo) {
                 is WindowInfo.WindowType.Compact -> {
-                    r { nameComposable() }
-                    r { descriptionComposable() }
+                    r(nameComposable)
+                    r(descriptionComposable)
                     r {
                         priorityComposable()
                         typeComposable()
                     }
-                    r { dueComposable() }
-                    r { assigneesComposable() }
-                    r { assigneesIconComposable() }
-                    r { buttonComposable() }
+                    r(dueComposable)
+                    r(assigneesComposable)
+                    r(assigneesIconComposable)
+                    r {
+                        buttonComposable()
+                        backButtonComposable()
+                    }
                 }
                 is WindowInfo.WindowType.Medium -> {
-                    r { nameComposable() }
-                    r { descriptionComposable() }
+                    r(nameComposable)
+                    r(descriptionComposable)
                     r {
                         priorityComposable()
                         typeComposable()
@@ -268,29 +284,33 @@ fun AddTask(
                         assigneesComposable()
                         assigneesIconComposable()
                     }
-                    r { buttonComposable() }
+                    r {
+                        buttonComposable()
+                        backButtonComposable()
+                    }
                 }
                 is WindowInfo.WindowType.Expanded -> {
                     r {
                         Column(modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f)) {
-                            r { nameComposable() }
+                            r(nameComposable)
                             r {
                                 priorityComposable()
                                 typeComposable()
                                 dueComposable()
                             }
-                            r { buttonComposable() }
+                            r(buttonComposable)
                         }
                         Column(modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f)) {
-                            r { descriptionComposable() }
+                            r(descriptionComposable)
                             r {
                                 assigneesComposable()
                                 assigneesIconComposable()
                             }
+                            r(backButtonComposable)
                         }
                     }
                 }
@@ -318,7 +338,7 @@ fun AddTask(
                     text = "Assignees",
                     searchUserDialogState = dialogsState.searchUserDialogState,
                     searchState = dialogsState.searchState,
-                    onUserClick = { navController.navigate("Profile/$it") },
+                    onUserClick = { navController.navigate("${Routes.PROFILE}/$it") },
                     onDismissRequest = removeDialog,
                     onApplyClick = { _, assignees -> updateTaskState(addTaskState.copy(assignees = assignees)) },
                     onSearch = { query ->
@@ -394,7 +414,7 @@ fun AddTask(
             AddTaskDialogs.VIEW -> {
                 ViewAssigneeDialog(
                     assignees = dialogsState.viewAssigneeDialogState,
-                    onUserClick = { navController.navigate("Profile/$it") },
+                    onUserClick = { navController.navigate("${Routes.PROFILE}/$it") },
                     onDismissRequest = removeDialog
                 )
             }

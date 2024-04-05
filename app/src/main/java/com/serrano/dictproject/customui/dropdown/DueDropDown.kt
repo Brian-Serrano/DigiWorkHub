@@ -13,8 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.serrano.dictproject.customui.OneLineText
-import com.serrano.dictproject.utils.Utils
+import com.serrano.dictproject.customui.text.OneLineText
+import com.serrano.dictproject.utils.DateUtils
 import java.time.LocalDateTime
 
 @Composable
@@ -33,7 +33,7 @@ fun DueDropDown(
         contentAlignment = Alignment.Center
     ) {
         OneLineText(
-            text = if (includeTime) Utils.dateTimeToDateTimeString(date) else Utils.dateTimeToDateString(date),
+            text = if (includeTime) DateUtils.dateTimeToDateTimeString(date) else DateUtils.dateTimeToDateString(date),
             style = MaterialTheme.typography.labelMedium,
             color = Color.White
         )

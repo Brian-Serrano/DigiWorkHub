@@ -20,14 +20,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.serrano.dictproject.customui.OneLineText
+import com.serrano.dictproject.customui.text.OneLineText
 import com.serrano.dictproject.ui.theme.DICTProjectTheme
-import com.serrano.dictproject.utils.User
-import com.serrano.dictproject.utils.Utils
+import com.serrano.dictproject.utils.FileUtils
+import com.serrano.dictproject.utils.UserDTO
 
 @Composable
 fun ReceiverDropDown(
-    user: User?,
+    user: UserDTO?,
     onUserClick: (Int) -> Unit,
     onSearchUser: () -> Unit
 ) {
@@ -36,9 +36,9 @@ fun ReceiverDropDown(
             .fillMaxWidth()
             .padding(5.dp)
             .clip(MaterialTheme.shapes.extraSmall)
-            .background(MaterialTheme.colorScheme.primaryContainer)
+            .background(MaterialTheme.colorScheme.onSurfaceVariant)
             .border(
-                BorderStroke(2.dp, MaterialTheme.colorScheme.onPrimaryContainer),
+                BorderStroke(2.dp, MaterialTheme.colorScheme.surfaceVariant),
                 MaterialTheme.shapes.extraSmall
             ),
         verticalAlignment = Alignment.CenterVertically,
@@ -51,7 +51,7 @@ fun ReceiverDropDown(
                     modifier = Modifier.padding(5.dp)
                 ) {
                     Icon(
-                        bitmap = Utils.encodedStringToImage(user.image),
+                        bitmap = FileUtils.encodedStringToImage(user.image),
                         contentDescription = null,
                         tint = Color.Unspecified
                     )

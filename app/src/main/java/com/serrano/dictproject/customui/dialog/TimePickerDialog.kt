@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -26,7 +27,7 @@ fun TimePickerDialog(
     onDismissRequest: () -> Unit,
     confirmButton: @Composable (() -> Unit),
     dismissButton: @Composable (() -> Unit)? = null,
-    containerColor: Color = MaterialTheme.colorScheme.surface,
+    containerColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     content: @Composable () -> Unit,
 ) {
     Dialog(
@@ -35,38 +36,40 @@ fun TimePickerDialog(
             usePlatformDefaultWidth = false
         ),
     ) {
-        Surface(
-            shape = MaterialTheme.shapes.extraLarge,
-            tonalElevation = 6.dp,
-            modifier = Modifier
-                .width(IntrinsicSize.Min)
-                .height(IntrinsicSize.Min)
-                .background(
-                    shape = MaterialTheme.shapes.extraLarge,
-                    color = containerColor
-                ),
-            color = containerColor
-        ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+        SelectionContainer {
+            Surface(
+                shape = MaterialTheme.shapes.extraLarge,
+                tonalElevation = 6.dp,
+                modifier = Modifier
+                    .width(IntrinsicSize.Min)
+                    .height(IntrinsicSize.Min)
+                    .background(
+                        shape = MaterialTheme.shapes.extraLarge,
+                        color = containerColor
+                    ),
+                color = containerColor
             ) {
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 20.dp),
-                    text = title,
-                    style = MaterialTheme.typography.labelMedium
-                )
-                content()
-                Row(
-                    modifier = Modifier
-                        .height(50.dp)
-                        .fillMaxWidth()
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Spacer(modifier = Modifier.weight(1f))
-                    dismissButton?.invoke()
-                    confirmButton()
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 20.dp),
+                        text = title,
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                    content()
+                    Row(
+                        modifier = Modifier
+                            .height(50.dp)
+                            .fillMaxWidth()
+                    ) {
+                        Spacer(modifier = Modifier.weight(1f))
+                        dismissButton?.invoke()
+                        confirmButton()
+                    }
                 }
             }
         }

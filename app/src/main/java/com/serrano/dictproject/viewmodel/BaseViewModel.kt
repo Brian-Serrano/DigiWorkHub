@@ -1,28 +1,29 @@
 package com.serrano.dictproject.viewmodel
 
 import android.app.Application
-import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.serrano.dictproject.api.ApiRepository
 import com.serrano.dictproject.datastore.PreferencesRepository
+import com.serrano.dictproject.room.Dao
+import com.serrano.dictproject.room.toEntity
 import com.serrano.dictproject.utils.AssigneeEdit
 import com.serrano.dictproject.utils.DateDialogState
+import com.serrano.dictproject.utils.DateUtils
 import com.serrano.dictproject.utils.DescriptionChange
 import com.serrano.dictproject.utils.DialogsState
 import com.serrano.dictproject.utils.DueChange
 import com.serrano.dictproject.utils.EditNameDialogState
+import com.serrano.dictproject.utils.MiscUtils
 import com.serrano.dictproject.utils.NameChange
 import com.serrano.dictproject.utils.PriorityChange
 import com.serrano.dictproject.utils.ProcessState
 import com.serrano.dictproject.utils.RadioButtonDialogState
-import com.serrano.dictproject.utils.Resource
 import com.serrano.dictproject.utils.SearchState
 import com.serrano.dictproject.utils.SearchUserDialogState
 import com.serrano.dictproject.utils.StatusChange
 import com.serrano.dictproject.utils.TypeChange
-import com.serrano.dictproject.utils.User
-import com.serrano.dictproject.utils.Utils
+import com.serrano.dictproject.utils.UserDTO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,6 +33,7 @@ import java.time.LocalDateTime
 open class BaseViewModel(
     private val apiRepository: ApiRepository,
     private val preferencesRepository: PreferencesRepository,
+    private val dao: Dao,
     application: Application
 ): AndroidViewModel(application) {
 
@@ -43,194 +45,119 @@ open class BaseViewModel(
 
     fun changePriority(taskId: Int, priority: String, onSuccess: () -> Unit) {
         viewModelScope.launch {
-            try {
-                Utils.checkAuthentication(getApplication(), preferencesRepository, apiRepository)
-
-                Toast.makeText(
-                    getApplication(),
-                    when (val response = apiRepository.changePriority(PriorityChange(taskId, priority))) {
-                        is Resource.Success -> {
-                            onSuccess()
-                            response.data?.message
-                        }
-                        is Resource.ClientError -> response.clientError?.message
-                        is Resource.GenericError -> response.genericError
-                        is Resource.ServerError -> response.serverError?.error
-                    },
-                    Toast.LENGTH_LONG
-                ).show()
-            } catch (e: Exception) {
-                Toast.makeText(getApplication(), e.message, Toast.LENGTH_LONG).show()
-            }
+            MiscUtils.apiEditWrapper(
+                response = apiRepository.changePriority(PriorityChange(taskId, priority)),
+                onSuccess = {
+                    onSuccess()
+                    dao.updateTaskPriorities(priority, taskId)
+                },
+                context = getApplication(),
+                preferencesRepository = preferencesRepository,
+                apiRepository = apiRepository
+            )
         }
     }
 
     fun changeStatus(taskId: Int, status: String, onSuccess: () -> Unit) {
         viewModelScope.launch {
-            try {
-                Utils.checkAuthentication(getApplication(), preferencesRepository, apiRepository)
-
-                Toast.makeText(
-                    getApplication(),
-                    when (val response = apiRepository.changeTaskStatus(StatusChange(taskId, status))) {
-                        is Resource.Success -> {
-                            onSuccess()
-                            response.data?.message
-                        }
-                        is Resource.ClientError -> response.clientError?.message
-                        is Resource.GenericError -> response.genericError
-                        is Resource.ServerError -> response.serverError?.error
-                    },
-                    Toast.LENGTH_LONG
-                ).show()
-            } catch (e: Exception) {
-                Toast.makeText(getApplication(), e.message, Toast.LENGTH_LONG).show()
-            }
+            MiscUtils.apiEditWrapper(
+                response = apiRepository.changeTaskStatus(StatusChange(taskId, status)),
+                onSuccess = {
+                    onSuccess()
+                    dao.updateTaskStatuses(status, taskId)
+                },
+                context = getApplication(),
+                preferencesRepository = preferencesRepository,
+                apiRepository = apiRepository
+            )
         }
     }
 
     fun changeType(taskId: Int, type: String, onSuccess: () -> Unit) {
         viewModelScope.launch {
-            try {
-                Utils.checkAuthentication(getApplication(), preferencesRepository, apiRepository)
-
-                Toast.makeText(
-                    getApplication(),
-                    when (val response = apiRepository.changeType(TypeChange(taskId, type))) {
-                        is Resource.Success -> {
-                            onSuccess()
-                            response.data?.message
-                        }
-                        is Resource.ClientError -> response.clientError?.message
-                        is Resource.GenericError -> response.genericError
-                        is Resource.ServerError -> response.serverError?.error
-                    },
-                    Toast.LENGTH_LONG
-                ).show()
-            } catch (e: Exception) {
-                Toast.makeText(getApplication(), e.message, Toast.LENGTH_LONG).show()
-            }
+            MiscUtils.apiEditWrapper(
+                response = apiRepository.changeType(TypeChange(taskId, type)),
+                onSuccess = {
+                    onSuccess()
+                    dao.updateTaskTypes(type, taskId)
+                },
+                context = getApplication(),
+                preferencesRepository = preferencesRepository,
+                apiRepository = apiRepository
+            )
         }
     }
 
     fun changeName(taskId: Int, name: String, onSuccess: () -> Unit) {
         viewModelScope.launch {
-            try {
-                Utils.checkAuthentication(getApplication(), preferencesRepository, apiRepository)
-
-                Toast.makeText(
-                    getApplication(),
-                    when (val response = apiRepository.changeName(NameChange(taskId, name))) {
-                        is Resource.Success -> {
-                            onSuccess()
-                            response.data?.message
-                        }
-                        is Resource.ClientError -> response.clientError?.message
-                        is Resource.GenericError -> response.genericError
-                        is Resource.ServerError -> response.serverError?.error
-                    },
-                    Toast.LENGTH_LONG
-                ).show()
-            } catch (e: Exception) {
-                Toast.makeText(getApplication(), e.message, Toast.LENGTH_LONG).show()
-            }
+            MiscUtils.apiEditWrapper(
+                response = apiRepository.changeName(NameChange(taskId, name)),
+                onSuccess = {
+                    onSuccess()
+                    dao.updateTaskTitles(name, taskId)
+                },
+                context = getApplication(),
+                preferencesRepository = preferencesRepository,
+                apiRepository = apiRepository
+            )
         }
     }
 
     fun changeDescription(taskId: Int, description: String, onSuccess: () -> Unit) {
         viewModelScope.launch {
-            try {
-                Utils.checkAuthentication(getApplication(), preferencesRepository, apiRepository)
-
-                Toast.makeText(
-                    getApplication(),
-                    when (val response = apiRepository.changeDescription(DescriptionChange(taskId, description))) {
-                        is Resource.Success -> {
-                            onSuccess()
-                            response.data?.message
-                        }
-                        is Resource.ClientError -> response.clientError?.message
-                        is Resource.GenericError -> response.genericError
-                        is Resource.ServerError -> response.serverError?.error
-                    },
-                    Toast.LENGTH_LONG
-                ).show()
-            } catch (e: Exception) {
-                Toast.makeText(getApplication(), e.message, Toast.LENGTH_LONG).show()
-            }
+            MiscUtils.apiEditWrapper(
+                response = apiRepository.changeDescription(DescriptionChange(taskId, description)),
+                onSuccess = {
+                    onSuccess()
+                    dao.updateTaskDescriptions(description, taskId)
+                },
+                context = getApplication(),
+                preferencesRepository = preferencesRepository,
+                apiRepository = apiRepository
+            )
         }
     }
 
     fun changeDue(taskId: Int, due: LocalDateTime, onSuccess: () -> Unit) {
         viewModelScope.launch {
-            try {
-                Utils.checkAuthentication(getApplication(), preferencesRepository, apiRepository)
-
-                Toast.makeText(
-                    getApplication(),
-                    when (val response = apiRepository.changeDueDate(DueChange(taskId, due))) {
-                        is Resource.Success -> {
-                            onSuccess()
-                            response.data?.message
-                        }
-                        is Resource.ClientError -> response.clientError?.message
-                        is Resource.GenericError -> response.genericError
-                        is Resource.ServerError -> response.serverError?.error
-                    },
-                    Toast.LENGTH_LONG
-                ).show()
-            } catch (e: Exception) {
-                Toast.makeText(getApplication(), e.message, Toast.LENGTH_LONG).show()
-            }
+            MiscUtils.apiEditWrapper(
+                response = apiRepository.changeDueDate(DueChange(taskId, due)),
+                onSuccess = {
+                    onSuccess()
+                    dao.updateTaskDues(due.format(DateUtils.DATE_TIME_FORMATTER), taskId)
+                },
+                context = getApplication(),
+                preferencesRepository = preferencesRepository,
+                apiRepository = apiRepository
+            )
         }
     }
 
-    fun changeAssignee(taskId: Int, assignee: List<Int>, onSuccess: () -> Unit) {
+    fun changeAssignee(taskId: Int, assignee: List<UserDTO>, onSuccess: () -> Unit) {
         viewModelScope.launch {
-            try {
-                Utils.checkAuthentication(getApplication(), preferencesRepository, apiRepository)
-
-                Toast.makeText(
-                    getApplication(),
-                    when (val response = apiRepository.editAssignees(AssigneeEdit(taskId, assignee))) {
-                        is Resource.Success -> {
-                            onSuccess()
-                            response.data?.message
-                        }
-                        is Resource.ClientError -> response.clientError?.message
-                        is Resource.GenericError -> response.genericError
-                        is Resource.ServerError -> response.serverError?.error
-                    },
-                    Toast.LENGTH_LONG
-                ).show()
-            } catch (e: Exception) {
-                Toast.makeText(getApplication(), e.message, Toast.LENGTH_LONG).show()
-            }
+            MiscUtils.apiEditWrapper(
+                response = apiRepository.editAssignees(AssigneeEdit(taskId, assignee.map { it.id })),
+                onSuccess = {
+                    onSuccess()
+                    dao.insertUsers(assignee.map { it.toEntity() }.toSet())
+                    dao.updateTaskAssigneesId(assignee.map { it.id }.joinToString(","), taskId)
+                },
+                context = getApplication(),
+                preferencesRepository = preferencesRepository,
+                apiRepository = apiRepository
+            )
         }
     }
 
-    fun searchUser(searchQuery: String, onSuccess: (List<User>) -> Unit) {
+    fun searchUser(searchQuery: String, onSuccess: (List<UserDTO>) -> Unit) {
         viewModelScope.launch {
-            try {
-                Utils.checkAuthentication(getApplication(), preferencesRepository, apiRepository)
-
-                when (val response = apiRepository.searchUsers(searchQuery)) {
-                    is Resource.Success -> {
-                        onSuccess(response.data!!)
-                    }
-                    is Resource.ClientError -> {
-                        Toast.makeText(getApplication(), response.clientError?.message, Toast.LENGTH_LONG).show()
-                    }
-                    is Resource.GenericError -> {
-                        Toast.makeText(getApplication(), response.genericError, Toast.LENGTH_LONG).show()
-                    }
-                    is Resource.ServerError -> {
-                        Toast.makeText(getApplication(), response.serverError?.error, Toast.LENGTH_LONG).show()
-                    }
-                }
-            } catch (e: Exception) {
-                Toast.makeText(getApplication(), e.message, Toast.LENGTH_LONG).show()
-            }
+            MiscUtils.apiAddWrapper(
+                response = apiRepository.searchUsers(searchQuery),
+                onSuccess = onSuccess,
+                context = getApplication(),
+                preferencesRepository = preferencesRepository,
+                apiRepository = apiRepository
+            )
         }
     }
 
@@ -254,7 +181,7 @@ open class BaseViewModel(
         mutableDialogsState.value = mutableDialogsState.value.copy(editNameDialogState = newState)
     }
 
-    fun updateViewAssigneeDialogState(newState: List<User>) {
+    fun updateViewAssigneeDialogState(newState: List<UserDTO>) {
         mutableDialogsState.value = mutableDialogsState.value.copy(viewAssigneeDialogState = newState)
     }
 }

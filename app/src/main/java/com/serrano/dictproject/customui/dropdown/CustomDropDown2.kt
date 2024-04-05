@@ -25,7 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.serrano.dictproject.customui.OneLineText
+import com.serrano.dictproject.customui.text.OneLineText
 import com.serrano.dictproject.ui.theme.DICTProjectTheme
 
 @Composable
@@ -48,9 +48,9 @@ fun CustomDropDown2(
                 .height(IntrinsicSize.Min)
                 .heightIn(0.dp, 200.dp)
                 .clip(MaterialTheme.shapes.extraSmall)
-                .background(MaterialTheme.colorScheme.primaryContainer)
+                .background(MaterialTheme.colorScheme.onSurfaceVariant)
                 .border(
-                    BorderStroke(2.dp, MaterialTheme.colorScheme.onPrimaryContainer),
+                    BorderStroke(2.dp, MaterialTheme.colorScheme.surfaceVariant),
                     MaterialTheme.shapes.extraSmall
                 )
                 .fillMaxWidth(),
@@ -60,7 +60,7 @@ fun CustomDropDown2(
                 if (isOneLine) {
                     OneLineText(
                         text = selected,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        color = MaterialTheme.colorScheme.surfaceVariant,
                         modifier = Modifier
                             .fillMaxWidth()
                             .heightIn(0.dp, 200.dp)
@@ -72,7 +72,7 @@ fun CustomDropDown2(
                     Text(
                         text = selected,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        color = MaterialTheme.colorScheme.surfaceVariant,
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f)
@@ -83,7 +83,7 @@ fun CustomDropDown2(
                 Icon(
                     imageVector = Icons.Filled.KeyboardArrowDown,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    tint = MaterialTheme.colorScheme.surfaceVariant,
                     modifier = Modifier
                         .padding(10.dp)
                         .clickable(onClick = onArrowClick)
@@ -96,7 +96,7 @@ fun CustomDropDown2(
 @Preview
 @Composable
 fun CustomDDPrev() {
-    DICTProjectTheme {
+    DICTProjectTheme(dynamicColor = false) {
         CustomDropDown2(
             text = "STATUS",
             selected = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Consequat mauris nunc congue nisi vitae. Venenatis tellus in metus vulputate eu. Pharetra sit amet aliquam id. Viverra tellus in hac habitasse platea dictumst vestibulum rhoncus. Purus gravida quis blandit turpis cursus. Lorem ipsum dolor sit amet consectetur adipiscing elit ut. Ac odio tempor orci dapibus ultrices in. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Consequat mauris nunc congue nisi vitae. Venenatis tellus in metus vulputate eu. Pharetra sit amet aliquam id. Viverra tellus in hac habitasse platea dictumst vestibulum rhoncus. Purus gravida quis blandit turpis cursus. Lorem ipsum dolor sit amet consectetur adipiscing elit ut. Ac odio tempor orci dapibus ultrices in.",

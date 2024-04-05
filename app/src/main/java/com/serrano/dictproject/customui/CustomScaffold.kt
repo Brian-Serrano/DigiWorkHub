@@ -27,7 +27,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.serrano.dictproject.datastore.Preferences
-import com.serrano.dictproject.utils.Utils
+import com.serrano.dictproject.utils.FileUtils
+import com.serrano.dictproject.utils.Routes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -73,16 +74,16 @@ fun CustomScaffold(
                 },
                 actions = {
                     when (user) {
-                        null -> {
+                        null, Preferences() -> {
                             CircularProgressIndicator(
                                 color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(40.dp)
                             )
                         }
                         else -> {
-                            IconButton(onClick = { navController.navigate("Profile/${user.id}") }) {
+                            IconButton(onClick = { navController.navigate("${Routes.PROFILE}/${user.id}") }) {
                                 Image(
-                                    bitmap = Utils.encodedStringToImage(user.image),
+                                    bitmap = FileUtils.encodedStringToImage(user.image),
                                     contentDescription = null,
                                     modifier = Modifier
                                         .size(30.dp)

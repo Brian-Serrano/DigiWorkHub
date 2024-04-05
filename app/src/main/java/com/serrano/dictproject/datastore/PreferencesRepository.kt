@@ -21,6 +21,12 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
+    suspend fun logout() {
+        preferencesDataStore.updateData {
+            Preferences()
+        }
+    }
+
     suspend fun updateAuthToken(authToken: String) {
         preferencesDataStore.updateData {
             it.copy(authToken = authToken)

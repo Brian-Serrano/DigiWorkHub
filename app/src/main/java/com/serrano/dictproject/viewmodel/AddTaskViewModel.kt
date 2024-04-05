@@ -1,15 +1,17 @@
 package com.serrano.dictproject.viewmodel
 
 import android.app.Application
-import android.widget.Toast
 import androidx.lifecycle.viewModelScope
 import com.serrano.dictproject.api.ApiRepository
 import com.serrano.dictproject.datastore.PreferencesRepository
+import com.serrano.dictproject.room.Dao
+import com.serrano.dictproject.room.getUsers
+import com.serrano.dictproject.room.toEntity
 import com.serrano.dictproject.utils.AddTaskDialogs
 import com.serrano.dictproject.utils.AddTaskState
+import com.serrano.dictproject.utils.MiscUtils
 import com.serrano.dictproject.utils.Resource
 import com.serrano.dictproject.utils.TaskBody
-import com.serrano.dictproject.utils.Utils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,8 +23,9 @@ import javax.inject.Inject
 class AddTaskViewModel @Inject constructor(
     private val apiRepository: ApiRepository,
     private val preferencesRepository: PreferencesRepository,
+    private val dao: Dao,
     application: Application
-): BaseViewModel(apiRepository, preferencesRepository, application) {
+): BaseViewModel(apiRepository, preferencesRepository, dao, application) {
 
     private val _addTaskState = MutableStateFlow(AddTaskState())
     val addTaskState: StateFlow<AddTaskState> = _addTaskState.asStateFlow()
@@ -43,7 +46,7 @@ class AddTaskViewModel @Inject constructor(
             try {
                 updateTaskState(_addTaskState.value.copy(buttonEnabled = false))
 
-                Utils.checkAuthentication(getApplication(), preferencesRepository, apiRepository)
+                MiscUtils.checkAuthentication(getApplication(), preferencesRepository, apiRepository)
 
                 when (
                     val response = apiRepository.addTask(
@@ -58,8 +61,14 @@ class AddTaskViewModel @Inject constructor(
                     )
                 ) {
                     is Resource.Success -> {
-                        Toast.makeText(getApplication(), "Task Added Successfully!", Toast.LENGTH_LONG).show()
+                        MiscUtils.toast(getApplication(), "Task Added Successfully!")
+
                         updateTaskState(_addTaskState.value.copy(buttonEnabled = true))
+
+                        // save the created task in local storage
+                        val task = response.data!!
+                        dao.dashboardInsertTasks(listOf(task.toEntity()), task.getUsers().toSet())
+
                         navigate()
                     }
                     is Resource.ClientError -> {

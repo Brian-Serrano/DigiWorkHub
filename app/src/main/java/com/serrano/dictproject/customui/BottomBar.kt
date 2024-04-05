@@ -34,12 +34,12 @@ fun BottomBar(
                     },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = MaterialTheme.colorScheme.tertiaryContainer,
-                        selectedTextColor = MaterialTheme.colorScheme.tertiaryContainer,
-                        indicatorColor = MaterialTheme.colorScheme.onTertiary,
+                        selectedTextColor = MaterialTheme.colorScheme.tertiary,
+                        indicatorColor = MaterialTheme.colorScheme.tertiary,
                         unselectedIconColor = MaterialTheme.colorScheme.tertiary,
                         unselectedTextColor = MaterialTheme.colorScheme.tertiary,
-                        disabledIconColor = MaterialTheme.colorScheme.onTertiary,
-                        disabledTextColor = MaterialTheme.colorScheme.onTertiary
+                        disabledIconColor = MaterialTheme.colorScheme.tertiary,
+                        disabledTextColor = MaterialTheme.colorScheme.tertiary
                     )
                 )
             }

@@ -4,7 +4,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonPrimitive
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
-import com.serrano.dictproject.utils.Utils
+import com.serrano.dictproject.utils.DateUtils
 import java.lang.reflect.Type
 import java.time.LocalDateTime
 
@@ -16,6 +16,6 @@ internal class LocalDateTimeSerializer : JsonSerializer<LocalDateTime?> {
         srcType: Type?,
         context: JsonSerializationContext?
     ): JsonElement {
-        return JsonPrimitive(Utils.dateTimeFormatter.format(localDateTime))
+        return JsonPrimitive(DateUtils.DATE_TIME_FORMATTER.format(localDateTime))
     }
 }
