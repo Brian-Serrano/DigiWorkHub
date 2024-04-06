@@ -30,3 +30,7 @@ enum class AboutMessageDialogs {
 enum class InboxDialogs {
     NONE, CONFIRM
 }
+
+enum class SettingsDialogs {
+    NONE, NAME, ROLE, IMAGE, PASSWORD, CONFIRM
+}

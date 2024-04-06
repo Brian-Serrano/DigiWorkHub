@@ -122,6 +122,15 @@ data class EditNameDialogState(
     val taskId: Int = 0
 )
 
+data class PasswordDialogState(
+    val currentPassword: String = "",
+    val newPassword: String = "",
+    val confirmPassword: String = "",
+    val currentPasswordVisibility: Boolean = false,
+    val newPasswordVisibility: Boolean = false,
+    val confirmPasswordVisibility: Boolean = false
+)
+
 data class SharedViewModelState(
     val dashboardBottomBarIdx: Int = 0,
     val messageBottomBarIdx: Int = 0,
@@ -172,6 +181,15 @@ data class ProfileState(
     val editNameDialogState: EditNameDialogState = EditNameDialogState(),
     val image: ImageBitmap? = null,
     val isRefreshing: Boolean = false
+)
+
+data class SettingsState(
+    val editNameDialogState: EditNameDialogState = EditNameDialogState(),
+    val confirmDialogState: ConfirmDialogState = ConfirmDialogState(),
+    val passwordDialogState: PasswordDialogState = PasswordDialogState(),
+    val image: ImageBitmap? = null,
+    val isRefreshing: Boolean = false,
+    val deleteButtonEnabled: Boolean = true
 )
 
 data class AboutMessageState(

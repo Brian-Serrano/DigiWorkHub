@@ -55,6 +55,7 @@ import com.serrano.dictproject.viewmodel.DashboardViewModel
 import com.serrano.dictproject.viewmodel.InboxViewModel
 import com.serrano.dictproject.viewmodel.ProfileViewModel
 import com.serrano.dictproject.viewmodel.SendMessageViewModel
+import com.serrano.dictproject.viewmodel.SettingsViewModel
 import com.serrano.dictproject.viewmodel.SharedViewModel
 import com.serrano.dictproject.viewmodel.SignupViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -569,7 +570,17 @@ fun NavigationGraph(
             }
         }
         composable(route = Routes.SETTINGS) {
+            val settingsViewModel = hiltViewModel<SettingsViewModel>()
+
+            LaunchedEffect(Unit) {
+                settingsViewModel.getUser()
+            }
+
             val preferences by sharedViewModel.preferences.collectAsState()
+            val process by settingsViewModel.processState.collectAsState()
+            val user by settingsViewModel.user.collectAsState()
+            val dialogState by settingsViewModel.dialogState.collectAsState()
+            val settingsState by settingsViewModel.settingsState.collectAsState()
 
             Drawer(
                 drawerState = drawerState,
@@ -588,7 +599,18 @@ fun NavigationGraph(
                         Settings(
                             navController = navController,
                             paddingValues = it,
-                            context = context
+                            context = context,
+                            user = user,
+                            process = process,
+                            settingsDialogs = dialogState,
+                            settingsState = settingsState,
+                            updateDialogState = settingsViewModel::updateDialogState,
+                            updateSettingsState = settingsViewModel::updateSettingsState,
+                            updateChangePasswordState = settingsViewModel::updateChangePasswordState,
+                            changeUserName = settingsViewModel::changeUserName,
+                            changeUserRole = settingsViewModel::changeUserRole,
+                            uploadImage = settingsViewModel::uploadImage,
+                            refreshUser = settingsViewModel::refreshUser
                         )
                     }
                 )
