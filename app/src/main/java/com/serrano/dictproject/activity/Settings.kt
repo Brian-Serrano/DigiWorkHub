@@ -64,8 +64,10 @@ fun Settings(
     updateChangePasswordState: (PasswordDialogState) -> Unit,
     changeUserName: (String) -> Unit,
     changeUserRole: (String) -> Unit,
+    changeUserPassword: () -> Unit,
     uploadImage: (ImageBitmap) -> Unit,
-    refreshUser: () -> Unit
+    refreshUser: () -> Unit,
+    deleteAccount: (() -> Unit) -> Unit
 ) {
     val removeDialog = { updateDialogState(SettingsDialogs.NONE) }
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = settingsState.isRefreshing)
@@ -199,11 +201,21 @@ fun Settings(
                                             confirmDialogState = ConfirmDialogState(
                                                 id = 0,
                                                 placeholder = "account",
-                                                onYesClick = {},
+                                                onYesClick = {
+                                                    removeDialog()
+                                                    deleteAccount {
+                                                        navController.navigate(Routes.SIGNUP) {
+                                                            popUpTo(navController.graph.id) {
+                                                                inclusive = false
+                                                            }
+                                                        }
+                                                    }
+                                                },
                                                 onCancelClick = removeDialog
                                             )
                                         )
                                     )
+                                    updateDialogState(SettingsDialogs.CONFIRM)
                                 },
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -314,7 +326,7 @@ fun Settings(
                                     )
                                 )
                             },
-                            onApplyClick = {}
+                            onApplyClick = changeUserPassword
                         )
                     }
                     SettingsDialogs.CONFIRM -> {
@@ -341,15 +353,17 @@ fun InfoPrev() {
             context = LocalContext.current,
             user = ProfileDataDTO(),
             process = ProcessState.Success,
-            settingsDialogs = SettingsDialogs.NONE,
+            settingsDialogs = SettingsDialogs.PASSWORD,
             settingsState = SettingsState(),
             updateDialogState = {},
             updateSettingsState = {},
             updateChangePasswordState = {},
             changeUserName = {},
             changeUserRole = {},
+            changeUserPassword = {},
             uploadImage = {},
-            refreshUser = {}
+            refreshUser = {},
+            deleteAccount = {}
         )
     }
 }

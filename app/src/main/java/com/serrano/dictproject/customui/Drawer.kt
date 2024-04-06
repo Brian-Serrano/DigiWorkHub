@@ -58,13 +58,13 @@ fun Drawer(
             navController.navigate(Routes.SETTINGS, singleTop)
         },
         DrawerData(Icons.AutoMirrored.Filled.Logout, "Log Out") {
+            onLogout()
+
             navController.navigate(Routes.SIGNUP) {
                 popUpTo(navController.graph.id) {
                     inclusive = false
                 }
-                launchSingleTop = true
             }
-            onLogout()
         }
     )
 

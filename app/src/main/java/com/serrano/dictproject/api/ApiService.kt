@@ -16,6 +16,7 @@ import com.serrano.dictproject.utils.MessageIdBody
 import com.serrano.dictproject.utils.MessagePartDTO
 import com.serrano.dictproject.utils.MessageReplyDTO
 import com.serrano.dictproject.utils.NameChange
+import com.serrano.dictproject.utils.PasswordBody
 import com.serrano.dictproject.utils.PriorityChange
 import com.serrano.dictproject.utils.ProfileDataDTO
 import com.serrano.dictproject.utils.ReplyBody
@@ -170,6 +171,9 @@ interface ApiService {
     @POST("/message_routes/delete_message_from_user")
     suspend fun deleteMessageFromUser(@Body messageIdBody: MessageIdBody): Response<Success>
 
+    @POST("/user_routes/change_user_password")
+    suspend fun changeUserPassword(@Body passwordBody: PasswordBody): Response<Success>
+
     @DELETE("/task_routes/delete_task")
     suspend fun deleteTask(@Query("task_id") taskId: Int): Response<Success>
 
@@ -190,5 +194,8 @@ interface ApiService {
 
     @DELETE("/message_routes/delete_message_reply")
     suspend fun deleteMessageReply(@Query("message_reply_id") messageReplyId: Int): Response<Success>
+
+    @DELETE("/user_routes/delete_user")
+    suspend fun deleteUser(): Response<Success>
 
 }

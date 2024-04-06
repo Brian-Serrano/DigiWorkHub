@@ -64,15 +64,6 @@ fun CustomScaffold(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { coroutineScope.launch { drawerState.open() } }) {
-                        Icon(
-                            imageVector = Icons.Filled.Menu,
-                            contentDescription = null,
-                            modifier = Modifier.size(30.dp)
-                        )
-                    }
-                },
-                actions = {
                     when (user) {
                         null, Preferences() -> {
                             CircularProgressIndicator(
@@ -91,6 +82,15 @@ fun CustomScaffold(
                                 )
                             }
                         }
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { coroutineScope.launch { drawerState.open() } }) {
+                        Icon(
+                            imageVector = Icons.Filled.Menu,
+                            contentDescription = null,
+                            modifier = Modifier.size(30.dp)
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

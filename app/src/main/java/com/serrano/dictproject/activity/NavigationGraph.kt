@@ -609,8 +609,10 @@ fun NavigationGraph(
                             updateChangePasswordState = settingsViewModel::updateChangePasswordState,
                             changeUserName = settingsViewModel::changeUserName,
                             changeUserRole = settingsViewModel::changeUserRole,
+                            changeUserPassword = settingsViewModel::changeUserPassword,
                             uploadImage = settingsViewModel::uploadImage,
-                            refreshUser = settingsViewModel::refreshUser
+                            refreshUser = settingsViewModel::refreshUser,
+                            deleteAccount = settingsViewModel::deleteAccount
                         )
                     }
                 )

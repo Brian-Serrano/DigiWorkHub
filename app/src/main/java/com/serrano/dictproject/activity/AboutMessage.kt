@@ -134,9 +134,20 @@ fun AboutMessage(
                                 )
                                 IconButton(
                                     onClick = {
-                                        deleteMessageFromUser(message.messageId) {
-                                            navController.navigate(Routes.INBOX)
-                                        }
+                                        updateConfirmDialogState(
+                                            aboutMessageState.confirmDialogState.copy(
+                                                id = message.messageId,
+                                                placeholder = "message for you only",
+                                                onYesClick = { id ->
+                                                    removeDialog()
+                                                    deleteMessageFromUser(id) {
+                                                        navController.navigate(Routes.INBOX)
+                                                    }
+                                                },
+                                                onCancelClick = removeDialog
+                                            )
+                                        )
+                                        updateDialogState(AboutMessageDialogs.CONFIRM)
                                     },
                                     enabled = message.deleteForUserButtonEnabled
                                 ) {

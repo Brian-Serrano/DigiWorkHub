@@ -11,6 +11,7 @@ import com.serrano.dictproject.room.toDTO
 import com.serrano.dictproject.room.toEntity
 import com.serrano.dictproject.utils.FileUtils
 import com.serrano.dictproject.utils.MiscUtils
+import com.serrano.dictproject.utils.PasswordBody
 import com.serrano.dictproject.utils.PasswordDialogState
 import com.serrano.dictproject.utils.ProcessState
 import com.serrano.dictproject.utils.ProfileDataDTO
@@ -202,6 +203,46 @@ class SettingsViewModel @Inject constructor(
             )
 
             if (imageFile.exists()) imageFile.delete()
+        }
+    }
+
+    fun changeUserPassword() {
+        viewModelScope.launch {
+            MiscUtils.apiEditWrapper(
+                response = apiRepository.changeUserPassword(
+                    PasswordBody(
+                        _settingsState.value.passwordDialogState.currentPassword,
+                        _settingsState.value.passwordDialogState.newPassword,
+                        _settingsState.value.passwordDialogState.confirmPassword
+                    )
+                ),
+                onSuccess = {
+                    // change the password in the preferences
+                    preferencesRepository.changePassword(_settingsState.value.passwordDialogState.newPassword)
+                },
+                context = getApplication(),
+                preferencesRepository = preferencesRepository,
+                apiRepository = apiRepository
+            )
+        }
+    }
+
+    fun deleteAccount(navigate: () -> Unit) {
+        viewModelScope.launch {
+            MiscUtils.apiEditWrapper(
+                response = apiRepository.deleteUser(),
+                onSuccess = {
+                    // delete preferences and storage data
+                    preferencesRepository.logout()
+                    dao.logout()
+
+                    // navigate
+                    navigate()
+                },
+                context = getApplication(),
+                preferencesRepository = preferencesRepository,
+                apiRepository = apiRepository
+            )
         }
     }
 }

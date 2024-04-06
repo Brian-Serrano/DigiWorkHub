@@ -45,6 +45,12 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
+    suspend fun changePassword(password: String) {
+        preferencesDataStore.updateData {
+            it.copy(password = password)
+        }
+    }
+
     fun getData(): Flow<Preferences> {
         return preferencesDataStore.data
     }

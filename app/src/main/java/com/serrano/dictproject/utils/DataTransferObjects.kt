@@ -172,6 +172,12 @@ data class MessageIdBody(
     val messageId: Int
 )
 
+data class PasswordBody(
+    val currentPassword: String,
+    val newPassword: String,
+    val confirmPassword: String
+)
+
 data class TaskPartDTO(
     val taskId: Int = 0,
     val title: String = dummyTitle,
