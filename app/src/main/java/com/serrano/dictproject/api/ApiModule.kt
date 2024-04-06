@@ -36,7 +36,7 @@ class ApiModule {
             .create()
 
         return Retrofit.Builder()
-            .baseUrl("https://digiworkhub.onrender.com/")
+            .baseUrl("https://digiworkhub.onrender.com")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
