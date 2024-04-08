@@ -34,3 +34,7 @@ enum class InboxDialogs {
 enum class SettingsDialogs {
     NONE, NAME, ROLE, IMAGE, PASSWORD, CONFIRM
 }
+
+enum class SignupDialogs {
+    NONE, FORGOT, CONFIRM
+}

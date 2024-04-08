@@ -561,9 +561,8 @@ fun AboutTask(
                                         updateConfirmDialogState(
                                             aboutTaskState.confirmDialogState.copy(
                                                 id = task.taskId,
-                                                placeholder = "task",
+                                                placeholder = "Are you sure you want to delete this task?",
                                                 onYesClick = { id ->
-                                                    removeDialog()
                                                     deleteTask(id) {
                                                         navController.navigate(Routes.DASHBOARD)
                                                     }
@@ -642,11 +641,8 @@ fun AboutTask(
                                                     updateConfirmDialogState(
                                                         aboutTaskState.confirmDialogState.copy(
                                                             id = commentId,
-                                                            placeholder = "comment",
-                                                            onYesClick = { id ->
-                                                                removeDialog()
-                                                                deleteComment(id)
-                                                            },
+                                                            placeholder = "Are you sure you want to delete this comment?",
+                                                            onYesClick = deleteComment,
                                                             onCancelClick = removeDialog
                                                         )
                                                     )
@@ -716,11 +712,8 @@ fun AboutTask(
                                                     updateConfirmDialogState(
                                                         aboutTaskState.confirmDialogState.copy(
                                                             id = checklistId,
-                                                            placeholder = "checklist",
-                                                            onYesClick = { id ->
-                                                                removeDialog()
-                                                                deleteChecklist(id)
-                                                            },
+                                                            placeholder = "Are you sure you want to delete this checklist?",
+                                                            onYesClick = deleteChecklist,
                                                             onCancelClick = removeDialog
                                                         )
                                                     )
@@ -888,11 +881,8 @@ fun AboutTask(
                                                     updateConfirmDialogState(
                                                         aboutTaskState.confirmDialogState.copy(
                                                             id = subtaskId,
-                                                            placeholder = "subtask",
-                                                            onYesClick = { id ->
-                                                                removeDialog()
-                                                                deleteSubtask(id)
-                                                            },
+                                                            placeholder = "Are you sure you want to delete this subtask?",
+                                                            onYesClick = deleteSubtask,
                                                             onCancelClick = removeDialog
                                                         )
                                                     )
@@ -937,11 +927,8 @@ fun AboutTask(
                                                     updateConfirmDialogState(
                                                         aboutTaskState.confirmDialogState.copy(
                                                             id = attachmentId,
-                                                            placeholder = "attachment",
-                                                            onYesClick = { id ->
-                                                                removeDialog()
-                                                                deleteAttachment(id)
-                                                            },
+                                                            placeholder = "Are you sure you want to delete this attachment?",
+                                                            onYesClick = deleteAttachment,
                                                             onCancelClick = removeDialog
                                                         )
                                                     )

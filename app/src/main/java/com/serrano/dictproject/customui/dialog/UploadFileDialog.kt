@@ -92,8 +92,8 @@ fun UploadFileDialog(
                     CustomButton(
                         text = "APPLY",
                         onClick = {
-                            onApplyClick(file)
                             onDismissRequest()
+                            onApplyClick(file)
                         }
                     )
                     CustomButton(

@@ -137,9 +137,8 @@ fun AboutMessage(
                                         updateConfirmDialogState(
                                             aboutMessageState.confirmDialogState.copy(
                                                 id = message.messageId,
-                                                placeholder = "message for you only",
+                                                placeholder = "Are you sure you want to delete this message for you only?",
                                                 onYesClick = { id ->
-                                                    removeDialog()
                                                     deleteMessageFromUser(id) {
                                                         navController.navigate(Routes.INBOX)
                                                     }
@@ -261,9 +260,8 @@ fun AboutMessage(
                                         updateConfirmDialogState(
                                             aboutMessageState.confirmDialogState.copy(
                                                 id = message.messageId,
-                                                placeholder = "message for you and the recipient",
+                                                placeholder = "Are you sure you want to delete this message for you and the recipient?",
                                                 onYesClick = { id ->
-                                                    removeDialog()
                                                     deleteMessage(id) {
                                                         navController.navigate(Routes.INBOX)
                                                     }
@@ -392,11 +390,8 @@ fun AboutMessage(
                                                         updateConfirmDialogState(
                                                             aboutMessageState.confirmDialogState.copy(
                                                                 id = reply.messageReplyId,
-                                                                placeholder = "reply",
-                                                                onYesClick = { id ->
-                                                                    removeDialog()
-                                                                    deleteReply(id)
-                                                                },
+                                                                placeholder = "Are you sure you want to delete this reply?",
+                                                                onYesClick = deleteReply,
                                                                 onCancelClick = removeDialog
                                                             )
                                                         )

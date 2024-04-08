@@ -13,6 +13,7 @@ import com.serrano.dictproject.utils.DashboardState
 import com.serrano.dictproject.utils.DateUtils
 import com.serrano.dictproject.utils.DropDownMultiselect
 import com.serrano.dictproject.utils.DropDownState
+import com.serrano.dictproject.utils.LabelAndCollapsible
 import com.serrano.dictproject.utils.MiscUtils
 import com.serrano.dictproject.utils.ProcessState
 import com.serrano.dictproject.utils.Resource
@@ -36,11 +37,11 @@ class DashboardViewModel @Inject constructor(
     private val _dashboardState = MutableStateFlow(DashboardState())
     val dashboardState: StateFlow<DashboardState> = _dashboardState.asStateFlow()
 
-    private val _modifiedTasks = MutableStateFlow<List<Pair<String, List<TaskPartDTO>>>>(emptyList())
-    val modifiedTasks: StateFlow<List<Pair<String, List<TaskPartDTO>>>> = _modifiedTasks.asStateFlow()
+    private val _modifiedTasks = MutableStateFlow<DashboardDataState>(emptyList())
+    val modifiedTasks: StateFlow<DashboardDataState> = _modifiedTasks.asStateFlow()
 
-    private val _modifiedCreatedTasks = MutableStateFlow<List<Pair<String, List<TaskPartDTO>>>>(emptyList())
-    val modifiedCreatedTasks: StateFlow<List<Pair<String, List<TaskPartDTO>>>> = _modifiedCreatedTasks.asStateFlow()
+    private val _modifiedCreatedTasks = MutableStateFlow<DashboardDataState>(emptyList())
+    val modifiedCreatedTasks: StateFlow<DashboardDataState> = _modifiedCreatedTasks.asStateFlow()
 
     private val _processState2 = MutableStateFlow<ProcessState>(ProcessState.Loading)
     val processState2: StateFlow<ProcessState> = _processState2.asStateFlow()
@@ -71,11 +72,8 @@ class DashboardViewModel @Inject constructor(
                             // convert fetched data to entity and save locally
                             storeInStorage(tasks.data)
 
-                            // apply the sorting, grouping and filtering to data and add the collapsible
+                            // apply the sorting, grouping and filtering to data
                             filterTab(0)
-
-                            // add values to the filter dropdown with the data from response
-                            updateFilterDropDownValues(tasks.data, 0)
 
                             mutableProcessState.value = ProcessState.Success
                         }
@@ -95,11 +93,8 @@ class DashboardViewModel @Inject constructor(
 
                     _tasks.value = tasks
 
-                    // apply the sorting, grouping and filtering to data and add the collapsible
+                    // apply the sorting, grouping and filtering to data
                     filterTab(0)
-
-                    // add values to the filter dropdown with the data from response
-                    updateFilterDropDownValues(tasks, 0)
 
                     mutableProcessState.value = ProcessState.Success
                 }
@@ -126,11 +121,8 @@ class DashboardViewModel @Inject constructor(
                             // convert fetched data to entity and save locally
                             storeInStorage(createdTasks.data)
 
-                            // apply the sorting, grouping and filtering to data and add the collapsible
+                            // apply the sorting, grouping and filtering to data
                             filterTab(1)
-
-                            // add values to the filter dropdown with the data from response
-                            updateFilterDropDownValues(createdTasks.data, 1)
 
                             _processState2.value = ProcessState.Success
                         }
@@ -150,11 +142,8 @@ class DashboardViewModel @Inject constructor(
 
                     _createdTasks.value = tasks
 
-                    // apply the sorting, grouping and filtering to data and add the collapsible
+                    // apply the sorting, grouping and filtering to data
                     filterTab(1)
-
-                    // add values to the filter dropdown with the data from response
-                    updateFilterDropDownValues(tasks, 1)
 
                     _processState2.value = ProcessState.Success
                 }
@@ -179,11 +168,8 @@ class DashboardViewModel @Inject constructor(
                     // convert fetched data to entity and save locally
                     storeInStorage(task)
 
-                    // apply the sorting, grouping and filtering to data and add the collapsible
+                    // apply the sorting, grouping and filtering to data
                     filterTab(0)
-
-                    // add values to the filter dropdown with the data from response
-                    updateFilterDropDownValues(task, 0)
 
                     MiscUtils.toast(getApplication(), "Data loaded successfully")
 
@@ -213,11 +199,8 @@ class DashboardViewModel @Inject constructor(
                     // convert fetched data to entity and save locally
                     storeInStorage(task)
 
-                    // apply the sorting, grouping and filtering to data and add the collapsible
+                    // apply the sorting, grouping and filtering to data
                     filterTab(1)
-
-                    // add values to the filter dropdown with the data from response
-                    updateFilterDropDownValues(task, 1)
 
                     MiscUtils.toast(getApplication(), "Data loaded successfully")
 
@@ -234,14 +217,16 @@ class DashboardViewModel @Inject constructor(
 
     fun filterTab(bottomBarIdx: Int) {
         when (bottomBarIdx) {
-            0 -> {
-                _modifiedTasks.value = sortTasks(groupTasks(filterTasks(_tasks.value, _dashboardState.value))).toList()
-                updateCollapsible(List(_modifiedTasks.value.size) { false }, bottomBarIdx)
-            }
-            1 -> {
-                _modifiedCreatedTasks.value = sortTasks(groupTasks(filterTasks(_createdTasks.value, _dashboardState.value))).toList()
-                updateCollapsible(List(_modifiedCreatedTasks.value.size) { false }, bottomBarIdx)
-            }
+            0 -> _modifiedTasks.value = sortTasks(
+                groupTasks(
+                    filterTasks(_tasks.value, _dashboardState.value)
+                )
+            ).toList()
+            1 -> _modifiedCreatedTasks.value = sortTasks(
+                groupTasks(
+                    filterTasks(_createdTasks.value, _dashboardState.value)
+                )
+            ).toList()
         }
     }
 
@@ -254,13 +239,25 @@ class DashboardViewModel @Inject constructor(
         _dialogState.value = newDialogState
     }
 
-    fun updateOptionsDropdown(selected: String, bottomBarIdx: Int): Boolean {
-        val options = _dashboardState.value.optionsFilterDropDownValues[bottomBarIdx][selected]
-        if (!options.isNullOrEmpty()) {
-            updateOptionsFilterDropdown(DropDownMultiselect(options, emptyList(), false))
-            return true
+    fun updateOptionsDropdown(tasks: List<TaskPartDTO>, selected: String) {
+        when (selected) {
+            "STATUS" -> updateOptionsFilterDropdown(
+                DropDownMultiselect(options = tasks.map { it.status }.toSortedSet().toList())
+            )
+            "PRIORITY" -> updateOptionsFilterDropdown(
+                DropDownMultiselect(options = tasks.map { it.priority }.toSortedSet().toList())
+            )
+            "DUE" -> updateOptionsFilterDropdown(
+                DropDownMultiselect(options = tasks.map { DateUtils.dateTimeToDate(it.due) }.toSortedSet().map { DateUtils.dateToDateString(it) })
+            )
+            "TYPE" -> updateOptionsFilterDropdown(
+                DropDownMultiselect(options = tasks.map { it.type }.toSortedSet().toList())
+            )
+            "CREATOR" -> updateOptionsFilterDropdown(
+                DropDownMultiselect(options = tasks.map { it.creator.name }.toSortedSet().toList())
+            )
+            else -> throw IllegalStateException()
         }
-        return false
     }
 
     fun updateTasks(newTasks: List<TaskPartDTO>) {
@@ -291,32 +288,32 @@ class DashboardViewModel @Inject constructor(
         _dashboardState.value = _dashboardState.value.copy(sortDropDown = newSortState)
     }
 
-    fun updateCollapsible(newCollapsible: List<Boolean>, bottomBarIdx: Int) {
-        _dashboardState.value = _dashboardState.value.copy(
-            isCollapsed = _dashboardState.value.isCollapsed.mapIndexed { idx, booleans ->
-                if (idx == bottomBarIdx) newCollapsible else booleans
-            }
-        )
+    fun updateTaskCollapsible(label: String, value: Boolean) {
+        _modifiedTasks.value = _modifiedTasks.value.map {
+            if (it.first.label == label) it.copy(it.first.copy(collapsible = value)) else it
+        }
     }
 
-    private fun updateOptionsFilterDropDownValues(newValues: Map<String, List<String>>, bottomBarIdx: Int) {
-        _dashboardState.value = _dashboardState.value.copy(
-            optionsFilterDropDownValues = _dashboardState.value.optionsFilterDropDownValues.mapIndexed { idx, map ->
-                if (idx == bottomBarIdx) newValues else map
-            }
-        )
+    fun updateCreatedTaskCollapsible(label: String, value: Boolean) {
+        _modifiedCreatedTasks.value = _modifiedCreatedTasks.value.map {
+            if (it.first.label == label) it.copy(it.first.copy(collapsible = value)) else it
+        }
     }
 
-    private fun groupTasks(tasks: List<TaskPartDTO>): Map<String, List<TaskPartDTO>> {
+    private fun groupTasks(tasks: List<TaskPartDTO>): Map<LabelAndCollapsible, List<TaskPartDTO>> {
         return when (_dashboardState.value.groupDropDown.selected) {
-            "NONE" -> tasks.groupBy { "NONE" }.toSortedMap()
-            "STATUS" -> tasks.groupBy { it.status }.toSortedMap()
-            "PRIORITY" -> tasks.groupBy { it.priority }.toSortedMap()
-            "DUE" -> tasks.groupBy { DateUtils.dateTimeToDateString(it.due) }.toSortedMap()
-            "TYPE" -> tasks.groupBy { it.type }.toSortedMap()
-            "CREATOR" -> tasks.groupBy { it.creator.name }.toSortedMap()
+            "NONE" -> tasks.groupBy { LabelAndCollapsible("NONE", true) }.toSortedMap(comparator())
+            "STATUS" -> tasks.groupBy { LabelAndCollapsible(it.status, true) }.toSortedMap(comparator())
+            "PRIORITY" -> tasks.groupBy { LabelAndCollapsible(it.priority, true) }.toSortedMap(comparator())
+            "DUE" -> tasks.groupBy { LabelAndCollapsible(DateUtils.dateTimeToDateString(it.due), true) }.toSortedMap(comparator())
+            "TYPE" -> tasks.groupBy { LabelAndCollapsible(it.type, true) }.toSortedMap(comparator())
+            "CREATOR" -> tasks.groupBy { LabelAndCollapsible(it.creator.name, true) }.toSortedMap(comparator())
             else -> throw IllegalStateException()
         }
+    }
+
+    private fun comparator(): Comparator<LabelAndCollapsible> {
+        return Comparator { o1, o2 -> o1.label.compareTo(o2.label) }
     }
 
     private fun filterTasks(tasks: List<TaskPartDTO>, ds: DashboardState): List<TaskPartDTO> {
@@ -339,7 +336,7 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
-    private fun sortTasks(tasks: Map<String, List<TaskPartDTO>>): Map<String, List<TaskPartDTO>> {
+    private fun sortTasks(tasks: Map<LabelAndCollapsible, List<TaskPartDTO>>): Map<LabelAndCollapsible, List<TaskPartDTO>> {
         return when (_dashboardState.value.sortDropDown.selected) {
             "NAME" -> tasks.mapValues { task -> task.value.sortedBy { it.title } }
             "ASSIGNEE" -> tasks.mapValues { task -> task.value.sortedBy { it.assignees.size } }
@@ -351,19 +348,6 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
-    private fun updateFilterDropDownValues(task: List<TaskPartDTO>, bottomBarIdx: Int) {
-        updateOptionsFilterDropDownValues(
-            mapOf(
-                "STATUS" to task.map { it.status }.toSet().toList().sorted(),
-                "PRIORITY" to task.map { it.priority }.toSet().toList().sorted(),
-                "DUE" to task.map { DateUtils.dateTimeToDate(it.due) }.toSet().map { DateUtils.dateToDateString(it) }.sorted(),
-                "TYPE" to task.map { it.type }.toSet().toList().sorted(),
-                "CREATOR" to task.map { it.creator.name }.toSet().toList().sorted()
-            ),
-            bottomBarIdx
-        )
-    }
-
     private suspend fun storeInStorage(task: List<TaskPartDTO>) {
         dao.dashboardInsertTasks(
             taskParts = task.map { it.toEntity() },
@@ -371,3 +355,5 @@ class DashboardViewModel @Inject constructor(
         )
     }
 }
+
+typealias DashboardDataState = List<Pair<LabelAndCollapsible, List<TaskPartDTO>>>

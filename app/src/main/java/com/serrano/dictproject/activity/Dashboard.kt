@@ -68,6 +68,7 @@ import com.serrano.dictproject.utils.SharedViewModelState
 import com.serrano.dictproject.utils.TaskPartDTO
 import com.serrano.dictproject.utils.UserDTO
 import com.serrano.dictproject.utils.header
+import com.serrano.dictproject.viewmodel.DashboardDataState
 import java.time.LocalDateTime
 
 @Composable
@@ -81,8 +82,8 @@ fun Dashboard(
     process: ProcessState,
     process2: ProcessState,
     dashboardState: DashboardState,
-    tasks: List<Pair<String, List<TaskPartDTO>>>,
-    createdTasks: List<Pair<String, List<TaskPartDTO>>>,
+    tasks: DashboardDataState,
+    createdTasks: DashboardDataState,
     dialogsState: DialogsState,
     sharedState: SharedViewModelState,
     updateDialogState: (DashboardDialogs) -> Unit,
@@ -92,9 +93,10 @@ fun Dashboard(
     filterTab: (Int) -> Unit,
     filterAllTabs: () -> Unit,
     updateFilterDropdown: (DropDownState) -> Unit,
-    updateOptionsDropdown: (String, Int) -> Boolean,
+    updateOptionsDropdown: (List<TaskPartDTO>, String) -> Unit,
     updateSortDropdown: (DropDownState) -> Unit,
-    updateCollapsible: (List<Boolean>, Int) -> Unit,
+    updateTaskCollapsible: (String, Boolean) -> Unit,
+    updateCreatedTaskCollapsible: (String, Boolean) -> Unit,
     updateEditNameDialogState: (EditNameDialogState) -> Unit,
     updateSearchDialogState: (SearchUserDialogState) -> Unit,
     updateDateDialogState: (DateDialogState) -> Unit,
@@ -178,9 +180,12 @@ fun Dashboard(
                             },
                             onItemSelect = {
                                 updateFilterDropdown(dashboardState.filterDropDown.copy(selected = it, expanded = false))
-                                if (updateOptionsDropdown(it, sharedState.dashboardBottomBarIdx)) {
+                                try {
+                                    updateOptionsDropdown(if (sharedState.dashboardBottomBarIdx == 0) rawTasks else rawCreatedTasks, it)
                                     openDialog(DashboardDialogs.FILTER)
-                                } else filterAllTabs()
+                                } catch (e: IllegalStateException) {
+                                    filterAllTabs()
+                                }
                             }
                         )
                         CustomDropDown(
@@ -241,9 +246,12 @@ fun Dashboard(
                             },
                             onItemSelect = {
                                 updateFilterDropdown(dashboardState.filterDropDown.copy(selected = it, expanded = false))
-                                if (updateOptionsDropdown(it, sharedState.dashboardBottomBarIdx)) {
-                                    updateDialogState(DashboardDialogs.FILTER)
-                                } else filterAllTabs()
+                                try {
+                                    updateOptionsDropdown(if (sharedState.dashboardBottomBarIdx == 0) rawTasks else rawCreatedTasks, it)
+                                    openDialog(DashboardDialogs.FILTER)
+                                } catch (e: IllegalStateException) {
+                                    filterAllTabs()
+                                }
                             }
                         )
                         CustomDropDown(
@@ -274,8 +282,6 @@ fun Dashboard(
                         rawTasks = rawTasks,
                         navController = navController,
                         sharedState = sharedState,
-                        dashboardState = dashboardState,
-                        updateCollapsible = updateCollapsible,
                         updateEditNameDialogState = updateEditNameDialogState,
                         updateRadioDialogState = updateRadioDialogState,
                         updateSearchDialogState = updateSearchDialogState,
@@ -284,7 +290,8 @@ fun Dashboard(
                         openDialog = openDialog,
                         updateViewAssigneeDialogState = updateViewAssigneeDialogState,
                         swipeRefreshState = refreshTaskState,
-                        onRefresh = refreshTasks
+                        onRefresh = refreshTasks,
+                        updateTaskCollapsible = updateTaskCollapsible
                     )
                 }
                 1 -> {
@@ -296,8 +303,6 @@ fun Dashboard(
                         rawTasks = rawCreatedTasks,
                         navController = navController,
                         sharedState = sharedState,
-                        dashboardState = dashboardState,
-                        updateCollapsible = updateCollapsible,
                         updateEditNameDialogState = updateEditNameDialogState,
                         updateRadioDialogState = updateRadioDialogState,
                         updateSearchDialogState = updateSearchDialogState,
@@ -306,7 +311,8 @@ fun Dashboard(
                         openDialog = openDialog,
                         updateViewAssigneeDialogState = updateViewAssigneeDialogState,
                         swipeRefreshState = refreshCreatedTaskState,
-                        onRefresh = refreshCreatedTasks
+                        onRefresh = refreshCreatedTasks,
+                        updateTaskCollapsible = updateCreatedTaskCollapsible
                     )
                 }
             }
@@ -480,12 +486,10 @@ fun DashboardMenu(
     windowInfo: WindowInfo,
     isCreator: Boolean,
     process: ProcessState,
-    tasks: List<Pair<String, List<TaskPartDTO>>>,
+    tasks: DashboardDataState,
     rawTasks: List<TaskPartDTO>,
     navController: NavController,
     sharedState: SharedViewModelState,
-    dashboardState: DashboardState,
-    updateCollapsible: (List<Boolean>, Int) -> Unit,
     updateEditNameDialogState: (EditNameDialogState) -> Unit,
     updateRadioDialogState: (RadioButtonDialogState) -> Unit,
     updateSearchDialogState: (SearchUserDialogState) -> Unit,
@@ -494,7 +498,8 @@ fun DashboardMenu(
     openDialog: (DashboardDialogs) -> Unit,
     updateViewAssigneeDialogState: (List<UserDTO>) -> Unit,
     swipeRefreshState: SwipeRefreshState,
-    onRefresh: () -> Unit
+    onRefresh: () -> Unit,
+    updateTaskCollapsible: (String, Boolean) -> Unit
 ) {
     when (process) {
         is ProcessState.Loading -> {
@@ -509,35 +514,31 @@ fun DashboardMenu(
                     0 -> {
                         if (tasks.isNotEmpty()) {
                             LazyColumn {
-                                tasks.forEachIndexed { idx, pair ->
+                                tasks.forEach { pair ->
                                     stickyHeader {
                                         Row(
                                             verticalAlignment = Alignment.CenterVertically,
                                             modifier = Modifier.fillMaxWidth()
                                         ) {
                                             OneLineText(
-                                                text = pair.first,
+                                                text = pair.first.label,
                                                 modifier = Modifier.padding(10.dp)
                                             )
                                             IconButton(
                                                 onClick = {
-                                                    updateCollapsible(
-                                                        dashboardState.isCollapsed[sharedState.dashboardBottomBarIdx].mapIndexed { index, col ->
-                                                            if (idx == index) !dashboardState.isCollapsed[sharedState.dashboardBottomBarIdx][idx] else col
-                                                        }, sharedState.dashboardBottomBarIdx
-                                                    )
+                                                    updateTaskCollapsible(pair.first.label, !pair.first.collapsible)
                                                 },
                                                 modifier = Modifier.padding(5.dp)
                                             ) {
                                                 Icon(
-                                                    imageVector = if (dashboardState.isCollapsed[sharedState.dashboardBottomBarIdx][idx]) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                                                    imageVector = if (pair.first.collapsible) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
                                                     contentDescription = null
                                                 )
                                             }
                                         }
                                     }
                                     items(items = pair.second) { task ->
-                                        AnimatedVisibility(!dashboardState.isCollapsed[sharedState.dashboardBottomBarIdx][idx]) {
+                                        AnimatedVisibility(pair.first.collapsible) {
                                             DashboardList(
                                                 windowInfo = windowInfo,
                                                 task = task,
@@ -644,35 +645,31 @@ fun DashboardMenu(
                                     }
                                 )
                             ) {
-                                tasks.forEachIndexed { idx, pair ->
+                                tasks.forEach { pair ->
                                     header {
                                         Row(
                                             verticalAlignment = Alignment.CenterVertically,
                                             modifier = Modifier.fillMaxWidth()
                                         ) {
                                             OneLineText(
-                                                text = pair.first,
+                                                text = pair.first.label,
                                                 modifier = Modifier.padding(10.dp)
                                             )
                                             IconButton(
                                                 onClick = {
-                                                    updateCollapsible(
-                                                        dashboardState.isCollapsed[sharedState.dashboardBottomBarIdx].mapIndexed { index, col ->
-                                                            if (idx == index) !dashboardState.isCollapsed[sharedState.dashboardBottomBarIdx][idx] else col
-                                                        }, sharedState.dashboardBottomBarIdx
-                                                    )
+                                                    updateTaskCollapsible(pair.first.label, !pair.first.collapsible)
                                                 },
                                                 modifier = Modifier.padding(5.dp)
                                             ) {
                                                 Icon(
-                                                    imageVector = if (dashboardState.isCollapsed[sharedState.dashboardBottomBarIdx][idx]) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                                                    imageVector = if (pair.first.collapsible) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
                                                     contentDescription = null
                                                 )
                                             }
                                         }
                                     }
                                     items(items = pair.second) { task ->
-                                        AnimatedVisibility(!dashboardState.isCollapsed[sharedState.dashboardBottomBarIdx][idx]) {
+                                        AnimatedVisibility(pair.first.collapsible) {
                                             DashboardGrid(
                                                 task = task,
                                                 navigateToProfile = { navController.navigate("${Routes.PROFILE}/$it") },

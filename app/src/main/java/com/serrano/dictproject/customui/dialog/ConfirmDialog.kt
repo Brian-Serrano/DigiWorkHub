@@ -49,7 +49,7 @@ fun ConfirmDialog(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "Are you sure you want to delete this ${placeholder}?",
+                    text = placeholder,
                     style = MaterialTheme.typography.bodyLarge,
                     color = Color.Black,
                     textAlign = TextAlign.Center,
@@ -62,7 +62,10 @@ fun ConfirmDialog(
                 ) {
                     CustomButton(
                         text = "YES",
-                        onClick = { onYesClick(id) }
+                        onClick = {
+                            onCancelClick()
+                            onYesClick(id)
+                        }
                     )
                     CustomButton(
                         text = "CANCEL",

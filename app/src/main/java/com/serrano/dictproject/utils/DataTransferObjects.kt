@@ -39,6 +39,17 @@ data class Signup(
     val confirmPassword: String
 )
 
+data class ForgotPasswordBody(
+    val email: String
+)
+
+data class ForgotChangePasswordBody(
+    val email: String,
+    val code: String,
+    val password: String,
+    val confirmPassword: String
+)
+
 data class Login(
     val email: String,
     val password: String

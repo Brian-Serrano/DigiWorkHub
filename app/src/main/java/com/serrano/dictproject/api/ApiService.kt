@@ -8,6 +8,8 @@ import com.serrano.dictproject.utils.CommentBody
 import com.serrano.dictproject.utils.CommentDTO
 import com.serrano.dictproject.utils.DescriptionChange
 import com.serrano.dictproject.utils.DueChange
+import com.serrano.dictproject.utils.ForgotChangePasswordBody
+import com.serrano.dictproject.utils.ForgotPasswordBody
 import com.serrano.dictproject.utils.LikeComment
 import com.serrano.dictproject.utils.Login
 import com.serrano.dictproject.utils.MessageBody
@@ -61,6 +63,14 @@ interface ApiService {
     @Unauthorized
     @POST("/auth_routes/log_in")
     suspend fun login(@Body login: Login): Response<SignUpSuccess>
+
+    @Unauthorized
+    @POST("/auth_routes/forgot_password")
+    suspend fun forgotPassword(@Body forgotPasswordBody: ForgotPasswordBody): Response<Success>
+
+    @Unauthorized
+    @POST("/auth_routes/change_password")
+    suspend fun changePassword(@Body forgotChangePasswordBody: ForgotChangePasswordBody): Response<Success>
 
     @GET("/task_routes/get_tasks")
     suspend fun getTasks(): Response<List<TaskPartDTO>>

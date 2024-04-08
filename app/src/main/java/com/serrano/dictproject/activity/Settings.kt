@@ -200,9 +200,8 @@ fun Settings(
                                         settingsState.copy(
                                             confirmDialogState = ConfirmDialogState(
                                                 id = 0,
-                                                placeholder = "account",
+                                                placeholder = "Are you sure you want to delete this account?",
                                                 onYesClick = {
-                                                    removeDialog()
                                                     deleteAccount {
                                                         navController.navigate(Routes.SIGNUP) {
                                                             popUpTo(navController.graph.id) {

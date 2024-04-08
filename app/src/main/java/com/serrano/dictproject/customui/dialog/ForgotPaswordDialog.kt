@@ -30,19 +30,21 @@ import androidx.compose.ui.window.Dialog
 import com.serrano.dictproject.customui.button.CustomButton
 import com.serrano.dictproject.customui.text.OneLineText
 import com.serrano.dictproject.customui.textfield.CustomTextField
-import com.serrano.dictproject.utils.PasswordDialogState
 
 @Composable
-fun ChangePasswordDialog(
-    text: String,
-    onDismissRequest: () -> Unit,
-    passwordDialogState: PasswordDialogState,
-    onCurrentPasswordChange: (String) -> Unit,
+fun ForgotPasswordDialog(
+    code: String,
+    newPassword: String,
+    confirmPassword: String,
+    newPasswordVisibility: Boolean,
+    confirmPasswordVisibility: Boolean,
+    onCodeChange: (String) -> Unit,
     onNewPasswordChange: (String) -> Unit,
     onConfirmPasswordChange: (String) -> Unit,
-    updateCurrentPasswordVisibility: (Boolean) -> Unit,
     updateNewPasswordVisibility: (Boolean) -> Unit,
     updateConfirmPasswordVisibility: (Boolean) -> Unit,
+    text: String,
+    onDismissRequest: () -> Unit,
     onApplyClick: () -> Unit
 ) {
     Box(modifier = Modifier
@@ -66,36 +68,15 @@ fun ChangePasswordDialog(
                     fontWeight = FontWeight.Bold
                 )
                 CustomTextField(
-                    value = passwordDialogState.currentPassword,
-                    onValueChange = onCurrentPasswordChange,
-                    placeholderText = "Current Password",
-                    visualTransformation = if (passwordDialogState.currentPasswordVisibility) {
-                        VisualTransformation.None
-                    } else {
-                        PasswordVisualTransformation()
-                    },
-                    trailingIcon = {
-                        IconButton(
-                            onClick = {
-                                updateCurrentPasswordVisibility(
-                                    !passwordDialogState.currentPasswordVisibility
-                                )
-                            }
-                        ) {
-                            Icon(
-                                imageVector = if (passwordDialogState.currentPasswordVisibility) {
-                                    Icons.Filled.VisibilityOff
-                                } else Icons.Filled.Visibility,
-                                contentDescription = null
-                            )
-                        }
-                    }
+                    value = code,
+                    onValueChange = onCodeChange,
+                    placeholderText = "Code"
                 )
                 CustomTextField(
-                    value = passwordDialogState.newPassword,
+                    value = newPassword,
                     onValueChange = onNewPasswordChange,
                     placeholderText = "New Password",
-                    visualTransformation = if (passwordDialogState.newPasswordVisibility) {
+                    visualTransformation = if (newPasswordVisibility) {
                         VisualTransformation.None
                     } else {
                         PasswordVisualTransformation()
@@ -104,12 +85,12 @@ fun ChangePasswordDialog(
                         IconButton(
                             onClick = {
                                 updateNewPasswordVisibility(
-                                    !passwordDialogState.newPasswordVisibility
+                                    !newPasswordVisibility
                                 )
                             }
                         ) {
                             Icon(
-                                imageVector = if (passwordDialogState.newPasswordVisibility) {
+                                imageVector = if (newPasswordVisibility) {
                                     Icons.Filled.VisibilityOff
                                 } else Icons.Filled.Visibility,
                                 contentDescription = null
@@ -118,10 +99,10 @@ fun ChangePasswordDialog(
                     }
                 )
                 CustomTextField(
-                    value = passwordDialogState.confirmPassword,
+                    value = confirmPassword,
                     onValueChange = onConfirmPasswordChange,
                     placeholderText = "Confirm Password",
-                    visualTransformation = if (passwordDialogState.confirmPasswordVisibility) {
+                    visualTransformation = if (confirmPasswordVisibility) {
                         VisualTransformation.None
                     } else {
                         PasswordVisualTransformation()
@@ -130,12 +111,12 @@ fun ChangePasswordDialog(
                         IconButton(
                             onClick = {
                                 updateConfirmPasswordVisibility(
-                                    !passwordDialogState.confirmPasswordVisibility
+                                    !confirmPasswordVisibility
                                 )
                             }
                         ) {
                             Icon(
-                                imageVector = if (passwordDialogState.confirmPasswordVisibility) {
+                                imageVector = if (confirmPasswordVisibility) {
                                     Icons.Filled.VisibilityOff
                                 } else Icons.Filled.Visibility,
                                 contentDescription = null

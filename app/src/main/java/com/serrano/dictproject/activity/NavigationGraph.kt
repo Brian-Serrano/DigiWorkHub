@@ -118,14 +118,20 @@ fun NavigationGraph(
             val signupViewModel = hiltViewModel<SignupViewModel>()
 
             val signupState by signupViewModel.signupState.collectAsState()
+            val signupDialogs by signupViewModel.dialogState.collectAsState()
 
             SelectionContainer {
                 Signup(
                     navController = navController,
                     signupState = signupState,
+                    signupDialogs = signupDialogs,
                     updateSignupState = signupViewModel::updateSignupState,
+                    updateSignupDialog = signupViewModel::updateSignupDialog,
+                    updateConfirmDialog = signupViewModel::updateConfirmDialog,
                     signup = signupViewModel::signup,
-                    login = signupViewModel::login
+                    login = signupViewModel::login,
+                    forgotPassword = signupViewModel::forgotPassword,
+                    changePassword = signupViewModel::changePassword
                 )
             }
         }
@@ -186,7 +192,8 @@ fun NavigationGraph(
                             updateFilterDropdown = dashboardViewModel::updateFilterDropdown,
                             updateOptionsDropdown = dashboardViewModel::updateOptionsDropdown,
                             updateSortDropdown = dashboardViewModel::updateSortDropdown,
-                            updateCollapsible = dashboardViewModel::updateCollapsible,
+                            updateTaskCollapsible = dashboardViewModel::updateTaskCollapsible,
+                            updateCreatedTaskCollapsible = dashboardViewModel::updateCreatedTaskCollapsible,
                             updateEditNameDialogState = dashboardViewModel::updateEditNameDialogState,
                             updateSearchDialogState = dashboardViewModel::updateSearchDialogState,
                             updateDateDialogState = dashboardViewModel::updateDateDialogState,

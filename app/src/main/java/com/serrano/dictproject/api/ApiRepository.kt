@@ -8,6 +8,8 @@ import com.serrano.dictproject.utils.CommentBody
 import com.serrano.dictproject.utils.CommentDTO
 import com.serrano.dictproject.utils.DescriptionChange
 import com.serrano.dictproject.utils.DueChange
+import com.serrano.dictproject.utils.ForgotChangePasswordBody
+import com.serrano.dictproject.utils.ForgotPasswordBody
 import com.serrano.dictproject.utils.LikeComment
 import com.serrano.dictproject.utils.Login
 import com.serrano.dictproject.utils.MessageBody
@@ -55,6 +57,14 @@ class ApiRepository(
 
     suspend fun login(login: Login): Resource<SignUpSuccess> {
         return apiHandler.handleApi { apiService.login(login) }
+    }
+
+    suspend fun forgotPassword(forgotPasswordBody: ForgotPasswordBody): Resource<Success> {
+        return apiHandler.handleApi { apiService.forgotPassword(forgotPasswordBody) }
+    }
+
+    suspend fun changePassword(forgotChangePasswordBody: ForgotChangePasswordBody): Resource<Success> {
+        return apiHandler.handleApi { apiService.changePassword(forgotChangePasswordBody) }
     }
 
     suspend fun getTasks(): Resource<List<TaskPartDTO>> {

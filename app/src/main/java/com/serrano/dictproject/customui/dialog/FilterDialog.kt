@@ -103,8 +103,8 @@ fun FilterDialog(
                     CustomButton(
                         text = "APPLY",
                         onClick = {
-                            onApplyClick()
                             removeDialog()
+                            onApplyClick()
                         }
                     )
                     CustomButton(

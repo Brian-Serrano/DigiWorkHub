@@ -143,11 +143,8 @@ fun InboxMenu(
                                         updateConfirmDialogState(
                                             ConfirmDialogState(
                                                 id = messageId,
-                                                placeholder = "message for you only",
-                                                onYesClick = {
-                                                    deleteMessageFromUser(it)
-                                                    updateInboxDialogs(InboxDialogs.NONE)
-                                                },
+                                                placeholder = "Are you sure you want to delete this message for you only?",
+                                                onYesClick = deleteMessageFromUser,
                                                 onCancelClick = {
                                                     updateInboxDialogs(InboxDialogs.NONE)
                                                 }

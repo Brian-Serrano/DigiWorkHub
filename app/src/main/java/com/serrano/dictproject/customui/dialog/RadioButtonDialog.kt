@@ -76,8 +76,8 @@ fun RadioButtonDialog(
                     CustomButton(
                         text = "APPLY",
                         onClick = {
-                            onApplyClick(radioButtonDialogState.taskId, radioButtonDialogState.selected)
                             onDismissRequest()
+                            onApplyClick(radioButtonDialogState.taskId, radioButtonDialogState.selected)
                         }
                     )
                     CustomButton(

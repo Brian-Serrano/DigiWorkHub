@@ -87,8 +87,8 @@ fun UploadImageDialog(
                     CustomButton(
                         text = "APPLY",
                         onClick = {
-                            onApplyClick(image)
                             onDismissRequest()
+                            onApplyClick(image)
                         }
                     )
                     CustomButton(

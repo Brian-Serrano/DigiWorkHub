@@ -100,11 +100,11 @@ fun DateTimePickerDialog(
                     CustomButton(
                         text = "APPLY",
                         onClick = {
+                            onDismissRequest()
                             onApplyClick(
                                 dateDialogState.taskId,
                                 dateMapper(datePickerState, timePickerState)
                             )
-                            onDismissRequest()
                         }
                     )
                     CustomButton(

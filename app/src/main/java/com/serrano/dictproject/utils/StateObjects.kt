@@ -31,7 +31,14 @@ data class SignupState(
     val signupPasswordVisibility: Boolean = false,
     val signupConfirmPasswordVisibility: Boolean = false,
     val signupButtonEnabled: Boolean = true,
-    val loginButtonEnabled: Boolean = true
+    val loginButtonEnabled: Boolean = true,
+    val forgotCode: String = "",
+    val forgotCodeReceived: String = "",
+    val forgotNewPassword: String = "",
+    val forgotConfirmPassword: String = "",
+    val forgotNewPasswordVisibility: Boolean = false,
+    val forgotConfirmPasswordVisibility: Boolean = false,
+    val confirmDialogState: ConfirmDialogState = ConfirmDialogState()
 )
 
 data class DashboardState(
@@ -41,9 +48,13 @@ data class DashboardState(
     val optionsFilterDropDown: DropDownMultiselect = DropDownMultiselect(),
     val sortDropDown: DropDownState = DropDownState(listOf("NAME", "ASSIGNEE", "DUE", "PRIORITY", "STATUS", "TYPE"), "NAME", false),
     val optionsFilterDropDownValues: List<Map<String, List<String>>> = listOf(emptyMap(), emptyMap()),
-    val isCollapsed: List<List<Boolean>> = listOf(emptyList(), emptyList()),
     val isTaskRefreshing: Boolean = false,
     val isCreatedTaskRefreshing: Boolean = false
+)
+
+data class LabelAndCollapsible(
+    val label: String,
+    val collapsible: Boolean
 )
 
 data class AboutTaskState(

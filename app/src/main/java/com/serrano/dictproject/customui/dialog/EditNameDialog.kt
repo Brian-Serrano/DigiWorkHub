@@ -62,8 +62,8 @@ fun EditNameDialog(
                     CustomButton(
                         text = "APPLY",
                         onClick = {
-                            onApplyClick(editNameDialogState.taskId, editNameDialogState.name)
                             onDismissRequest()
+                            onApplyClick(editNameDialogState.taskId, editNameDialogState.name)
                         }
                     )
                     CustomButton(

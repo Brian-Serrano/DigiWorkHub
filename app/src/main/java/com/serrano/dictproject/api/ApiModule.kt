@@ -30,13 +30,15 @@ class ApiModule {
     @Provides
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+        val baseUrl = "https://digiworkhub.onrender.com"
+
         val gson = GsonBuilder()
             .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeSerializer())
             .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeDeserializer())
             .create()
 
         return Retrofit.Builder()
-            .baseUrl("https://digiworkhub.onrender.com")
+            .baseUrl(baseUrl)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()

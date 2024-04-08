@@ -109,8 +109,8 @@ fun EditAssigneeDialog(
                     CustomButton(
                         text = "APPLY",
                         onClick = {
-                            onApplyClick(searchUserDialogState.taskId, searchUserDialogState.users)
                             onDismissRequest()
+                            onApplyClick(searchUserDialogState.taskId, searchUserDialogState.users)
                         }
                     )
                     CustomButton(
