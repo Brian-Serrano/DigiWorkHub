@@ -18,10 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.serrano.dictproject.customui.text.OneLineText
-import com.serrano.dictproject.ui.theme.DICTProjectTheme
 import com.serrano.dictproject.utils.FileUtils
 import com.serrano.dictproject.utils.UserDTO
 
@@ -72,16 +70,6 @@ fun ReceiverDropDown(
                 contentDescription = null,
                 tint = Color.Unspecified
             )
-        }
-    }
-}
-
-@Preview
-@Composable
-fun RDDPrev() {
-    DICTProjectTheme {
-        ReceiverDropDown(user = null/* User(1, "Aeonsexy", imageStr) */, onUserClick = {}) {
-
         }
     }
 }

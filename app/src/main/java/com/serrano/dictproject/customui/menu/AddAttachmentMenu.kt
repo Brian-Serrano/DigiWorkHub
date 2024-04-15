@@ -18,13 +18,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.serrano.dictproject.customui.button.CustomButton
 import com.serrano.dictproject.customui.text.OneLineText
-import com.serrano.dictproject.ui.theme.DICTProjectTheme
 import com.serrano.dictproject.utils.AddAttachmentState
 import com.serrano.dictproject.utils.MiscUtils
 
@@ -82,14 +79,4 @@ fun AddAttachmentMenu(
         enabled = attachmentState.buttonEnabled,
         modifier = Modifier.fillMaxWidth()
     )
-}
-
-@Preview
-@Composable
-fun AAMPrev() {
-    DICTProjectTheme {
-        Column {
-            AddAttachmentMenu(attachmentState = AddAttachmentState(), onFilePicked = {}, onFileUpload = {}, LocalContext.current)
-        }
-    }
 }

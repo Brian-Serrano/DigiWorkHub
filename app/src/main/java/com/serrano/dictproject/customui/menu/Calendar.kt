@@ -116,20 +116,3 @@ fun Calendar(
         }
     }
 }
-
-//@PreviewScreenSizes
-//@Composable
-//fun CalendarPrev() {
-//    DICTProjectTheme {
-//        Calendar(listOf(
-//            TaskPartDTO(),
-//            TaskPartDTO(due = LocalDateTime.now().plusDays(3)),
-//            TaskPartDTO(due = LocalDateTime.now().plusDays(5)),
-//            TaskPartDTO(due = LocalDateTime.now().plusDays(8)),
-//            TaskPartDTO(due = LocalDateTime.now().plusDays(8), title = "Aeonsexy is a popular geometry dash youtuber lady."),
-//            TaskPartDTO(due = LocalDateTime.now().plusDays(8), title = "Danzwomen is a creator virgin that loves to vomit milk."),
-//            TaskPartDTO(due = LocalDateTime.now().plusDays(8), title = "AdvyGay is a geometry dash player spanish girl."),
-//            TaskPartDTO(due = LocalDateTime.now().plusDays(20)),
-//        ), 1, {}, {})
-//    }
-//}

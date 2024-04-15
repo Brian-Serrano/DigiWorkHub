@@ -168,22 +168,3 @@ fun AddSubtaskMenu(
         }
     }
 }
-
-//@PreviewScreenSizes
-//@Composable
-//fun ASMPrev() {
-//    DICTProjectTheme {
-//        AddSubtaskMenu(
-//            windowInfo = RememberWindowInfo(),
-//            addSubtaskState = AddSubtaskState(assignees = listOf(UserDTO(1, "Aeonsexy", imageStr), UserDTO(1, "Aeonsexy", imageStr), UserDTO(1, "Aeonsexy", imageStr), UserDTO(1, "Aeonsexy", imageStr))),
-//            onDescriptionChange = { /*TODO*/ },
-//            onOpenDueDialog = { /*TODO*/ },
-//            onOpenPriorityDialog = { /*TODO*/ },
-//            onOpenTypeDialog = { /*TODO*/ },
-//            onOpenAssigneeDialog = { /*TODO*/ },
-//            onUserClick = { /*TODO*/ }
-//        ) {
-//
-//        }
-//    }
-//}

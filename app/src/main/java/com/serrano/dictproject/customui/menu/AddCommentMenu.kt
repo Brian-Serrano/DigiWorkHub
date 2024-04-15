@@ -18,15 +18,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.serrano.dictproject.customui.button.CustomButton
 import com.serrano.dictproject.customui.textfield.CommentWithMention
 import com.serrano.dictproject.customui.textfield.InputFieldColors
-import com.serrano.dictproject.ui.theme.DICTProjectTheme
 import com.serrano.dictproject.utils.UserDTO
-import com.serrano.dictproject.utils.imageStr
-import com.serrano.dictproject.utils.loremIpsum
 
 @Composable
 fun AddCommentMenu(
@@ -83,24 +79,5 @@ fun AddCommentMenu(
                 .fillMaxWidth()
                 .weight(1f)
         )
-    }
-}
-
-@Preview
-@Composable
-fun ACoMPrev() {
-    DICTProjectTheme {
-        Column {
-            AddCommentMenu(
-                commentInput = loremIpsum,
-                buttonEnabled = true,
-                onCommentInputChange = {},
-                sendComment = { /*TODO*/ },
-                commentReply = listOf(loremIpsum),
-                mentions = listOf("Danzwomen", "Aeonsexy", "KnobbelGirl", "AdvyGay").map { UserDTO(0, it, imageStr) },
-                onAddMentionsMenu = {},
-                onRemoveReply = {}
-            )
-        }
     }
 }

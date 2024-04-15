@@ -20,16 +20,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.serrano.dictproject.customui.text.OneLineText
-import com.serrano.dictproject.ui.theme.DICTProjectTheme
 import com.serrano.dictproject.utils.AttachmentState
-import com.serrano.dictproject.utils.DateUtils
 import com.serrano.dictproject.utils.FileUtils
-import com.serrano.dictproject.utils.UserDTO
-import com.serrano.dictproject.utils.imageStr
-import java.time.LocalDateTime
 
 @Composable
 fun AttachmentBox(
@@ -98,22 +92,5 @@ fun AttachmentBox(
             icon = Icons.Filled.Download,
             color = Color.Unspecified
         )
-    }
-}
-
-@Preview
-@Composable
-fun ABPrev() {
-    DICTProjectTheme {
-        AttachmentBox(0,
-            attachment = AttachmentState(0, 0,
-                UserDTO(0, "Danzwomen", imageStr), DateUtils.dateTimeToDateTimeString(
-                    LocalDateTime.now()
-                ), "Test Hello World.docx", LocalDateTime.now(), true
-            ), onUserClick = {},
-            onDownload = {}
-        ) {
-
-        }
     }
 }

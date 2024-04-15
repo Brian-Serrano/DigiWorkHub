@@ -22,17 +22,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import com.serrano.dictproject.customui.button.CustomButton
 import com.serrano.dictproject.customui.text.OneLineText
-import com.serrano.dictproject.ui.theme.DICTProjectTheme
 import com.serrano.dictproject.utils.ChecklistState
 import com.serrano.dictproject.utils.DateUtils
 import com.serrano.dictproject.utils.FileUtils
-import com.serrano.dictproject.utils.UserDTO
-import com.serrano.dictproject.utils.imageStr
-import java.time.LocalDateTime
 
 @Composable
 fun ChecklistBox(
@@ -150,13 +145,5 @@ fun ChecklistBox(
                 )
             }
         }
-    }
-}
-
-@PreviewScreenSizes
-@Composable
-fun CBPrev() {
-    DICTProjectTheme {
-        ChecklistBox(1, ChecklistState(0, 1, UserDTO(1, "Aeonsexy", imageStr), "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem mollis aliquam ut porttitor leo. Iaculis urna id volutpat lacus laoreet non curabitur gravida arcu. Augue eget arcu dictum varius. Duis ut diam quam nulla porttitor. Accumsan tortor posuere ac ut consequat. Sed lectus vestibulum mattis ullamcorper velit.", true, listOf(UserDTO(1, "Aeonsexy", imageStr), UserDTO(1, "Aeonsexy", imageStr), UserDTO(1, "Aeonsexy", imageStr)), LocalDateTime.now(), true, true), { _, _ ->}, {}, {}, {})
     }
 }

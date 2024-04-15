@@ -21,21 +21,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
-import com.serrano.dictproject.customui.RememberWindowInfo
 import com.serrano.dictproject.customui.WindowInfo
 import com.serrano.dictproject.customui.button.TextWithEditButton
 import com.serrano.dictproject.customui.dropdown.DueDropDown
 import com.serrano.dictproject.customui.dropdown.PriorityDropDown
 import com.serrano.dictproject.customui.dropdown.StatusDropDown
 import com.serrano.dictproject.customui.dropdown.TypeDropDown
-import com.serrano.dictproject.ui.theme.DICTProjectTheme
 import com.serrano.dictproject.utils.FileUtils
 import com.serrano.dictproject.utils.SubtaskState
-import com.serrano.dictproject.utils.UserDTO
-import com.serrano.dictproject.utils.imageStr
-import java.time.LocalDateTime
 
 @Composable
 fun SubtaskBox(
@@ -187,28 +181,6 @@ fun SubtaskBox(
                     deleteIcon()
                 }
             }
-        }
-    }
-}
-
-@PreviewScreenSizes
-@Composable
-fun SubtaskBoxPrev() {
-    DICTProjectTheme {
-        SubtaskBox(
-            currentUserId = 0,
-            windowInfo = RememberWindowInfo(),
-            task = SubtaskState(0, 0, "sdfghjnrgfdisdmnfvdkbfrnvsdkbsdfghjnrgfdisdmnfvdk bfrnv sdkb sdfghj nrgfdis dm nfvdkbf rnvsdkbs df ghjnrgf disd mnfvdkbfrnvsdkb", LocalDateTime.now().plusDays(1), "LOW", "ON HOLD", "TASK", listOf(UserDTO(1, "Aeonsexy", imageStr), UserDTO(1, "Aeonsexy", imageStr), UserDTO(1, "Aeonsexy", imageStr)), UserDTO(0, "Aeonsexy", imageStr), true),
-            navigateToProfile = { /*TODO*/ },
-            openViewDialog = { /*TODO*/ },
-            onDescriptionClick = { /*TODO*/ },
-            onStatusClick = { /*TODO*/ },
-            onAssigneeClick = { /*TODO*/ },
-            onPriorityClick = { /*TODO*/ },
-            onDueClick = { /*TODO*/ },
-            onTypeClick = {}
-        ) {
-
         }
     }
 }

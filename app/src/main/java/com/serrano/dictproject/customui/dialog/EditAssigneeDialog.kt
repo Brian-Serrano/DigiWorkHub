@@ -24,16 +24,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.serrano.dictproject.customui.button.CustomButton
 import com.serrano.dictproject.customui.text.OneLineText
-import com.serrano.dictproject.ui.theme.DICTProjectTheme
 import com.serrano.dictproject.utils.FileUtils
 import com.serrano.dictproject.utils.SearchUserDialogState
 import com.serrano.dictproject.utils.UserDTO
-import com.serrano.dictproject.utils.imageStr
 
 @Composable
 fun EditAssigneeDialog(
@@ -120,21 +117,5 @@ fun EditAssigneeDialog(
                 }
             }
         }
-    }
-}
-
-@Preview
-@Composable
-fun EADPrev() {
-    DICTProjectTheme {
-        EditAssigneeDialog(
-            taskAssignees = listOf(UserDTO(0, "Danzwomen", imageStr), UserDTO(1, "Aeonsexy", imageStr)),
-            searchUserDialogState = SearchUserDialogState(),
-            onUserAdd = {},
-            onUserRemove = {},
-            onUserClick = {},
-            onDismissRequest = { /*TODO*/ },
-            onApplyClick = { _, _ -> }
-        )
     }
 }

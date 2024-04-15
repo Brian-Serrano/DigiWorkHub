@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Category
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -22,10 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.serrano.dictproject.customui.text.OneLineText
-import com.serrano.dictproject.ui.theme.DICTProjectTheme
 import com.serrano.dictproject.utils.DropDownState
 
 @Composable
@@ -83,27 +79,6 @@ fun RowScope.CustomDropDown(
                     }
                 )
             }
-        }
-    }
-}
-
-@Preview(showSystemUi = true)
-@Composable
-fun CDDPrev() {
-    DICTProjectTheme {
-        Row {
-            CustomDropDown(
-                prefix = "GROUP",
-                dropDownState = DropDownState(
-                    listOf("NONE", "STATUS", "PRIORITY", "DUE", "TYPE", "CREATOR"),
-                    "NONE",
-                    true
-                ),
-                icon = Icons.Filled.Category,
-                onArrowClick = { /*TODO*/ },
-                onDismissRequest = { /*TODO*/ },
-                onItemSelect = {}
-            )
         }
     }
 }

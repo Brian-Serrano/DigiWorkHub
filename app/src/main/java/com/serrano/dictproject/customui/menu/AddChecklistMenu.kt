@@ -13,14 +13,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.serrano.dictproject.customui.button.CustomButton
 import com.serrano.dictproject.customui.textfield.ScrollableTextField
-import com.serrano.dictproject.ui.theme.DICTProjectTheme
 import com.serrano.dictproject.utils.FileUtils
 import com.serrano.dictproject.utils.UserDTO
-import com.serrano.dictproject.utils.imageStr
 
 @Composable
 fun AddChecklistMenu(
@@ -65,22 +62,6 @@ fun AddChecklistMenu(
             onClick = addChecklist,
             enabled = buttonEnabled,
             modifier = Modifier.padding(10.dp)
-        )
-    }
-}
-
-@Preview
-@Composable
-fun ACMPrev() {
-    DICTProjectTheme {
-        AddChecklistMenu(
-            checklistInput = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-            true,
-            listOf(UserDTO(1, "Aeonsexy", imageStr), UserDTO(1, "Aeonsexy", imageStr), UserDTO(1, "Aeonsexy", imageStr)),
-            updateChecklistInput = {},
-            {},
-            {},
-            {}
         )
     }
 }

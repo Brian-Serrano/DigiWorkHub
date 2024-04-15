@@ -27,17 +27,14 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavOptionsBuilder
-import androidx.navigation.compose.rememberNavController
 import com.serrano.dictproject.customui.button.CustomButton
 import com.serrano.dictproject.customui.dialog.ConfirmDialog
 import com.serrano.dictproject.customui.dialog.ForgotPasswordDialog
 import com.serrano.dictproject.customui.text.OneLineText
 import com.serrano.dictproject.customui.textfield.CustomTextField
-import com.serrano.dictproject.ui.theme.DICTProjectTheme
 import com.serrano.dictproject.utils.ConfirmDialogState
 import com.serrano.dictproject.utils.MiscUtils
 import com.serrano.dictproject.utils.Routes
@@ -476,24 +473,5 @@ fun Signup(
                 )
             }
         }
-    }
-}
-
-@Preview
-@Composable
-fun SignupPrev() {
-    DICTProjectTheme {
-        Signup(
-            navController = rememberNavController(),
-            signupState = SignupState(tab = 1),
-            signupDialogs = SignupDialogs.NONE,
-            updateSignupState = {},
-            updateSignupDialog = {},
-            updateConfirmDialog = {},
-            signup = {},
-            login = {},
-            forgotPassword = {},
-            changePassword = {}
-        )
     }
 }

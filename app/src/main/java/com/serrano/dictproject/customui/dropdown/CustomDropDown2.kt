@@ -23,10 +23,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.serrano.dictproject.customui.text.OneLineText
-import com.serrano.dictproject.ui.theme.DICTProjectTheme
 
 @Composable
 fun CustomDropDown2(
@@ -90,18 +88,5 @@ fun CustomDropDown2(
                 )
             }
         }
-    }
-}
-
-@Preview
-@Composable
-fun CustomDDPrev() {
-    DICTProjectTheme(dynamicColor = false) {
-        CustomDropDown2(
-            text = "STATUS",
-            selected = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Consequat mauris nunc congue nisi vitae. Venenatis tellus in metus vulputate eu. Pharetra sit amet aliquam id. Viverra tellus in hac habitasse platea dictumst vestibulum rhoncus. Purus gravida quis blandit turpis cursus. Lorem ipsum dolor sit amet consectetur adipiscing elit ut. Ac odio tempor orci dapibus ultrices in. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Consequat mauris nunc congue nisi vitae. Venenatis tellus in metus vulputate eu. Pharetra sit amet aliquam id. Viverra tellus in hac habitasse platea dictumst vestibulum rhoncus. Purus gravida quis blandit turpis cursus. Lorem ipsum dolor sit amet consectetur adipiscing elit ut. Ac odio tempor orci dapibus ultrices in.",
-            onArrowClick = { /*TODO*/ },
-            isOneLine = false
-        )
     }
 }

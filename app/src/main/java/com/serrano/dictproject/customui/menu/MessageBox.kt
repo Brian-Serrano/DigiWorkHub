@@ -20,17 +20,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import com.serrano.dictproject.customui.button.CustomButton
 import com.serrano.dictproject.customui.text.OneLineText
-import com.serrano.dictproject.ui.theme.DICTProjectTheme
 import com.serrano.dictproject.utils.DateUtils
 import com.serrano.dictproject.utils.FileUtils
 import com.serrano.dictproject.utils.MessagePartState
-import com.serrano.dictproject.utils.UserDTO
-import com.serrano.dictproject.utils.imageStr
-import java.time.LocalDateTime
 
 @Composable
 fun MessageBox(
@@ -111,18 +106,5 @@ fun MessageBox(
                 modifier = Modifier.padding(5.dp)
             )
         }
-    }
-}
-
-@PreviewScreenSizes
-@Composable
-fun MBPrev() {
-    DICTProjectTheme {
-        MessageBox(
-            message = MessagePartState(0, LocalDateTime.now(), UserDTO(0, "Danzwomen", imageStr), "Test MessageTest Message Test Message Test Message", true),
-            onUserClick = {},
-            onViewClick = {},
-            onDeleteClick = {}
-        )
     }
 }

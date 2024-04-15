@@ -39,13 +39,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.serrano.dictproject.customui.button.CustomButton
 import com.serrano.dictproject.customui.dialog.UploadFileDialog
 import com.serrano.dictproject.customui.dropdown.ReceiverDropDown
@@ -53,7 +50,6 @@ import com.serrano.dictproject.customui.menu.UploadFileBox
 import com.serrano.dictproject.customui.text.OneLineText
 import com.serrano.dictproject.customui.textfield.CustomTextField
 import com.serrano.dictproject.customui.textfield.InputFieldColors
-import com.serrano.dictproject.ui.theme.DICTProjectTheme
 import com.serrano.dictproject.utils.FileUtils
 import com.serrano.dictproject.utils.MiscUtils
 import com.serrano.dictproject.utils.Routes
@@ -330,23 +326,5 @@ fun SendMessage(
                 )
             }
         }
-    }
-}
-
-@PreviewScreenSizes
-@Composable
-fun SMPrev() {
-    DICTProjectTheme {
-        SendMessage(
-            navController = rememberNavController(),
-            paddingValues = PaddingValues(0.dp),
-            context = LocalContext.current,
-            sendMessageState = SendMessageState(),
-            sendMessageDialogs = SendMessageDialogs.NONE,
-            updateSendMessageState = {},
-            updateDialogState = {},
-            sendMessage = { _ -> },
-            searchUser = { _, _ -> }
-        )
     }
 }

@@ -19,11 +19,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.serrano.dictproject.customui.RememberWindowInfo
 import com.serrano.dictproject.customui.WindowInfo
 import com.serrano.dictproject.customui.button.CustomButton
 import com.serrano.dictproject.customui.dialog.DateTimePickerDialog
@@ -33,7 +30,6 @@ import com.serrano.dictproject.customui.dialog.SearchUserDialog
 import com.serrano.dictproject.customui.dialog.ViewAssigneeDialog
 import com.serrano.dictproject.customui.dropdown.CustomDropDown2
 import com.serrano.dictproject.customui.text.OneLineText
-import com.serrano.dictproject.ui.theme.DICTProjectTheme
 import com.serrano.dictproject.utils.AddTaskDialogs
 import com.serrano.dictproject.utils.AddTaskState
 import com.serrano.dictproject.utils.DateDialogState
@@ -419,37 +415,5 @@ fun AddTask(
                 )
             }
         }
-    }
-}
-
-@PreviewScreenSizes
-@Composable
-fun AddTaskPrev() {
-    DICTProjectTheme {
-        AddTask(
-            windowInfo = RememberWindowInfo(),
-            addTaskDialogs = AddTaskDialogs.NONE,
-            navController = rememberNavController(),
-            paddingValues = PaddingValues(0.dp),
-            dialogsState = DialogsState(
-                EditNameDialogState(),
-                SearchUserDialogState(),
-                DateDialogState(),
-                RadioButtonDialogState(),
-                SearchState(),
-                emptyList()
-            ),
-            addTaskState = AddTaskState(),
-            updateDialogState = {},
-            updateRadioDialogState = {},
-            updateEditNameDialogState = {},
-            updateDateDialogState = {},
-            updateSearchDialogState = {},
-            updateViewAssigneeDialogState = {},
-            updateTaskState = {},
-            updateSearchState = {},
-            searchUser = { _, _ -> },
-            addTask = { _ ->  }
-        )
     }
 }

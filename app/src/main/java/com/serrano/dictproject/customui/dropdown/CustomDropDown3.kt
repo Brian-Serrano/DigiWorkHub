@@ -18,10 +18,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.serrano.dictproject.customui.text.OneLineText
-import com.serrano.dictproject.ui.theme.DICTProjectTheme
 
 @Composable
 fun RowScope.CustomDropDown3(
@@ -56,19 +54,6 @@ fun RowScope.CustomDropDown3(
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                 modifier = Modifier.padding(10.dp)
-            )
-        }
-    }
-}
-
-@Preview
-@Composable
-fun CC3Prev() {
-    DICTProjectTheme {
-        Row {
-            CustomDropDown3(
-                selected = "IN PROGRESS",
-                onClick = { /*TODO*/ }
             )
         }
     }

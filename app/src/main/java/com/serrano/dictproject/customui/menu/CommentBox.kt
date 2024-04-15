@@ -35,17 +35,11 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import com.serrano.dictproject.customui.text.OneLineText
-import com.serrano.dictproject.ui.theme.DICTProjectTheme
 import com.serrano.dictproject.utils.CommentState
 import com.serrano.dictproject.utils.DateUtils
 import com.serrano.dictproject.utils.FileUtils
-import com.serrano.dictproject.utils.UserDTO
-import com.serrano.dictproject.utils.imageStr
-import com.serrano.dictproject.utils.loremIpsum
-import java.time.LocalDateTime
 
 @Composable
 fun CommentBox(
@@ -203,14 +197,5 @@ fun CommentBox(
                 }
             }
         }
-    }
-}
-
-@PreviewScreenSizes
-@Composable
-fun CommentPrev() {
-    DICTProjectTheme {
-        CommentBox(0, comment = CommentState(0, 0, "Hello World Test Hello World Test Hello World Test Hello World Test Hello World Test", listOf(0), listOf("Danzwomen", "Aeonsexy", "Philippa"), UserDTO(0, "Danzwomen", imageStr), LocalDateTime.now(), listOf(0), true, true), {}, {}, {}, {}, listOf(
-            loremIpsum))
     }
 }

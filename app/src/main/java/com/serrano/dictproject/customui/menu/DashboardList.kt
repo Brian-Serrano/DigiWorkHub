@@ -196,23 +196,3 @@ fun DashboardList(
         }
     }
 }
-
-//@PreviewScreenSizes
-//@Composable
-//fun DLPrev() {
-//    DICTProjectTheme {
-//        DashboardList(
-//            windowInfo = RememberWindowInfo(),
-//            task = TaskPartDTO(),
-//            navigateToProfile = { /*TODO*/ },
-//            openViewDialog = { /*TODO*/ },
-//            onTitleClick = { /*TODO*/ },
-//            onStatusClick = { /*TODO*/ },
-//            onAssigneeClick = { /*TODO*/ },
-//            onPriorityClick = { /*TODO*/ },
-//            onDueClick = { /*TODO*/ },
-//            onTypeClick = { /*TODO*/ }) {
-//
-//        }
-//    }
-//}

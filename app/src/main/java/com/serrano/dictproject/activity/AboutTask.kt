@@ -24,17 +24,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.serrano.dictproject.customui.CustomTab
 import com.serrano.dictproject.customui.ErrorComposable
 import com.serrano.dictproject.customui.Loading
-import com.serrano.dictproject.customui.RememberWindowInfo
 import com.serrano.dictproject.customui.WindowInfo
 import com.serrano.dictproject.customui.button.CustomButton
 import com.serrano.dictproject.customui.button.TextWithEditButton
@@ -58,7 +54,6 @@ import com.serrano.dictproject.customui.menu.CommentBox
 import com.serrano.dictproject.customui.menu.SubtaskBox
 import com.serrano.dictproject.customui.text.OneLineText
 import com.serrano.dictproject.datastore.Preferences
-import com.serrano.dictproject.ui.theme.DICTProjectTheme
 import com.serrano.dictproject.utils.AboutTaskDialogs
 import com.serrano.dictproject.utils.AboutTaskState
 import com.serrano.dictproject.utils.AddAttachmentState
@@ -1190,71 +1185,5 @@ fun AboutTask(
                 }
             }
         }
-    }
-}
-
-@PreviewScreenSizes
-@Composable
-fun AboutTaskPrev() {
-    DICTProjectTheme {
-        AboutTask(
-            windowInfo = RememberWindowInfo(),
-            aboutTaskDialogs = AboutTaskDialogs.NONE,
-            preferences = Preferences(id = 2),
-            navController = rememberNavController(),
-            paddingValues = PaddingValues(0.dp),
-            context = LocalContext.current,
-            process = ProcessState.Success,
-            task = TaskState(),
-            dialogsState = DialogsState(
-                EditNameDialogState(),
-                SearchUserDialogState(),
-                DateDialogState(),
-                RadioButtonDialogState(),
-                SearchState(),
-                emptyList()
-            ),
-            aboutTaskState = AboutTaskState(),
-            updateAddCommentState = {},
-            updateAddChecklistState = {},
-            updateAddSubtaskState = {},
-            updateAddAttachmentState = {},
-            updateConfirmDialogState = {},
-            updateDialogState = {},
-            updateTask = {},
-            updateRadioDialogState = {},
-            updateEditNameDialogState = {},
-            updateDateDialogState = {},
-            updateSearchDialogState = {},
-            updateSearchState = {},
-            updateViewAssigneeDialogState = {},
-            changeAssignee = { _, _, _ -> },
-            changeName = { _, _, _ -> },
-            searchUser = { _, _ -> },
-            changeDue = { _, _, _ -> },
-            changePriority = { _, _, _ -> },
-            changeStatus = { _, _, _ -> },
-            changeType = { _, _, _ -> },
-            changeDescription = { _, _, _ -> },
-            sendComment = {},
-            addChecklist = {},
-            addSubtask = {},
-            uploadAttachment = {},
-            changeSubtaskDescription = { _, _ -> },
-            changeSubtaskPriority = { _, _ -> },
-            changeSubtaskDueDate = { _, _ -> },
-            changeSubtaskStatus = { _, _ -> },
-            changeSubtaskType = { _, _ -> },
-            editSubtaskAssignees = { _, _ -> },
-            toggleChecklist = { _, _ -> },
-            likeComment = { _, _ -> },
-            downloadAttachment = { _, _ -> },
-            refreshTaskInfo = {},
-            deleteTask = { _, _ -> },
-            deleteComment = {},
-            deleteSubtask = {},
-            deleteChecklist = {},
-            deleteAttachment = {}
-        )
     }
 }

@@ -22,11 +22,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.serrano.dictproject.customui.ErrorComposable
@@ -38,7 +35,6 @@ import com.serrano.dictproject.customui.dialog.EditNameDialog
 import com.serrano.dictproject.customui.dialog.UploadImageDialog
 import com.serrano.dictproject.customui.menu.InfoLine
 import com.serrano.dictproject.customui.text.OneLineText
-import com.serrano.dictproject.ui.theme.DICTProjectTheme
 import com.serrano.dictproject.utils.ConfirmDialogState
 import com.serrano.dictproject.utils.EditNameDialogState
 import com.serrano.dictproject.utils.FileUtils
@@ -339,30 +335,5 @@ fun Settings(
                 }
             }
         }
-    }
-}
-
-@PreviewScreenSizes
-@Composable
-fun InfoPrev() {
-    DICTProjectTheme(dynamicColor = false) {
-        Settings(
-            navController = rememberNavController(),
-            paddingValues = PaddingValues(0.dp),
-            context = LocalContext.current,
-            user = ProfileDataDTO(),
-            process = ProcessState.Success,
-            settingsDialogs = SettingsDialogs.PASSWORD,
-            settingsState = SettingsState(),
-            updateDialogState = {},
-            updateSettingsState = {},
-            updateChangePasswordState = {},
-            changeUserName = {},
-            changeUserRole = {},
-            changeUserPassword = {},
-            uploadImage = {},
-            refreshUser = {},
-            deleteAccount = {}
-        )
     }
 }

@@ -136,35 +136,3 @@ fun DashboardGrid(
         )
     }
 }
-
-//@PreviewScreenSizes
-//@Composable
-//fun DGPrev() {
-//    DICTProjectTheme {
-//        val windowInfo = RememberWindowInfo()
-//        LazyVerticalGrid(
-//            columns = GridCells.Fixed(
-//                when (windowInfo.screenWidthInfo) {
-//                    is WindowInfo.WindowType.Compact -> 2
-//                    is WindowInfo.WindowType.Medium -> 3
-//                    is WindowInfo.WindowType.Expanded -> 5
-//                }
-//            )
-//        ) {
-//            items(List(8) { TaskPartDTO() }) {
-//                DashboardGrid(
-//                    task = TaskPartDTO(),
-//                    navigateToProfile = { /*TODO*/ },
-//                    openViewDialog = {},
-//                    onTitleClick = { /*TODO*/ },
-//                    onStatusClick = { /*TODO*/ },
-//                    onAssigneeClick = { /*TODO*/ },
-//                    onPriorityClick = { /*TODO*/ },
-//                    onDueClick = { /*TODO*/ },
-//                    onTypeClick = { /*TODO*/ }) {
-//
-//                }
-//            }
-//        }
-//    }
-//}

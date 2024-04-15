@@ -32,18 +32,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.serrano.dictproject.customui.ErrorComposable
 import com.serrano.dictproject.customui.Loading
-import com.serrano.dictproject.customui.RememberWindowInfo
 import com.serrano.dictproject.customui.WindowInfo
 import com.serrano.dictproject.customui.button.CustomButton
 import com.serrano.dictproject.customui.dialog.ConfirmDialog
@@ -53,18 +49,15 @@ import com.serrano.dictproject.customui.menu.UploadFileBox
 import com.serrano.dictproject.customui.text.OneLineText
 import com.serrano.dictproject.customui.textfield.InputFieldColors
 import com.serrano.dictproject.datastore.Preferences
-import com.serrano.dictproject.ui.theme.DICTProjectTheme
 import com.serrano.dictproject.utils.AboutMessageDialogs
 import com.serrano.dictproject.utils.AboutMessageState
 import com.serrano.dictproject.utils.ConfirmDialogState
 import com.serrano.dictproject.utils.DateUtils
 import com.serrano.dictproject.utils.FileUtils
-import com.serrano.dictproject.utils.MessageReplyState
 import com.serrano.dictproject.utils.MessageState
 import com.serrano.dictproject.utils.MiscUtils
 import com.serrano.dictproject.utils.ProcessState
 import com.serrano.dictproject.utils.Routes
-import java.time.LocalDateTime
 
 @Composable
 fun AboutMessage(
@@ -474,39 +467,5 @@ fun AboutMessage(
                 }
             }
         }
-    }
-}
-
-@PreviewScreenSizes
-@Composable
-fun AMPrev() {
-    DICTProjectTheme(dynamicColor = false) {
-        val reply = MessageReplyState(0, 0, LocalDateTime.now(), "Watch This Quick Tutorial for More Tips Draw, Refine, and Witness Your Style Come to Life Available now for both Free and Premium users!.", 0, listOf("Test12345.docx", "Test45678.pptx"), listOf("Test12345.docx", "Test45678.pptx"), true)
-
-        AboutMessage(
-            windowInfo = RememberWindowInfo(),
-            preferences = Preferences(),
-            navController = rememberNavController(),
-            paddingValues = PaddingValues(0.dp),
-            context = LocalContext.current,
-            message = MessageState(replies = listOf(reply, reply, reply)),
-            process = ProcessState.Success,
-            downloadAttachment = { _, _ -> },
-            aboutMessageState = AboutMessageState(
-                fileUris = listOf(),
-                dialogUri = null,
-                description = "",
-                buttonEnabled = false
-            ),
-            aboutMessageDialogs = AboutMessageDialogs.NONE,
-            updateDialogState = {},
-            updateAboutMessageState = {},
-            updateConfirmDialogState = {},
-            replyMessage = {},
-            refreshMessage = {},
-            deleteMessage = { _, _ -> },
-            deleteReply = {},
-            deleteMessageFromUser = { _, _ -> }
-        )
     }
 }

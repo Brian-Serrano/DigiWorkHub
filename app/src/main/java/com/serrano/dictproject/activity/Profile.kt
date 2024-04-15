@@ -27,10 +27,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.serrano.dictproject.customui.ErrorComposable
@@ -39,7 +37,6 @@ import com.serrano.dictproject.customui.dialog.EditNameDialog
 import com.serrano.dictproject.customui.dialog.UploadImageDialog
 import com.serrano.dictproject.customui.text.OneLineText
 import com.serrano.dictproject.datastore.Preferences
-import com.serrano.dictproject.ui.theme.DICTProjectTheme
 import com.serrano.dictproject.utils.EditNameDialogState
 import com.serrano.dictproject.utils.FileUtils
 import com.serrano.dictproject.utils.MiscUtils
@@ -290,28 +287,5 @@ fun Profile(
                 }
             }
         }
-    }
-}
-
-@PreviewScreenSizes
-@Composable
-fun ProfilePrev() {
-    DICTProjectTheme {
-        Profile(
-            preferences = Preferences(),
-            navController = rememberNavController(),
-            context = LocalContext.current,
-            paddingValues = PaddingValues(0.dp),
-            process = ProcessState.Success,
-            user = ProfileDataDTO(),
-            profileDialogs = ProfileDialogs.NONE,
-            profileState = ProfileState(),
-            updateDialogState = {},
-            updateProfileState = {},
-            changeUserName = {},
-            changeUserRole = {},
-            uploadImage = {},
-            refreshUser = {}
-        )
     }
 }
