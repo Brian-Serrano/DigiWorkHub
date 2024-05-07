@@ -18,6 +18,7 @@ import com.serrano.dictproject.utils.MessageIdBody
 import com.serrano.dictproject.utils.MessagePartDTO
 import com.serrano.dictproject.utils.MessageReplyDTO
 import com.serrano.dictproject.utils.NameChange
+import com.serrano.dictproject.utils.NotificationTokenBody
 import com.serrano.dictproject.utils.PasswordBody
 import com.serrano.dictproject.utils.PriorityChange
 import com.serrano.dictproject.utils.ProfileDataDTO
@@ -183,6 +184,9 @@ interface ApiService {
 
     @POST("/user_routes/change_user_password")
     suspend fun changeUserPassword(@Body passwordBody: PasswordBody): Response<Success>
+
+    @POST("/user_routes/update_notifications_token")
+    suspend fun updateNotificationsToken(@Body notificationTokenBody: NotificationTokenBody): Response<Success>
 
     @DELETE("/task_routes/delete_task")
     suspend fun deleteTask(@Query("task_id") taskId: Int): Response<Success>

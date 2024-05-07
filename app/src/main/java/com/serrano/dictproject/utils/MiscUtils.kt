@@ -11,10 +11,13 @@ import android.provider.OpenableColumns
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import com.auth0.jwt.JWT
+import com.google.firebase.Firebase
+import com.google.firebase.messaging.messaging
 import com.serrano.dictproject.R
 import com.serrano.dictproject.api.ApiRepository
 import com.serrano.dictproject.datastore.PreferencesRepository
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.tasks.await
 import okhttp3.ResponseBody
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -104,7 +107,7 @@ object MiscUtils {
         return Bitmap.createBitmap(scaledBitmap, 0, 0, 199, 199)
     }
 
-    private fun checkToken(authToken: String): Boolean {
+    fun checkToken(authToken: String): Boolean {
         return try { JWT.decode(authToken).expiresAt.before(Date()) } catch (e: Exception) { true }
     }
 
@@ -254,7 +257,7 @@ object MiscUtils {
             toast(context, "Your token is not valid, refreshing Login.")
 
             val authResponse = apiRepository.login(
-                Login(preferences.email, preferences.password)
+                Login(preferences.email, preferences.password, Firebase.messaging.token.await())
             )
 
             when (authResponse) {

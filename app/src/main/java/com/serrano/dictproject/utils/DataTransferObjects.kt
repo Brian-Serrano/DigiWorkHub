@@ -36,7 +36,8 @@ data class Signup(
     val name: String,
     val email: String,
     val password: String,
-    val confirmPassword: String
+    val confirmPassword: String,
+    val notificationToken: String
 )
 
 data class ForgotPasswordBody(
@@ -52,7 +53,8 @@ data class ForgotChangePasswordBody(
 
 data class Login(
     val email: String,
-    val password: String
+    val password: String,
+    val notificationToken: String
 )
 
 data class TaskBody(
@@ -187,6 +189,10 @@ data class PasswordBody(
     val currentPassword: String,
     val newPassword: String,
     val confirmPassword: String
+)
+
+data class NotificationTokenBody(
+    val token: String
 )
 
 data class TaskPartDTO(

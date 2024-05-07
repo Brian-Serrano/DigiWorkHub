@@ -3,6 +3,8 @@ package com.serrano.dictproject.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.Firebase
+import com.google.firebase.messaging.messaging
 import com.serrano.dictproject.api.ApiRepository
 import com.serrano.dictproject.datastore.PreferencesRepository
 import com.serrano.dictproject.utils.ConfirmDialogState
@@ -20,6 +22,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
@@ -58,7 +61,8 @@ class SignupViewModel @Inject constructor(
                             _signupState.value.signupName,
                             _signupState.value.signupEmail,
                             _signupState.value.signupPassword,
-                            _signupState.value.signupConfirmPassword
+                            _signupState.value.signupConfirmPassword,
+                            Firebase.messaging.token.await()
                         )
                     )
                 ) {
@@ -114,7 +118,8 @@ class SignupViewModel @Inject constructor(
                     val response = apiRepository.login(
                         Login(
                             _signupState.value.loginEmail,
-                            _signupState.value.loginPassword
+                            _signupState.value.loginPassword,
+                            Firebase.messaging.token.await()
                         )
                     )
                 ) {

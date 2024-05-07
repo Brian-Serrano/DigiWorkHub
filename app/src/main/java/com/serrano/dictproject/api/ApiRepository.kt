@@ -18,6 +18,7 @@ import com.serrano.dictproject.utils.MessageIdBody
 import com.serrano.dictproject.utils.MessagePartDTO
 import com.serrano.dictproject.utils.MessageReplyDTO
 import com.serrano.dictproject.utils.NameChange
+import com.serrano.dictproject.utils.NotificationTokenBody
 import com.serrano.dictproject.utils.PasswordBody
 import com.serrano.dictproject.utils.PriorityChange
 import com.serrano.dictproject.utils.ProfileDataDTO
@@ -209,6 +210,10 @@ class ApiRepository(
 
     suspend fun changeUserPassword(passwordBody: PasswordBody): Resource<Success> {
         return apiHandler.handleApi { apiService.changeUserPassword(passwordBody) }
+    }
+
+    suspend fun updateNotificationsToken(notificationTokenBody: NotificationTokenBody): Resource<Success> {
+        return apiHandler.handleApi { apiService.updateNotificationsToken(notificationTokenBody) }
     }
 
     suspend fun deleteTask(taskId: Int): Resource<Success> {
