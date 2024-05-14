@@ -76,6 +76,60 @@ import com.serrano.dictproject.utils.TaskState
 import com.serrano.dictproject.utils.UserDTO
 import java.time.LocalDateTime
 
+/**
+ * This is the page shown when the user selected tasks, you can see the all description about task, comments, checklists, subtasks and attachments.
+ *
+ * @param[windowInfo] An object that will be used to determine the size of screen, adapt the contents base on size and become responsive.
+ * @param[aboutTaskDialogs] What dialog to show the default is NONE (do not show)
+ * @param[preferences] The user information, that will be used to know who user access the page and do not do things or do not show content base on who the user e.g. do not allow user to delete the task if he/she did not create it.
+ * @param[navController] Used for navigating to different page
+ * @param[paddingValues] This is used to move contents down (where it should and can see it), there is top bar on page
+ * @param[context] Used to show toast message and the [FileUtils] utility class
+ * @param[process] The process of the content (see [ProcessState.Success], [ProcessState.Error], [ProcessState.Loading] for more information)
+ * @param[task] These data are from server or room database, converted to state and shown in user interface.
+ * @param[dialogsState] States/values for the different dialogs (see [EditNameDialogState], [SearchUserDialogState], [DateDialogState], [RadioButtonDialogState], [SearchState] for more information)
+ * @param[aboutTaskState] These data are not from server or room database and their default/first values are empty. Used in selecting files, adding assignees or inputs in comments, checklists, subtask and attachments.
+ * @param[updateAddSubtaskState] Update the values on inputs in menu where the user can add subtasks
+ * @param[updateAddCommentState] Update the values on inputs in menu where the user can add comments
+ * @param[updateAddChecklistState] Update the values on inputs in menu where the user can add checklists
+ * @param[updateAddAttachmentState] Update the values on inputs in menu where the user can add attachments
+ * @param[updateConfirmDialogState] Update the values and actions in confirm dialog. One confirm dialog is only used and only change its values base on what triggers/shows it.
+ * @param[updateDialogState] Update the value of state responsible for showing dialogs
+ * @param[updateTask] Update the values of [task]
+ * @param[updateRadioDialogState] Update the values of [RadioButtonDialogState] from [dialogsState]
+ * @param[updateEditNameDialogState] Update the values of [EditNameDialogState] from [dialogsState]
+ * @param[updateDateDialogState] Update the values of [DateDialogState] from [dialogsState]
+ * @param[updateSearchDialogState] Update the values of [SearchUserDialogState] from [dialogsState]
+ * @param[updateSearchState] Update the values of [SearchState] from [dialogsState]
+ * @param[updateViewAssigneeDialogState] Update the values/users in [ViewAssigneeDialog]
+ * @param[changeAssignee] Callback function responsible for changing assignees of task. It needs the id of task to change, the new assignees and callback function that will invoked when the change was successful e.g. update user interface or data in room database.
+ * @param[changeName] Callback function responsible for changing name of task. It needs the id of task to change, the new name and callback function that will invoked when the change was successful e.g. update user interface or data in room database.
+ * @param[searchUser] Callback function responsible for searching users/assignees. It needs the search query (text in search bar) and callback function that will be invoked with the result/response users as its argument, should add the data to the state in the callback.
+ * @param[changeDue] Callback function responsible for changing due date of task. It needs the id of task to change, the new due date and callback function that will invoked when the change was successful e.g. update user interface or data in room database.
+ * @param[changePriority] Callback function responsible for changing priority of task. It needs the id of task to change, the new priority and callback function that will invoked when the change was successful e.g. update user interface or data in room database.
+ * @param[changeStatus] Callback function responsible for changing status of task. It needs the id of task to change, the new status and callback function that will invoked when the change was successful e.g. update user interface or data in room database.
+ * @param[changeType] Callback function responsible for changing type of task. It needs the id of task to change, the new type and callback function that will invoked when the change was successful e.g. update user interface or data in room database.
+ * @param[changeDescription] Callback function responsible for changing description of task. It needs the id of task to change, the new description and callback function that will invoked when the change was successful e.g. update user interface or data in room database.
+ * @param[sendComment] Callback function responsible for sending comment to task. The values in [AddCommentState] from [aboutTaskState] are used for server request to add comment.
+ * @param[addChecklist] Callback function responsible for adding checklist to task. The values in [AddChecklistState] from [aboutTaskState] are used for server request to add checklist.
+ * @param[addSubtask] Callback function responsible for adding subtask to task. The values in [AddSubtaskState] from [aboutTaskState] are used for server request to add subtask.
+ * @param[uploadAttachment] Callback function responsible for uploading attachment to task. The values in [AddAttachmentState] from [aboutTaskState] are used for server request to add attachment.
+ * @param[changeSubtaskDescription] Callback function responsible for changing description of subtask. It needs the id of subtask to change and the new description.
+ * @param[changeSubtaskPriority] Callback function responsible for changing priority of subtask. It needs the id of subtask to change and the new priority.
+ * @param[changeSubtaskDueDate] Callback function responsible for changing due date of subtask. It needs the id of subtask to change and the new due date.
+ * @param[editSubtaskAssignees] Callback function responsible for changing assignees of subtask. It needs the id of subtask to change and the new assignees.
+ * @param[changeSubtaskType] Callback function responsible for changing type of subtask. It needs the id of subtask to change and the new type.
+ * @param[changeSubtaskStatus] Callback function responsible for changing status of subtask. It needs the id of subtask to change and the new status.
+ * @param[toggleChecklist] Callback function responsible for checking/unchecking checklist. It needs the id of checklist to change and whether it is check or uncheck.
+ * @param[likeComment] Callback function responsible for liking comment. It needs the user who like and the id of comment to like.
+ * @param[downloadAttachment] Callback function responsible for downloading attachments. It needs the file/original name and server name.
+ * @param[refreshTaskInfo] Callback function responsible for refreshing the data of page
+ * @param[deleteTask] Callback function responsible for deleting the task. It needs the id of task to delete and navigation callback function when the delete success (navigate to dashboard).
+ * @param[deleteComment] Callback function responsible for deleting comment. It needs the id of comment to delete.
+ * @param[deleteSubtask] Callback function responsible for deleting subtask. It needs the id of subtask to delete.
+ * @param[deleteChecklist] Callback function responsible for deleting checklist. It needs the id of checklist to delete.
+ * @param[deleteAttachment] Callback function responsible for deleting attachment. It needs the id of attachment to delete.
+ */
 @Composable
 fun AboutTask(
     windowInfo: WindowInfo,

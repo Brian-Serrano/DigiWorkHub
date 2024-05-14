@@ -21,6 +21,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.serrano.dictproject.customui.text.OneLineText
 
+/**
+ * Used in selecting view components in dashboard
+ *
+ * @param[text] Text of component
+ * @param[icon] Leading icon of component
+ * @param[onClick] Invoked when the user click the component
+ */
 @Composable
 fun RowScope.CustomDropDownNoMenu(
     text: String,

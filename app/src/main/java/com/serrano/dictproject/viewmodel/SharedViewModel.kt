@@ -20,6 +20,9 @@ class SharedViewModel @Inject constructor(
     private val dao: Dao
 ): ViewModel() {
 
+    /**
+     * User information that is shared by all pages and shown in drawer and top bar
+     */
     val preferences = preferencesRepository.getData()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
 
@@ -30,6 +33,9 @@ class SharedViewModel @Inject constructor(
         _sharedState.value = newState
     }
 
+    /**
+     * Perform logout by clearing room database and preferences
+     */
     fun logout() {
         viewModelScope.launch {
             dao.logout()

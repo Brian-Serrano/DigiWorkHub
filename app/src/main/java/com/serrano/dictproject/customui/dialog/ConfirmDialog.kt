@@ -24,6 +24,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.serrano.dictproject.customui.button.CustomButton
 
+/**
+ * A dialog used for confirmation of doing something
+ *
+ * @param[id] Any id, it will be passed on onYesClick as argument
+ * @param[placeholder] A text/message
+ * @param[onYesClick] Do the action confirmed by the user with the id and close the dialog
+ * @param[onCancelClick] Invoked when the users does something that should close the dialog
+ */
 @Composable
 fun ConfirmDialog(
     id: Int,

@@ -19,6 +19,17 @@ import com.serrano.dictproject.customui.textfield.ScrollableTextField
 import com.serrano.dictproject.utils.FileUtils
 import com.serrano.dictproject.utils.UserDTO
 
+/**
+ * Component used for adding checklist on task in about task page
+ *
+ * @param[checklistInput] Text for the checklist description
+ * @param[buttonEnabled] Whether button is enabled. Should only disable if there are server request running.
+ * @param[assigneesAdded] The assignees for the checklist
+ * @param[updateChecklistInput] Update the checklist description
+ * @param[onUserClick] Invoked when the user click the selected assignees (open view assignee dialog)
+ * @param[onPersonAddClick] Invoked when the user click the person add icon (open dialog to select assignee)
+ * @param[addChecklist] Add the checklist of task on the server
+ */
 @Composable
 fun AddChecklistMenu(
     checklistInput: String,

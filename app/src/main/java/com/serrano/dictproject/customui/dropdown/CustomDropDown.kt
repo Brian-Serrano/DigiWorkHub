@@ -24,6 +24,16 @@ import androidx.compose.ui.unit.dp
 import com.serrano.dictproject.customui.text.OneLineText
 import com.serrano.dictproject.utils.DropDownState
 
+/**
+ * Dropdown used in dashboard for organization of tasks (filter, sort, group)
+ *
+ * @param[prefix] Name of dropdown
+ * @param[dropDownState] The state/values for the dropdown
+ * @param[icon] Leading icon for the dropdown
+ * @param[onArrowClick] Invoked when the user click the dropdown and shows the menu of options that can be selected
+ * @param[onDismissRequest] Hide the menu of options that can be selected
+ * @param[onItemSelect] Invoked when user selected option in dropdown
+ */
 @Composable
 fun RowScope.CustomDropDown(
     prefix: String,

@@ -17,6 +17,13 @@ import com.serrano.dictproject.customui.text.OneLineText
 import com.serrano.dictproject.utils.DateUtils
 import java.time.LocalDateTime
 
+/**
+ * Container for due date of tasks/subtasks
+ *
+ * @param[date] Date that will be shown as text
+ * @param[onClick] Invoked when the user click the container (open dialog and edit due date)
+ * @param[includeTime] Whether to include time. Default is false
+ */
 @Composable
 fun DueDropDown(
     date: LocalDateTime,

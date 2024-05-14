@@ -32,6 +32,20 @@ import com.serrano.dictproject.customui.text.OneLineText
 import com.serrano.dictproject.customui.textfield.CustomTextField
 import com.serrano.dictproject.utils.PasswordDialogState
 
+/**
+ * A dialog used for changing password in settings page
+ *
+ * @param[text] Header text for the dialog
+ * @param[onDismissRequest] Invoked when the users does something that should close the dialog
+ * @param[passwordDialogState] States for the input fields inside this dialog
+ * @param[onCurrentPasswordChange] Change the current password input field state when user enters/deletes text
+ * @param[onNewPasswordChange] Change the new password input field state when user enters/deletes text
+ * @param[onConfirmPasswordChange] Change the confirm password input field state when user enters/deletes text
+ * @param[updateCurrentPasswordVisibility] Toggle the visibility of current password field (text or dots)
+ * @param[updateNewPasswordVisibility] Toggle the visibility of new password field (text or dots)
+ * @param[updateConfirmPasswordVisibility] Toggle the visibility of confirm password field (text or dots)
+ * @param[onApplyClick] Invoked when the user want to apply the changes (click apply button)
+ */
 @Composable
 fun ChangePasswordDialog(
     text: String,

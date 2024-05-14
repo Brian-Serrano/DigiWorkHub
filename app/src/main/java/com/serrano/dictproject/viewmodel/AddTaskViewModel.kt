@@ -41,11 +41,18 @@ class AddTaskViewModel @Inject constructor(
         _dialogState.value = newDialogState
     }
 
+    /**
+     * Add task to server database
+     *
+     * @param[navigate] Callback for navigation that will be invoked when the response is successful. Direct navigation should be done on user interface. Separation of concerns.
+     */
     fun addTask(navigate: () -> Unit) {
         viewModelScope.launch {
             try {
+                // disable the add task button
                 updateTaskState(_addTaskState.value.copy(buttonEnabled = false))
 
+                // check authorization of user
                 MiscUtils.checkAuthentication(getApplication(), preferencesRepository, apiRepository)
 
                 when (
@@ -61,17 +68,21 @@ class AddTaskViewModel @Inject constructor(
                     )
                 ) {
                     is Resource.Success -> {
+                        // show toast message
                         MiscUtils.toast(getApplication(), "Task Added Successfully!")
 
+                        // enable the add task button
                         updateTaskState(_addTaskState.value.copy(buttonEnabled = true))
 
-                        // save the created task in local storage
+                        // save the created task in room database
                         val task = response.data!!
                         dao.dashboardInsertTasks(listOf(task.toEntity()), task.getUsers().toSet())
 
+                        // navigate
                         navigate()
                     }
                     is Resource.ClientError -> {
+                        // enable add task button and show error message
                         updateTaskState(
                             _addTaskState.value.copy(
                                 buttonEnabled = true,
@@ -80,6 +91,7 @@ class AddTaskViewModel @Inject constructor(
                         )
                     }
                     is Resource.GenericError -> {
+                        // enable add task button and show error message
                         updateTaskState(
                             _addTaskState.value.copy(
                                 buttonEnabled = true,
@@ -88,6 +100,7 @@ class AddTaskViewModel @Inject constructor(
                         )
                     }
                     is Resource.ServerError -> {
+                        // enable add task button and show error message
                         updateTaskState(
                             _addTaskState.value.copy(
                                 buttonEnabled = true,
@@ -97,7 +110,13 @@ class AddTaskViewModel @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
-                updateTaskState(_addTaskState.value.copy(buttonEnabled = true))
+                // enable add task button and show error message
+                updateTaskState(
+                    _addTaskState.value.copy(
+                        buttonEnabled = true,
+                        errorMessage = e.message ?: ""
+                    )
+                )
             }
         }
     }

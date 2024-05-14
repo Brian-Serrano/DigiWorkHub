@@ -23,6 +23,13 @@ import com.serrano.dictproject.customui.text.OneLineText
 import com.serrano.dictproject.utils.FileUtils
 import com.serrano.dictproject.utils.UserDTO
 
+/**
+ * Container used in recipient in send message
+ *
+ * @param[user] The recipient
+ * @param[onUserClick] Invoked when the user click the recipient image (go to user profile)
+ * @param[onSearchUser] Invoked when the user click the edit icon (select recipient from dialog)
+ */
 @Composable
 fun ReceiverDropDown(
     user: UserDTO?,

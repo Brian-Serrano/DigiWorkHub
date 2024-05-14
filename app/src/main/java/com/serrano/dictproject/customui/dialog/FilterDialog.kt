@@ -31,6 +31,15 @@ import com.serrano.dictproject.utils.DashboardState
 import com.serrano.dictproject.utils.DropDownMultiselect
 import com.serrano.dictproject.utils.DropDownState
 
+/**
+ * A dialog used for filtering tasks in dashboard page
+ *
+ * @param[dashboardState] State in the dashboard page, the filter dropdown values are needed
+ * @param[removeDialog] Invoked when the users does something that should close the dialog
+ * @param[updateIsFilterDropdown] Callback function for changing the include/not-include filter dropdown values
+ * @param[updateOptionsFilterDropdown] Callback function for changing the options filter dropdown values
+ * @param[onApplyClick] Invoked when the user want to apply the changes (click apply button)
+ */
 @Composable
 fun FilterDialog(
     dashboardState: DashboardState,

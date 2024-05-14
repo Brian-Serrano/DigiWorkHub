@@ -27,6 +27,15 @@ import com.serrano.dictproject.customui.button.CustomButton
 import com.serrano.dictproject.customui.text.OneLineText
 import com.serrano.dictproject.utils.RadioButtonDialogState
 
+/**
+ * A dialog used for selecting one from a set of options, commonly used to edit priority, status or type of task/subtask.
+ *
+ * @param[text] Header text for the dialog
+ * @param[radioButtonDialogState] State for the dialog
+ * @param[onApplyClick] Invoked when the user want to apply the changes (click apply button)
+ * @param[onDismissRequest] Invoked when the users does something that should close the dialog
+ * @param[onRadioSelect] Change the selected option
+ */
 @Composable
 fun RadioButtonDialog(
     text: String,

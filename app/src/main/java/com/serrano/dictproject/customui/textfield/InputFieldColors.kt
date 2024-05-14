@@ -5,6 +5,9 @@ import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 
+/**
+ * Color for the input fields in the application
+ */
 @Composable
 fun InputFieldColors(): TextFieldColors {
     val contentColor = MaterialTheme.colorScheme.surfaceVariant

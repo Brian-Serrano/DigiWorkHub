@@ -67,20 +67,29 @@ class SettingsViewModel @Inject constructor(
         _settingsState.value = _settingsState.value.copy(passwordDialogState = newState)
     }
 
+    /**
+     * Get user information from server or in room database
+     */
     fun getUser() {
         viewModelScope.launch {
             try {
+                // get the information in room database
                 val userId = preferencesRepository.getData().first().id
                 val localUser = dao.getProfileData(userId).first()
 
+                // check if the information found
                 if (localUser == null) {
+                    // if information not found
+                    // check authorization
                     MiscUtils.checkAuthentication(getApplication(), preferencesRepository, apiRepository)
 
+                    // request server
                     when (val user = apiRepository.getUser(userId)) {
                         is Resource.Success -> {
+                            // assign the information to the state
                             _user.value = user.data!!
 
-                            // save fetched data locally
+                            // save the information in room database
                             dao.insertProfile(user.data.toEntity())
 
                             _processState.value = ProcessState.Success
@@ -96,6 +105,7 @@ class SettingsViewModel @Inject constructor(
                         }
                     }
                 } else {
+                    // if information is found assign the information to the state
                     _user.value = localUser.toDTO()
 
                     _processState.value = ProcessState.Success
@@ -106,8 +116,12 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Refresh user information by requesting server
+     */
     fun refreshUser() {
         viewModelScope.launch {
+            // show refresh icon
             updateSettingsState(_settingsState.value.copy(isRefreshing = true))
 
             val userId = preferencesRepository.getData().first().id
@@ -115,14 +129,16 @@ class SettingsViewModel @Inject constructor(
             MiscUtils.apiAddWrapper(
                 response = apiRepository.getUser(userId),
                 onSuccess = { user ->
+                    // assign the information to the state
                     _user.value = user
 
-                    // delete the previously save data
+                    // delete the previously save information in room database
                     dao.deleteProfileData(userId)
 
-                    // save fetched data locally
+                    // save the new information in room database
                     dao.insertProfile(user.toEntity())
 
+                    // show success message
                     MiscUtils.toast(getApplication(), "User loaded successfully.")
 
                     _processState.value = ProcessState.Success
@@ -132,22 +148,28 @@ class SettingsViewModel @Inject constructor(
                 apiRepository = apiRepository
             )
 
+            // hide refresh icon
             updateSettingsState(_settingsState.value.copy(isRefreshing = false))
         }
     }
 
+    /**
+     * Change the user name
+     *
+     * @param[name] The new name
+     */
     fun changeUserName(name: String) {
         viewModelScope.launch {
             MiscUtils.apiEditWrapper(
                 response = apiRepository.changeUserName(UserNameChange(name)),
                 onSuccess = {
-                    // update ui with the changed name
+                    // update user interface with the changed name
                     updateUser(_user.value.copy(name = name))
 
                     // change the name in the preferences
                     preferencesRepository.changeName(name)
 
-                    // change the name in local storage
+                    // change the name in room database
                     dao.updateUserName(name, preferencesRepository.getData().first().id)
                 },
                 context = getApplication(),
@@ -157,15 +179,20 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Change the user role
+     *
+     * @param[role] The new role
+     */
     fun changeUserRole(role: String) {
         viewModelScope.launch {
             MiscUtils.apiEditWrapper(
                 response = apiRepository.changeUserRole(UserRoleChange(role)),
                 onSuccess = {
-                    // update ui with the changed role
+                    // update user interface with the changed role
                     updateUser(_user.value.copy(role = role))
 
-                    // change the role in local storage
+                    // change the role in room database
                     dao.updateUserRole(role, preferencesRepository.getData().first().id)
                 },
                 context = getApplication(),
@@ -175,8 +202,14 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Change the user image
+     *
+     * @param[image] The new image
+     */
     fun uploadImage(image: ImageBitmap) {
         viewModelScope.launch {
+            // create form data from image that can be send to the server
             val imageFile = FileUtils.bitmapToFile(image, getApplication())
             val imagePart = MultipartBody.Part.createFormData(
                 "file",
@@ -187,14 +220,14 @@ class SettingsViewModel @Inject constructor(
             MiscUtils.apiEditWrapper(
                 response = apiRepository.uploadImage(imagePart),
                 onSuccess = {
-                    // update ui with the changed role
+                    // update user interface with the changed image
                     val encodedString = FileUtils.imageToEncodedString(image)
                     updateUser(_user.value.copy(image = encodedString))
 
                     // change the image in the preferences
                     preferencesRepository.changeImage(encodedString)
 
-                    // change the image in local storage
+                    // change the image in room database
                     dao.updateUserImage(encodedString, preferencesRepository.getData().first().id)
                 },
                 context = getApplication(),
@@ -202,10 +235,14 @@ class SettingsViewModel @Inject constructor(
                 apiRepository = apiRepository
             )
 
+            // delete the temporary file created when creating form data from image
             if (imageFile.exists()) imageFile.delete()
         }
     }
 
+    /**
+     * Change the user password
+     */
     fun changeUserPassword() {
         viewModelScope.launch {
             MiscUtils.apiEditWrapper(
@@ -227,12 +264,17 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Delete the user account
+     *
+     * @param[navigate] Callback for navigation that will be invoked when the response is successful. Direct navigation should be done on user interface. Separation of concerns.
+     */
     fun deleteAccount(navigate: () -> Unit) {
         viewModelScope.launch {
             MiscUtils.apiEditWrapper(
                 response = apiRepository.deleteUser(),
                 onSuccess = {
-                    // delete preferences and storage data
+                    // clear preferences and room database
                     preferencesRepository.logout()
                     dao.logout()
 

@@ -29,6 +29,16 @@ import com.serrano.dictproject.utils.ChecklistState
 import com.serrano.dictproject.utils.DateUtils
 import com.serrano.dictproject.utils.FileUtils
 
+/**
+ * Container used for received checklists
+ *
+ * @param[currentUserId] The id of user to determine who the user. User created the checklist is only the user can delete it.
+ * @param[checklist] Checklist information
+ * @param[onChecklistChange] Check/uncheck the checklist on the server
+ * @param[openViewDialog] Invoked when the user click the assignees of checklist (open view assignee dialog)
+ * @param[navigateToProfile] Invoked when the user click the image of user created the checklist (go to user profile)
+ * @param[onDeleteClick] Delete the checklist on the server
+ */
 @Composable
 fun ChecklistBox(
     currentUserId: Int,

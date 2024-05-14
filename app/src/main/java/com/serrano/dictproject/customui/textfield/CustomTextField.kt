@@ -10,6 +10,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 
+/**
+ * Text field commonly used by the application
+ *
+ * @param[value] The text on the field
+ * @param[onValueChange] Change the text on the field
+ * @param[placeholderText] Placeholder when the text is empty
+ * @param[visualTransformation] (Optional) Transformation to the text on field. Used by password input fields and comment with mentions.
+ * @param[trailingIcon] Trailing icon of the input field. Used by password input fields.
+ * @param[supportingText] Text below the input field. Used by fields on signup for instant validation.
+ */
 @Composable
 fun CustomTextField(
     value: String,

@@ -30,6 +30,15 @@ import androidx.compose.ui.window.Dialog
 import com.serrano.dictproject.customui.button.CustomButton
 import com.serrano.dictproject.utils.FileUtils
 
+/**
+ * A dialog used when the user wants to change his/her image in settings or profile page
+ *
+ * @param[onDismissRequest] Invoked when the users does something that should close the dialog
+ * @param[onImagePicked] Invoked when the user selected an image in gallery
+ * @param[onApplyClick] Invoked when the user want to apply the changes (click apply button)
+ * @param[image] The image that user picked
+ * @param[context] Used for getting the image from Uri Object
+ */
 @Composable
 fun UploadImageDialog(
     onDismissRequest: () -> Unit,

@@ -8,6 +8,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 
+/**
+ * Used in about task for comments, checklists, subtasks, attachments tabs
+ *
+ * @param[tabIndex] Selected tab
+ * @param[tabs] The tab names
+ * @param[onTabClick] Select the tab if user clicks it
+ */
 @Composable
 fun CustomTab(
     tabIndex: Int,

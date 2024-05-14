@@ -49,19 +49,30 @@ class ProfileViewModel @Inject constructor(
     private val _profileState = MutableStateFlow(ProfileState())
     val profileState: StateFlow<ProfileState> = _profileState.asStateFlow()
 
+    /**
+     * Get user information from server or in room database
+     *
+     * @param[userId] What user to get
+     */
     fun getUser(userId: Int) {
         viewModelScope.launch {
             try {
+                // get the information in room database
                 val localUser = dao.getProfileData(userId).first()
 
+                // check if information was found in room database
                 if (localUser == null) {
+                    // if information not found
+                    // check authorization
                     MiscUtils.checkAuthentication(getApplication(), preferencesRepository, apiRepository)
 
+                    // request server
                     when (val user = apiRepository.getUser(userId)) {
                         is Resource.Success -> {
+                            // assign the user info to the state
                             _user.value = user.data!!
 
-                            // save fetched data locally
+                            // save the user info in room database
                             dao.insertProfile(user.data.toEntity())
 
                             _processState.value = ProcessState.Success
@@ -77,6 +88,7 @@ class ProfileViewModel @Inject constructor(
                         }
                     }
                 } else {
+                    // if information was found assign the user info to the state
                     _user.value = localUser.toDTO()
 
                     _processState.value = ProcessState.Success
@@ -87,21 +99,27 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Refresh the user information, request server for new information
+     */
     fun refreshUser(userId: Int) {
-        viewModelScope.launch { 
+        viewModelScope.launch {
+            // show refresh icon
             updateProfileState(_profileState.value.copy(isRefreshing = true))
 
             MiscUtils.apiAddWrapper(
                 response = apiRepository.getUser(userId),
                 onSuccess = { user ->
+                    // assign the user info to the state
                     _user.value = user
 
-                    // delete the previously save data
+                    // delete information previously save in room database
                     dao.deleteProfileData(userId)
 
-                    // save fetched data locally
+                    // save the new information in room database
                     dao.insertProfile(user.toEntity())
 
+                    // show successful message
                     MiscUtils.toast(getApplication(), "User loaded successfully.")
 
                     _processState.value = ProcessState.Success
@@ -111,22 +129,28 @@ class ProfileViewModel @Inject constructor(
                 apiRepository = apiRepository
             )
 
+            // hide refresh icon
             updateProfileState(_profileState.value.copy(isRefreshing = false))
         }
     }
 
+    /**
+     * Change username (only users own information can do this action)
+     *
+     * @param[name] The new username
+     */
     fun changeUserName(name: String) {
         viewModelScope.launch {
             MiscUtils.apiEditWrapper(
                 response = apiRepository.changeUserName(UserNameChange(name)),
                 onSuccess = {
-                    // update ui with the changed name
+                    // update user interface with the changed name
                     updateUser(_user.value.copy(name = name))
 
                     // change the name in the preferences
                     preferencesRepository.changeName(name)
 
-                    // change the name in local storage
+                    // change the name in room database
                     dao.updateUserName(name, preferencesRepository.getData().first().id)
                 },
                 context = getApplication(),
@@ -136,15 +160,20 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Change User Role (only users own information can do this action)
+     *
+     * @param[role] The new role
+     */
     fun changeUserRole(role: String) {
         viewModelScope.launch {
             MiscUtils.apiEditWrapper(
                 response = apiRepository.changeUserRole(UserRoleChange(role)),
                 onSuccess = {
-                    // update ui with the changed role
+                    // update user interface with the changed role
                     updateUser(_user.value.copy(role = role))
 
-                    // change the role in local storage
+                    // change the role in room database
                     dao.updateUserRole(role, preferencesRepository.getData().first().id)
                 },
                 context = getApplication(),
@@ -154,8 +183,14 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Change user image (only users own information can do this action)
+     *
+     * @param[image] The new image
+     */
     fun uploadImage(image: ImageBitmap) {
         viewModelScope.launch {
+            // make form data from image that can be send to the server
             val imageFile = FileUtils.bitmapToFile(image, getApplication())
             val imagePart = MultipartBody.Part.createFormData(
                 "file",
@@ -166,14 +201,14 @@ class ProfileViewModel @Inject constructor(
             MiscUtils.apiEditWrapper(
                 response = apiRepository.uploadImage(imagePart),
                 onSuccess = {
-                    // update ui with the changed role
+                    // update user interface with the changed image
                     val encodedString = FileUtils.imageToEncodedString(image)
                     updateUser(_user.value.copy(image = encodedString))
 
                     // change the image in the preferences
                     preferencesRepository.changeImage(encodedString)
 
-                    // change the image in local storage
+                    // change the image in room database
                     dao.updateUserImage(encodedString, preferencesRepository.getData().first().id)
                 },
                 context = getApplication(),
@@ -181,6 +216,7 @@ class ProfileViewModel @Inject constructor(
                 apiRepository = apiRepository
             )
 
+            // delete the temporary file created when converting the image to form data
             if (imageFile.exists()) imageFile.delete()
         }
     }

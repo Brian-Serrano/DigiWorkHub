@@ -22,6 +22,15 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshState
 import com.serrano.dictproject.customui.button.CustomButton
 
+/**
+ * Component shown when the process state is error or there are something wrong with requesting data from server or in room database
+ *
+ * @param[navController] Used when the user wants to navigate back
+ * @param[paddingValues] This is used to move contents down (where it should and can see it), there is top bar on page
+ * @param[message] The error message
+ * @param[refreshState] State for the swipe refresh component
+ * @param[onRefresh] Refresh the page (request again from server)
+ */
 @Composable
 fun ErrorComposable(
     navController: NavController,

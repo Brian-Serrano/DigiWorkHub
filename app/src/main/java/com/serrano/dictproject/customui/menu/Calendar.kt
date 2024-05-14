@@ -31,6 +31,15 @@ import com.serrano.dictproject.utils.MiscUtils
 import com.serrano.dictproject.utils.TaskPartDTO
 import java.time.format.DateTimeFormatter
 
+/**
+ * Used for the calendar view of tasks
+ *
+ * @param[tasks] The tasks that will be in the view
+ * @param[calendarTabIdx] Tab/section in the calendar. ..., -1 = Previous Month, 0 = Current Month, 1 = Next Month, ...
+ * @param[updateCalendarIdx] Update [calendarTabIdx], move to next or previous tab
+ * @param[navigate] Invoked when the user click a task from the grid of days (go to about task page)
+ * @param[modifier] (Optional) Add design/behavior to the menu
+ */
 @Composable
 fun Calendar(
     tasks: List<TaskPartDTO>,

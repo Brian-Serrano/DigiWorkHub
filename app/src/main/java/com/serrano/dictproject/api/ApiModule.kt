@@ -28,21 +28,24 @@ class ApiModule {
     @Singleton
     fun provideOkHttpClient(@ApplicationContext context: Context): OkHttpClient {
         return OkHttpClient.Builder()
-            .addInterceptor(AuthInterceptor(context))
-            .addNetworkInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+            .addInterceptor(AuthInterceptor(context)) // authorization interceptor, add authorization header to server requests that needs it
+            .addNetworkInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)) // interceptor for debugging http request and response
             .build()
     }
 
     @Provides
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+        // url of the server, change it if you host the server to other platform or localhost
         val baseUrl = "https://digiworkhub.onrender.com"
 
+        // attach converters to request and response data
         val gson = GsonBuilder()
             .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeSerializer())
             .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeDeserializer())
             .create()
 
+        // create the retrofit
         return Retrofit.Builder()
             .baseUrl(baseUrl)
             .client(okHttpClient)
@@ -53,6 +56,7 @@ class ApiModule {
     @Provides
     @Singleton
     fun provideApiService(retrofit: Retrofit): ApiService {
+        // create the api service (an interface that does the http/server requests)
         return retrofit.create(ApiService::class.java)
     }
 

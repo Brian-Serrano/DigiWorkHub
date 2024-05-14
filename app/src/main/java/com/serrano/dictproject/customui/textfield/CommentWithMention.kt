@@ -11,6 +11,11 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import com.serrano.dictproject.utils.UserDTO
 
+/**
+ * Text transformation for comments with mentions
+ *
+ * @param[mentions] The mentioned users to add to the text
+ */
 class CommentWithMention(
     private val mentions: List<UserDTO>
 ): VisualTransformation {

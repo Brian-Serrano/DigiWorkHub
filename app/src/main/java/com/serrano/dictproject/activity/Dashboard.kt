@@ -71,6 +71,52 @@ import com.serrano.dictproject.utils.header
 import com.serrano.dictproject.viewmodel.DashboardDataState
 import java.time.LocalDateTime
 
+/**
+ * This page is where you can see all the assigned tasks and created tasks. You can sort, group or filter them or change how you see them.
+ *
+ * @param[windowInfo] An object that will be used to determine the size of screen, adapt the contents base on size and become responsive.
+ * @param[rawTasks] This assigned tasks come from the server or room database and no organization done on them and not shown in the page.
+ * @param[rawCreatedTasks] This created tasks come from the server or room database and no organization done on them and not shown in the page.
+ * @param[dashboardDialogs] What dialog to show the default is NONE (do not show)
+ * @param[navController] Used for navigating to different page
+ * @param[paddingValues] This is used to move contents down (where it should and can see it), there is top bar on page
+ * @param[process] The process for the assigned tasks tab (see [ProcessState.Success], [ProcessState.Error], [ProcessState.Loading] for more information)
+ * @param[process2] The process for the created tasks tab (see [ProcessState.Success], [ProcessState.Error], [ProcessState.Loading] for more information)
+ * @param[dashboardState] The states/values for the page. Used by the dropdowns and swipe refresh components.
+ * @param[tasks] This assigned tasks are what shown in page. They are filtered, sorted and grouped and use the [rawTasks].
+ * @param[createdTasks] This created tasks are what shown in page. They are filtered, sorted and grouped and use the [rawCreatedTasks].
+ * @param[dialogsState] States/values for the different dialogs (see [EditNameDialogState], [SearchUserDialogState], [DateDialogState], [RadioButtonDialogState], [SearchState] for more information)
+ * @param[sharedState] [SharedViewModelState.dashboardViewIdx] and [SharedViewModelState.dashboardBottomBarIdx] are used in the page.
+ * @param[updateDialogState] Update the value of state responsible for showing dialogs
+ * @param[updateSharedState] Update the values of [sharedState]
+ * @param[updateRadioDialogState] Update the values of [RadioButtonDialogState] from [dialogsState]
+ * @param[updateGroupDropdown] Update the values/states of group dropdown
+ * @param[filterTab] Do sorting, filtering, grouping to one tab of tasks. It needs the tab, what tasks have to be organized.
+ * @param[filterAllTabs] Do sorting, filtering, grouping to assigned and created tasks.
+ * @param[updateFilterDropdown] Update the values/states of filter dropdown
+ * @param[updateOptionsDropdown] Update the values/states of only the options in options dropdown in the filter dialog with the tasks value base on the selected value in filter dropdown
+ * @param[updateSortDropdown] Update the values/states of sort dropdown
+ * @param[updateTaskCollapsible] Collapse/Un-collapse one grouped assigned tasks. It needs the header name of grouped tasks and whether it should collapse or un-collapse.
+ * @param[updateCreatedTaskCollapsible] Collapse/Un-collapse one grouped created tasks. It needs the header name of grouped tasks and whether it should collapse or un-collapse.
+ * @param[updateEditNameDialogState] Update the values of [EditNameDialogState] from [dialogsState]
+ * @param[updateSearchDialogState] Update the values of [SearchUserDialogState] from [dialogsState]
+ * @param[updateDateDialogState] Update the values of [DateDialogState] from [dialogsState]
+ * @param[updateIsFilterDropdown] Update the values/states of include/not-include dropdown in the filter dialog
+ * @param[updateOptionsFilterDropdown] Update the values/states of options dropdown in the filter dialog
+ * @param[changeName] Callback function responsible for changing name of task. It needs the id of task to change, the new name and callback function that will invoked when the change was successful e.g. update user interface or data in room database.
+ * @param[changeAssignee] Callback function responsible for changing assignees of task. It needs the id of task to change, the new assignees and callback function that will invoked when the change was successful e.g. update user interface or data in room database.
+ * @param[updateSearchState] Update the values of [SearchState] from [dialogsState]
+ * @param[updateViewAssigneeDialogState] Update the values/users in [ViewAssigneeDialog]
+ * @param[searchUser] Callback function responsible for searching users/assignees. It needs the search query (text in search bar) and callback function that will be invoked with the result/response users as its argument, should add the data to the state in the callback.
+ * @param[changeDue] Callback function responsible for changing due date of task. It needs the id of task to change, the new due date and callback function that will invoked when the change was successful e.g. update user interface or data in room database.
+ * @param[changePriority] Callback function responsible for changing priority of task. It needs the id of task to change, the new priority and callback function that will invoked when the change was successful e.g. update user interface or data in room database.
+ * @param[changeStatus] Callback function responsible for changing status of task. It needs the id of task to change, the new status and callback function that will invoked when the change was successful e.g. update user interface or data in room database.
+ * @param[changeType] Callback function responsible for changing type of task. It needs the id of task to change, the new type and callback function that will invoked when the change was successful e.g. update user interface or data in room database.
+ * @param[updateTasks] After successful changes to data in server, update of [rawTasks] are triggered and use [rawTasks] for sorted, filtered and grouped [tasks].
+ * @param[updateCreatedTasks] After successful changes to data in server, update of [rawCreatedTasks] are triggered and use [rawCreatedTasks] for sorted, filtered and grouped [createdTasks].
+ * @param[refreshTasks] Refresh assigned tasks
+ * @param[refreshCreatedTasks] Refresh created tasks
+ */
 @Composable
 fun Dashboard(
     windowInfo: WindowInfo,

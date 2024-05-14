@@ -15,6 +15,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
+/**
+ * Commonly used button for the application
+ *
+ * @param[text] Button text
+ * @param[onClick] Action performed when the user click the button
+ * @param[modifier] (Optional) Add design/behavior to the button
+ * @param[enabled] Whether the button is enabled. The default is enabled
+ */
 @Composable
 fun CustomButton(
     text: String,

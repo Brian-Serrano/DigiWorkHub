@@ -32,6 +32,18 @@ import com.serrano.dictproject.utils.FileUtils
 import com.serrano.dictproject.utils.SearchUserDialogState
 import com.serrano.dictproject.utils.UserDTO
 
+/**
+ * A dialog used for selecting/editing assignee over assignee options
+ *
+ * @param[taskAssignees] The possible assignees to select
+ * @param[searchUserDialogState] Contains the selected assignees and an id that can be used for server request
+ * @param[onUserAdd] Add the user to the selected assignees
+ * @param[onUserRemove] Remove the user to the selected assignees
+ * @param[onUserClick] Invoked when user click assignee/user image (e.g. go to user profile)
+ * @param[onDismissRequest] Invoked when the users does something that should close the dialog
+ * @param[onApplyClick] Invoked when the user want to apply the changes (click apply button)
+ * @param[text] (Optional) Header text for the dialog
+ */
 @Composable
 fun EditAssigneeDialog(
     taskAssignees: List<UserDTO>,

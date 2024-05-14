@@ -69,19 +69,30 @@ class AboutMessageViewModel @Inject constructor(
         _aboutMessageState.value = _aboutMessageState.value.copy(confirmDialogState = newState)
     }
 
+    /**
+     * Get the message from the server or from the local storage
+     *
+     * @param[messageId] To determine what message to get
+     */
     fun getMessage(messageId: Int) {
         viewModelScope.launch {
             try {
+                // get data from the room database
                 val localMessage = dao.getMessage(messageId).first()
 
+                // check if there are data got
                 if (localMessage == null) {
+                    // if there are no data
+                    // check the authorization of user
                     MiscUtils.checkAuthentication(getApplication(), preferencesRepository, apiRepository)
 
+                    // request server for data
                     when (val message = apiRepository.getMessage(messageId)) {
                         is Resource.Success -> {
+                            // assign to the message state the transformed DTO to MessageState
                             _message.value = mapToMessageState(message.data!!)
 
-                            // save fetched data locally
+                            // save fetched data in room database
                             storeInStorage(message.data)
 
                             _processState.value = ProcessState.Success
@@ -97,8 +108,10 @@ class AboutMessageViewModel @Inject constructor(
                         }
                     }
                 } else {
+                    // convert the data to Data Transfer Object
                     val message = localMessage.toDTO(dao)
 
+                    // assign to the message state the transformed DTO to MessageState
                     _message.value = mapToMessageState(message)
 
                     _processState.value = ProcessState.Success
@@ -109,21 +122,29 @@ class AboutMessageViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Refresh the data/message got by requesting server for the message again.
+     *
+     * @param[messageId] To determine what message to get
+     */
     fun refreshMessage(messageId: Int) {
         viewModelScope.launch {
+            // show the refresh icon of swipe refresh component
             updateAboutMessageState(_aboutMessageState.value.copy(isRefreshing = true))
 
             MiscUtils.apiAddWrapper(
                 response = apiRepository.getMessage(messageId),
                 onSuccess = { message ->
+                    // assign to the message state the transformed DTO to MessageState
                     _message.value = mapToMessageState(message)
 
-                    // delete the data previously save
+                    // delete the message previously save in room database
                     dao.aboutMessageDeleteMessages(messageId)
 
-                    // save fetched data locally
+                    // save the new message in room database
                     storeInStorage(message)
 
+                    // show toast message
                     MiscUtils.toast(getApplication(), "Message loaded successfully.")
 
                     _processState.value = ProcessState.Success
@@ -133,10 +154,17 @@ class AboutMessageViewModel @Inject constructor(
                 apiRepository = apiRepository
             )
 
+            // hide the refresh icon of swipe refresh component
             updateAboutMessageState(_aboutMessageState.value.copy(isRefreshing = false))
         }
     }
 
+    /**
+     * Get the attachment data from server and save to users device shared storage
+     *
+     * @param[fileName] The name of file when it was uploaded. It will be used as the name of the stored file with the date appended.
+     * @param[fileServerName] The path of file in the server. Used to determine what file to download.
+     */
     @RequiresApi(Build.VERSION_CODES.Q)
     fun downloadAttachment(fileName: String, fileServerName: String) {
         viewModelScope.launch {
@@ -144,39 +172,48 @@ class AboutMessageViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Add reply to message
+     */
     fun replyMessage() {
         viewModelScope.launch {
+            // disable the reply button
             updateAboutMessageState(_aboutMessageState.value.copy(buttonEnabled = false))
 
+            // convert the picked attachments of user in Uri object to file objects and store in a variable
             val files = _aboutMessageState.value.fileUris.map { FileUtils.getFileFromUri(getApplication(), it) }
 
             MiscUtils.apiAddWrapper(
                 response = apiRepository.replyToMessage(
                     file = files.map { file ->
                         MultipartBody.Part.createFormData("file", file.name, file.asRequestBody())
-                    },
+                    } /* Convert the files objects to form data when sending to server */,
                     replyBody = ReplyBody(
                         _message.value.messageId,
                         _aboutMessageState.value.description
                     )
                 ),
                 onSuccess = {
-                    // make all the inputs empty
+                    // this callback received a MessageReplyDTO (reply user added) as response from the server and can be added in room database or user interface
+                    // make all the send reply inputs empty
                     updateAboutMessageState(
                         _aboutMessageState.value.copy(fileUris = emptyList(), description = "")
                     )
 
-                    // add the reply in the local storage
+                    // add the reply in the room database
                     dao.insertReplies(listOf(it.toEntity()))
+
+                    // update the message reply ids, add the new reply id to the list in room database
                     dao.updateReplyIdInMessage(it.messageReplyId, it.messageId)
 
-                    // add the reply in the ui
+                    // add the reply in the user interface
                     updateMessage(
                         _message.value.copy(
                             replies = _message.value.replies + mapToReplyState(it)
                         )
                     )
 
+                    // show toast message
                     MiscUtils.toast(getApplication(), "Reply Sent.")
                 },
                 context = getApplication(),
@@ -184,25 +221,34 @@ class AboutMessageViewModel @Inject constructor(
                 apiRepository = apiRepository
             )
 
+            // delete the files temporarily created in the internal storage when converting from uri to file
             files.forEach { file ->
                 if (file.exists()) file.delete()
             }
 
+            // enable the reply button
             updateAboutMessageState(_aboutMessageState.value.copy(buttonEnabled = true))
         }
     }
 
+    /**
+     * Delete the message for the sender and receiver
+     *
+     * @param[messageId] What message to delete
+     * @param[navigate] Callback for navigation that will be invoked when the response is successful. Direct navigation should be done on user interface. Separation of concerns.
+     */
     fun deleteMessage(messageId: Int, navigate: () -> Unit) {
         viewModelScope.launch {
+            // disable the delete message button
             updateMessage(_message.value.copy(deleteButtonEnabled = false))
 
             MiscUtils.apiEditWrapper(
                 response = apiRepository.deleteMessage(messageId),
                 onSuccess = {
-                    // delete message in storage that is shown on about message
+                    // delete the message in room storage that is shown on about message
                     dao.aboutMessageDeleteMessages(messageId)
 
-                    // delete message in storage that is shown on inbox
+                    // delete the message in room storage that is shown on inbox
                     dao.deleteMessagePart(messageId)
 
                     // navigate
@@ -213,21 +259,29 @@ class AboutMessageViewModel @Inject constructor(
                 apiRepository = apiRepository
             )
 
+            // enable the delete message button
             updateMessage(_message.value.copy(deleteButtonEnabled = true))
         }
     }
 
+    /**
+     * Delete the message for the user only
+     *
+     * @param[messageId] What message to delete
+     * @param[navigate] Callback for navigation that will be invoked when the response is successful. Direct navigation should be done on user interface. Separation of concerns.
+     */
     fun deleteMessageFromUser(messageId: Int, navigate: () -> Unit) {
+        // disable the delete message button
         updateMessage(_message.value.copy(deleteForUserButtonEnabled = false))
 
         viewModelScope.launch {
             MiscUtils.apiEditWrapper(
                 response = apiRepository.deleteMessageFromUser(MessageIdBody(messageId)),
                 onSuccess = {
-                    // delete message in storage that is shown on about message
+                    // delete the message in room storage that is shown on about message
                     dao.aboutMessageDeleteMessages(messageId)
 
-                    // delete message in storage that is shown on inbox
+                    // delete the message in room storage that is shown on inbox
                     dao.deleteMessagePart(messageId)
 
                     // navigate
@@ -239,17 +293,24 @@ class AboutMessageViewModel @Inject constructor(
             )
         }
 
+        // enable the delete message button
         updateMessage(_message.value.copy(deleteForUserButtonEnabled = true))
     }
 
+    /**
+     * Delete a reply of message
+     *
+     * @param[messageReplyId] What reply to delete
+     */
     fun deleteReply(messageReplyId: Int) {
         viewModelScope.launch {
+            // disable the reply button
             updateReplyButton(messageReplyId, false)
 
             MiscUtils.apiEditWrapper(
                 response = apiRepository.deleteMessageReply(messageReplyId),
                 onSuccess = {
-                    // remove the reply from the ui
+                    // remove the reply from the user interface
                     updateMessage(
                         _message.value.copy(
                             replies = _message.value.replies.filter {
@@ -258,8 +319,10 @@ class AboutMessageViewModel @Inject constructor(
                         )
                     )
 
-                    // remove the reply in the local storage
+                    // remove the reply in the room database
                     dao.deleteReply(messageReplyId)
+
+                    // remove the reply id from the list of message reply ids
                     dao.updateReplyIdInMessage(messageReplyId, _message.value.messageId, false)
                 },
                 context = getApplication(),
@@ -267,10 +330,14 @@ class AboutMessageViewModel @Inject constructor(
                 apiRepository = apiRepository
             )
 
+            // enable the reply button
             updateReplyButton(messageReplyId, true)
         }
     }
 
+    /**
+     * Enable/disable one delete reply icon from a list of delete reply icons
+     */
     private fun updateReplyButton(messageReplyId: Int, value: Boolean) {
         updateMessage(
             _message.value.copy(
@@ -281,6 +348,9 @@ class AboutMessageViewModel @Inject constructor(
         )
     }
 
+    /**
+     * Store message in room database
+     */
     private suspend fun storeInStorage(message: MessageDTO) {
         dao.aboutMessageInsertMessages(
             message = message.toEntity(),
@@ -292,6 +362,9 @@ class AboutMessageViewModel @Inject constructor(
         )
     }
 
+    /**
+     * Convert MessageDTO to MessageState
+     */
     private fun mapToMessageState(message: MessageDTO): MessageState {
         return MessageState(
             messageId = message.messageId,
@@ -308,6 +381,9 @@ class AboutMessageViewModel @Inject constructor(
         )
     }
 
+    /**
+     * Convert MessageReplyDTO to MessageReplyState
+     */
     private fun mapToReplyState(reply: MessageReplyDTO): MessageReplyState {
         return MessageReplyState(
             messageReplyId = reply.messageReplyId,

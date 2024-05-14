@@ -25,6 +25,15 @@ import com.serrano.dictproject.customui.text.OneLineText
 import com.serrano.dictproject.utils.AttachmentState
 import com.serrano.dictproject.utils.FileUtils
 
+/**
+ * Container used for received attachments of tasks
+ *
+ * @param[currentUserId] The id of user to determine who the user. User uploaded the attachment is only the user can delete it.
+ * @param[attachment] Attachment information
+ * @param[onUserClick] Invoked when the user click the image of user uploaded the attachment (go to user profile)
+ * @param[onDownload] Download the file from server and store to user's device shared storage
+ * @param[onDeleteClick] Delete the attachment on the server
+ */
 @Composable
 fun AttachmentBox(
     currentUserId: Int,

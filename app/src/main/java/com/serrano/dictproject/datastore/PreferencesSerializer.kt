@@ -7,7 +7,7 @@ import java.io.InputStream
 import java.io.OutputStream
 
 @Suppress("BlockingMethodInNonBlockingContext")
-class PreferencesSerializer : Serializer<Preferences> {
+class PreferencesSerializer(private val cryptoManager: CryptoManager) : Serializer<Preferences> {
 
     override val defaultValue: Preferences
         get() = Preferences()
@@ -16,20 +16,20 @@ class PreferencesSerializer : Serializer<Preferences> {
         return try {
             Json.decodeFromString(
                 deserializer = Preferences.serializer(),
-                string = input.readBytes().decodeToString()
+                string = cryptoManager.decrypt(input).decodeToString()
             )
         } catch (se: SerializationException) {
-            se.printStackTrace()
             defaultValue
         }
     }
 
     override suspend fun writeTo(t: Preferences, output: OutputStream) {
-        output.write(
-            Json.encodeToString(
+        cryptoManager.encrypt(
+            bytes = Json.encodeToString(
                 serializer = Preferences.serializer(),
                 value = t
-            ).encodeToByteArray()
+            ).encodeToByteArray(),
+            outputStream = output
         )
     }
 }

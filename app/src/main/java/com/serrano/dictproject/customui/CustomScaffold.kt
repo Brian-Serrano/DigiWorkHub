@@ -32,6 +32,17 @@ import com.serrano.dictproject.utils.Routes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+/**
+ * Scaffold with top bar used by all pages except signup and splash
+ *
+ * @param[user] The user information to show in top bar
+ * @param[coroutineScope] Coroutine used for opening the drawer when clicking menu icon
+ * @param[drawerState] What drawer to open
+ * @param[navController] Used for navigating in own profile when clicking own image
+ * @param[content] The content of scaffold (components shown below the top bar)
+ * @param[floatingButton] Optional floating button. Used in dashboard and inbox when user wants to create task or send message.
+ * @param[bottomBar] Optional bottom bar. Used in dashboard and inbox page for assigned and created tasks and sent and received messages.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomScaffold(

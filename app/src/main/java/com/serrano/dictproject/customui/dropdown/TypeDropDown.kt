@@ -23,6 +23,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.serrano.dictproject.customui.text.OneLineText
 
+/**
+ * Container for type of tasks/subtasks
+ *
+ * @param[text] The text for container
+ * @param[onClick] Invoked when the user click the container (open dialog to edit task type)
+ */
 @Composable
 fun TypeDropDown(
     text: String,

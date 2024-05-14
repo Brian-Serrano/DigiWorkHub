@@ -34,6 +34,22 @@ import com.serrano.dictproject.utils.SearchState
 import com.serrano.dictproject.utils.SearchUserDialogState
 import com.serrano.dictproject.utils.UserDTO
 
+/**
+ * A dialog used for selecting/editing assignees. This contains a search bar where the user can search for assignees to add.
+ *
+ * @param[text] Header text for the dialog
+ * @param[searchUserDialogState] State for the dialog, includes the id needed for the server request and the selected assignees
+ * @param[searchState] State for the search bar component inside this dialog
+ * @param[onUserClick] Invoked when the user click the image of user/assignee (go to user's profile)
+ * @param[onDismissRequest] Invoked when the users does something that should close the dialog
+ * @param[onApplyClick] Invoked when the user want to apply the changes (click apply button)
+ * @param[onSearch] Search for user
+ * @param[onQueryChange] Change the search query in search bar
+ * @param[onActiveChange] Activate/Deactivate the search bar
+ * @param[onTrailingIconClick] Invoked when the user click the close/remove button of search bar
+ * @param[onUserAdd] Add the user to the selected assignees
+ * @param[onUserRemove] Remove the user to the selected assignees
+ */
 @Composable
 fun SearchUserDialog(
     text: String,

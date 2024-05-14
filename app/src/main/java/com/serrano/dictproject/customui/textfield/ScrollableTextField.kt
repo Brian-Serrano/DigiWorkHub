@@ -12,6 +12,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+/**
+ * Used by inputs that can have many content
+ *
+ * @param[value] Text on the field
+ * @param[onValueChange] Change the text on the field
+ * @param[placeholderText] Placeholder when the text in the field is empty
+ * @param[modifier] (Optional) Add design/behavior to the text field
+ */
 @Composable
 fun ScrollableTextField(
     value: String,

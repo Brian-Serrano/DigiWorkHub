@@ -26,6 +26,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.serrano.dictproject.customui.text.OneLineText
 
+/**
+ * Input field in add task page
+ *
+ * @param[text] Label for dropdown
+ * @param[selected] The text in dropdown
+ * @param[onArrowClick] Action that will invoked when the user click the arrow in dropdown (open dialog)
+ * @param[modifier] (Optional) Add design/behavior to the component
+ * @param[isOneLine] Whether the text should not wrap to next line. Overflows that happen will use ellipsis. Default is true.
+ */
 @Composable
 fun CustomDropDown2(
     text: String,

@@ -25,6 +25,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
+/**
+ * Gray box that are container for reply of comment or message
+ *
+ * @param[text] The text of reply
+ * @param[onRemoveReply] Remove the reply by clicking remove icon
+ */
 @Composable
 fun ReplyBox(
     text: String,

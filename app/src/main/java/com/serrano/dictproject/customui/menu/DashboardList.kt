@@ -32,6 +32,21 @@ import com.serrano.dictproject.customui.dropdown.TypeDropDown
 import com.serrano.dictproject.utils.FileUtils
 import com.serrano.dictproject.utils.TaskPartDTO
 
+/**
+ * Used for the list view of tasks
+ *
+ * @param[windowInfo] Used for responsive/adaptive content
+ * @param[task] The task in a container
+ * @param[navigateToProfile] Invoked when the user click the image of user created the task (go to user profile)
+ * @param[openViewDialog] Invoked when the user click the assignees of task (open view assignee dialog)
+ * @param[onTitleClick] Open dialog where the user can edit title of task
+ * @param[onStatusClick] Open dialog where the user can edit status of task
+ * @param[onAssigneeClick] Open dialog where the user can edit assignee of task
+ * @param[onPriorityClick] Open dialog where the user can edit priority of task
+ * @param[onDueClick] Open dialog where the user can edit due date of task
+ * @param[onTypeClick] Open dialog where the user can edit type of task
+ * @param[onViewClick] Navigate to about task page to show more information about the task
+ */
 @Composable
 fun DashboardList(
     windowInfo: WindowInfo,

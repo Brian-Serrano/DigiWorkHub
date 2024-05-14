@@ -34,14 +34,38 @@ import java.util.stream.Stream
 import kotlin.math.max
 import kotlin.math.round
 
-
+/**
+ * Utility Class for processing of different stuffs
+ */
 object MiscUtils {
 
+    /**
+     * Pattern for matching email of users
+     */
     const val EMAIL_PATTERN = "\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,7}\\b"
+
+    /**
+     * Pattern for matching password of users
+     */
     const val PASSWORD_PATTERN = "\\b(?=.*[A-Za-z])(?=.*[0-9])[A-Za-z0-9]{8,}\\b"
+
+    /**
+     * Pattern for matching name of users
+     */
     const val NAME_PATTERN = "^[a-zA-Z0-9_ ]*\$"
+
+    /**
+     * Pattern for matching web urls
+     */
     const val URL_PATTERN = "https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,4}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)"
 
+    /**
+     * Get the byte array from input stream. Used in File Utilities when converting Uri to base64 encoded string
+     *
+     * @param[inputStream] InputStream
+     *
+     * @return ByteArray or byte[]
+     */
     @Throws(IOException::class)
     fun getBytes(inputStream: InputStream): ByteArray? {
         val byteBuffer = ByteArrayOutputStream()
@@ -53,6 +77,14 @@ object MiscUtils {
         return byteBuffer.toByteArray()
     }
 
+    /**
+     * Generate range of dates from first day of month to last day of month containing the task id and name with its due date matching date in the month.
+     *
+     * @param[calendarTabIdx] ..., -1 = Previous Month, 0 = Current Month, 1 = Next Month, ...
+     * @param[tasks] List of tasks
+     *
+     * @return Range of dates from first day of month to last day of month containing the task id and name with its due date matching date in the month.
+     */
     fun getCalendarData(calendarTabIdx: Int, tasks: List<TaskPartDTO>): List<Calendar> {
         val currentDate = LocalDate.now().plusMonths(calendarTabIdx.toLong())
         val mappedTasks = tasks
@@ -77,6 +109,14 @@ object MiscUtils {
         }
     }
 
+    /**
+     * Download the file to the users local device shared storage
+     *
+     * @param[context] Application Context, needed for content resolver
+     * @param[body] The data of file coming from the server
+     * @param[fileName] The file name
+     * @param[extension] The file extension
+     */
     @RequiresApi(Build.VERSION_CODES.Q)
     fun saveFileToDevice(context: Context, body: ResponseBody, fileName: String, extension: String) {
         val values = ContentValues().apply {
@@ -99,6 +139,14 @@ object MiscUtils {
         values.clear()
     }
 
+    /**
+     * Transform images to imageSize x imageSize pixel size
+     *
+     * @param[image] The image to transform
+     * @param[imageSize] size of image default is 200
+     *
+     * @return Transformed Image
+     */
     fun scaleImage(image: Bitmap, imageSize: Float = 200f): Bitmap {
         val ratio = max(imageSize / image.width, imageSize / image.height)
         val newWidth = round(ratio * image.width).toInt()
@@ -107,10 +155,25 @@ object MiscUtils {
         return Bitmap.createBitmap(scaledBitmap, 0, 0, 199, 199)
     }
 
+    /**
+     * Check the validity and expiration of token
+     *
+     * @param[authToken] JSON Web token
+     *
+     * @return True if token is invalid or expired, false otherwise
+     */
     fun checkToken(authToken: String): Boolean {
         return try { JWT.decode(authToken).expiresAt.before(Date()) } catch (e: Exception) { true }
     }
 
+    /**
+     * Gets the file name from Uri Object
+     *
+     * @param[context] Application Context, needed for content resolver
+     * @param[uri] The Uri Object
+     *
+     * @return File name
+     */
     @SuppressLint("Range")
     fun getFileNameFromUri(context: Context, uri: Uri): String {
         return context.contentResolver.query(uri, null, null, null, null).use { cursor ->
@@ -119,6 +182,13 @@ object MiscUtils {
         } ?: ""
     }
 
+    /**
+     * Get the drawable resource/file icons from file extension
+     *
+     * @param[extension] The file extension
+     *
+     * @return The id of the drawable resource
+     */
     fun getFileIcon(extension: String): Int {
         return when (extension.lowercase()) {
             "pdf" -> R.drawable.pdf
@@ -157,10 +227,24 @@ object MiscUtils {
         }
     }
 
+    /**
+     * Wrapper for showing toast in the application
+     *
+     * @param[context] Application Context
+     * @param[message] Nullable String
+     */
     fun toast(context: Context, message: String?) {
         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }
 
+    /**
+     * Checks the validity and matches of password and confirm password. Used in signup page.
+     *
+     * @param[text] Password or Confirm Password
+     * @param[other] Password or Confirm Password
+     *
+     * @return Error message
+     */
     fun checkPassword(text: String, other: String): String {
         return when {
             !Regex(PASSWORD_PATTERN).matches(text) -> "Password should have at least one letter and number, and 8-20 characters."
@@ -169,6 +253,15 @@ object MiscUtils {
         }
     }
 
+    /**
+     * Wrapper function for api calls that returns a single successful message response and shows toast to any error responses.
+     *
+     * @param[response] A response from api call
+     * @param[onSuccess] A function/action that will be invoked when the response was successful
+     * @param[context] For showing toast message
+     * @param[preferencesRepository] For authorization check
+     * @param[apiRepository] For authorization check
+     */
     suspend fun apiEditWrapper(
         response: Resource<Success>,
         onSuccess: suspend () -> Unit,
@@ -196,6 +289,15 @@ object MiscUtils {
         }
     }
 
+    /**
+     * Wrapper function for api calls that shows toast to any error responses.
+     *
+     * @param[response] A response from api call
+     * @param[onSuccess] A function/action that will be invoked with the response when the response was successful
+     * @param[context] For showing toast message
+     * @param[preferencesRepository] For authorization check
+     * @param[apiRepository] For authorization check
+     */
     suspend fun <T> apiAddWrapper(
         response: Resource<T>,
         onSuccess: suspend (T) -> Unit,
@@ -225,6 +327,15 @@ object MiscUtils {
         }
     }
 
+    /**
+     * Get the attachment data from the server and download to the users local device
+     *
+     * @param[fileName] The name of file/attachment when it was uploaded
+     * @param[fileServerName] The path of the file/attachment in the server
+     * @param[context] Application Context
+     * @param[preferencesRepository] The repository that processes the preferences
+     * @param[apiRepository] The repository that processes api calls
+     */
     @RequiresApi(Build.VERSION_CODES.Q)
     suspend fun downloadAttachment(
         fileName: String,
@@ -246,6 +357,13 @@ object MiscUtils {
         )
     }
 
+    /**
+     * Wrapper function for checking authorization of user. If not authorized, the user will automatically log in behind the scene.
+     *
+     * @param[context] Application Context
+     * @param[preferencesRepository] The repository that processes the preferences
+     * @param[apiRepository] The repository that processes api calls
+     */
     suspend fun checkAuthentication(
         context: Context,
         preferencesRepository: PreferencesRepository,

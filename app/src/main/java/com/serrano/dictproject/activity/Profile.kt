@@ -45,6 +45,24 @@ import com.serrano.dictproject.utils.ProfileDataDTO
 import com.serrano.dictproject.utils.ProfileDialogs
 import com.serrano.dictproject.utils.ProfileState
 
+/**
+ * This page is where the user can see information of other user or self
+ *
+ * @param[preferences] The user information, that will be used to know who user access the page and do not do things or do not show content base on who the user e.g. do not allow user to change image of other user.
+ * @param[navController] Used for navigating to different page
+ * @param[context] Used to show toast message and the [FileUtils] utility class
+ * @param[paddingValues] This is used to move contents down (where it should and can see it), there is top bar on page
+ * @param[process] The process of the content (see [ProcessState.Success], [ProcessState.Error], [ProcessState.Loading] for more information)
+ * @param[user] The information about the user, this comes from server or in room database
+ * @param[profileDialogs] What dialog to show the default is NONE (do not show)
+ * @param[profileState] This states are used when user edit his/her information and refresh the page
+ * @param[updateDialogState] Update the value of state responsible for showing dialogs
+ * @param[updateProfileState] Update the values of [profileState]
+ * @param[changeUserName] Callback function responsible for updating user name. It needs the new name.
+ * @param[changeUserRole] Callback function responsible for updating user role. It needs the new role.
+ * @param[uploadImage] Callback function responsible for updating user image. It needs the new image.
+ * @param[refreshUser] Refresh the page
+ */
 @Composable
 fun Profile(
     preferences: Preferences,

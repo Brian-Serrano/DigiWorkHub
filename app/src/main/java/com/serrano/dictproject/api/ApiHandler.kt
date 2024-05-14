@@ -7,8 +7,18 @@ import com.serrano.dictproject.utils.ServerErrorObj
 import retrofit2.HttpException
 import retrofit2.Response
 
+/**
+ * Handler class for different responses that can be received from the sender
+ */
 class ApiHandler {
 
+    /**
+     * Handle different responses (internal server error, validation error, successful response)
+     *
+     * @param[execute] A server request callback function
+     *
+     * @return A wrapper object for the type of response received
+     */
     suspend fun <T : Any> handleApi(execute: suspend () -> Response<T>): Resource<T> {
         return try {
             val response = execute()

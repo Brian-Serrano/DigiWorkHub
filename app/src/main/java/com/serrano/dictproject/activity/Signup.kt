@@ -41,6 +41,20 @@ import com.serrano.dictproject.utils.Routes
 import com.serrano.dictproject.utils.SignupDialogs
 import com.serrano.dictproject.utils.SignupState
 
+/**
+ * This is the page where the user will login or signup
+ *
+ * @param[navController] Used for navigating to different page
+ * @param[signupState] States/values for all the inputs in the page (signup/login/forgot password)
+ * @param[signupDialogs] What dialog to show the default is NONE (do not show)
+ * @param[updateSignupState] Update the values of [signupState]
+ * @param[updateSignupDialog] Update the value of state responsible for showing dialogs
+ * @param[updateConfirmDialog] Update the values and actions in confirm dialog. One confirm dialog is only used and only change its values base on what triggers/shows it.
+ * @param[signup] Callback function responsible for signing up user. [signupState] values are used for the request. It needs the navigation callback function that will invoked when the signup successful (navigate to dashboard).
+ * @param[login] Callback function responsible for logging in user. [signupState] values are used for the request. It needs the navigation callback function that will invoked when the login successful (navigate to dashboard).
+ * @param[forgotPassword] Callback function responsible for sending code to mail of user. [signupState] values are used for the request.
+ * @param[changePassword] Callback function responsible for changing password of user. [signupState] values are used for the request.
+ */
 @Composable
 fun Signup(
     navController: NavController,

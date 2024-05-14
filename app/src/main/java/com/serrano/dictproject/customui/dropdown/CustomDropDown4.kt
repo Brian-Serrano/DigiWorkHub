@@ -24,6 +24,15 @@ import androidx.compose.ui.unit.dp
 import com.serrano.dictproject.customui.text.OneLineText
 import com.serrano.dictproject.utils.DropDownMultiselect
 
+/**
+ * Used for dropdowns that can select multiple options
+ *
+ * @param[dropDown] State for the dropdown
+ * @param[icon] Leading icon for the dropdown
+ * @param[onArrowClick] Invoked when the user clicks the dropdown and shows the menu of options that can be selected
+ * @param[onDismissRequest] Hide the menu of options
+ * @param[onItemSelect] Invoked when the user selected options
+ */
 @Composable
 fun RowScope.CustomDropDown4(
     dropDown: DropDownMultiselect,

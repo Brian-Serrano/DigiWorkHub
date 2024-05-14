@@ -59,6 +59,28 @@ import com.serrano.dictproject.utils.MiscUtils
 import com.serrano.dictproject.utils.ProcessState
 import com.serrano.dictproject.utils.Routes
 
+/**
+ * This is the page shown when the user select messages, you will see the description of a message, its attachments and replies.
+ *
+ * @param[windowInfo] An object that will be used to determine the size of screen, adapt the contents base on size and become responsive.
+ * @param[preferences] The user information, that will be used to know who user access the page and do not do things or do not show content base on who the user e.g. do not allow user to delete the message if he/she did not send it.
+ * @param[navController] Used for navigating to different page
+ * @param[paddingValues] This is used to move contents down (where it should and can see it), there is top bar on page
+ * @param[context] Used to show toast message and the [FileUtils] utility class
+ * @param[message] These data are from server or room database, converted to state and shown in user interface.
+ * @param[aboutMessageState] These data are not from server or room database and their default/first values are empty. Used in selecting files or inputs in reply.
+ * @param[aboutMessageDialogs] What dialog to show the default is NONE (do not show)
+ * @param[process] The process of the content (see [ProcessState.Success], [ProcessState.Error], [ProcessState.Loading] for more information)
+ * @param[updateDialogState] Update the value of state responsible for showing dialogs
+ * @param[updateAboutMessageState] Update the values of [aboutMessageState]
+ * @param[updateConfirmDialogState] Update the values and actions in confirm dialog. One confirm dialog is only used and only change its values base on what triggers/shows it.
+ * @param[downloadAttachment] Callback function responsible for downloading attachments. It needs the file/original name and server name.
+ * @param[replyMessage] Callback function responsible for sending replies
+ * @param[refreshMessage] Callback function responsible for refreshing the data of page
+ * @param[deleteMessage] Callback function responsible for deleting message. It needs the id of message to delete and navigation callback function when the delete success (navigate to inbox).
+ * @param[deleteReply] Callback function responsible for deleting replies. It needs the id of reply to delete.
+ * @param[deleteMessageFromUser] Callback function responsible for deleting the message only for the user. It needs the id of message to delete and navigation callback function when the delete success (navigate to inbox).
+ */
 @Composable
 fun AboutMessage(
     windowInfo: WindowInfo,

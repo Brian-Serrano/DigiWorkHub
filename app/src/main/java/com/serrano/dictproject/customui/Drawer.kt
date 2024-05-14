@@ -33,6 +33,17 @@ import com.serrano.dictproject.utils.Routes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+/**
+ * Drawer used by all pages except signup and splash
+ *
+ * @param[drawerState] The state of drawer
+ * @param[coroutineScope] Coroutine used for closing drawer
+ * @param[navController] Used for navigating to different pages
+ * @param[user] The user information to show on drawer
+ * @param[onLogout] An action that clear all data in room database and preferences
+ * @param[selected] Selected drawer item
+ * @param[content] Content everything shown in application with pages that have drawer
+ */
 @Composable
 fun Drawer(
     drawerState: DrawerState,

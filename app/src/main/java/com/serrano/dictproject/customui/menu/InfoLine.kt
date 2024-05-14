@@ -13,6 +13,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.serrano.dictproject.customui.text.OneLineText
 
+/**
+ * Used in settings as container for user information
+ *
+ * @param[label] Label for the user information
+ * @param[text] The value of user information
+ * @param[onArrowClick] (Optional) Action when the component clicked (open dialog to edit user information)
+ */
 @Composable
 fun InfoLine(
     label: String,

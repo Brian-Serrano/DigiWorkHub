@@ -25,6 +25,14 @@ import com.serrano.dictproject.customui.text.OneLineText
 import com.serrano.dictproject.utils.AddAttachmentState
 import com.serrano.dictproject.utils.MiscUtils
 
+/**
+ * Component used for uploading attachments on task in about task page
+ *
+ * @param[attachmentState] State for the menu
+ * @param[onFilePicked] Invoked when the user selected file on his/her device file explorer
+ * @param[onFileUpload] Upload the file/attachment of task on the server
+ * @param[context] Used to get the file name
+ */
 @Composable
 fun AddAttachmentMenu(
     attachmentState: AddAttachmentState,

@@ -13,13 +13,17 @@ import androidx.datastore.dataStore
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import com.serrano.dictproject.customui.RememberWindowInfo
+import com.serrano.dictproject.datastore.CryptoManager
 import com.serrano.dictproject.datastore.PreferencesSerializer
 import com.serrano.dictproject.ui.theme.DICTProjectTheme
 import com.serrano.dictproject.viewmodel.SharedViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
-val Context.preferencesDataStore by dataStore("preferences.json", PreferencesSerializer())
+val Context.preferencesDataStore by dataStore("preferences.json", PreferencesSerializer(CryptoManager()))
 
+/**
+ * Starting point of application
+ */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 

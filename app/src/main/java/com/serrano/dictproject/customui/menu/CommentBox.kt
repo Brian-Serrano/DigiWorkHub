@@ -41,6 +41,17 @@ import com.serrano.dictproject.utils.CommentState
 import com.serrano.dictproject.utils.DateUtils
 import com.serrano.dictproject.utils.FileUtils
 
+/**
+ * Container used for received comments
+ *
+ * @param[currentUserId] The id of user to determine who the user. User sent the comment is only the user can delete it.
+ * @param[comment] Comment information
+ * @param[onUserClick] Invoked when the user click the image of user sent the comment (go to user profile)
+ * @param[onReplyClick] Invoked when the user click the reply button (add the comment as reply and user as mention in add comment menu/component)
+ * @param[onLikeClick] Like/unlike the comment
+ * @param[onDeleteClick] Delete the comment on the server
+ * @param[commentReply] The replied comments description/text of comment
+ */
 @Composable
 fun CommentBox(
     currentUserId: Int,

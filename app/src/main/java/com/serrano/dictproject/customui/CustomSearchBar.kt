@@ -28,6 +28,19 @@ import com.serrano.dictproject.utils.SearchState
 import com.serrano.dictproject.utils.SearchUserDialogState
 import com.serrano.dictproject.utils.UserDTO
 
+/**
+ * Search bar used for searching assignees/users
+ *
+ * @param[placeHolder] Placeholder when search query is empty
+ * @param[searchState] State for the search bar
+ * @param[searchUserDialogState] Used to check if searched assignees/users are already selected as assignees
+ * @param[onUserClick] Navigate to user profile when the user click the image of user
+ * @param[onQueryChange] Change the search query text
+ * @param[onSearch] Search for users
+ * @param[onActiveChange] Activate/deactivate the search bar component
+ * @param[onTrailingIconClick] Action performed when the user click search bar trailing icon
+ * @param[onUserAdd] Add the user to the selected assignees
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomSearchBar(

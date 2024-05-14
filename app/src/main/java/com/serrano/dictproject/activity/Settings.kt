@@ -46,6 +46,25 @@ import com.serrano.dictproject.utils.Routes
 import com.serrano.dictproject.utils.SettingsDialogs
 import com.serrano.dictproject.utils.SettingsState
 
+/**
+ * This is the page where the user can see or edit his/her information
+ *
+ * @param[navController] Used for navigating to different page
+ * @param[paddingValues] This is used to move contents down (where it should and can see it), there is top bar on page
+ * @param[context] Used to show toast message and the [FileUtils] utility class
+ * @param[user] The information about the user, this comes from server or in room database
+ * @param[process] The process of the content (see [ProcessState.Success], [ProcessState.Error], [ProcessState.Loading] for more information)
+ * @param[settingsDialogs] What dialog to show the default is NONE (do not show)
+ * @param[settingsState] This states are used when user edit his/her information and refresh the page
+ * @param[updateDialogState] Update the value of state responsible for showing dialogs
+ * @param[updateSettingsState] Update the values of [settingsState]
+ * @param[updateChangePasswordState] Update the values/states in [ChangePasswordDialog]
+ * @param[changeUserName] Callback function responsible for updating user name. It needs the new name.
+ * @param[changeUserRole] Callback function responsible for updating user role. It needs the new role.
+ * @param[uploadImage] Callback function responsible for updating user image. It needs the new image.
+ * @param[refreshUser] Refresh the page
+ * @param[deleteAccount] Callback function responsible for deleting the account of user. It needs the navigation callback function that will invoked when the account is successfully deleted (navigate to signup).
+ */
 @Composable
 fun Settings(
     navController: NavController,

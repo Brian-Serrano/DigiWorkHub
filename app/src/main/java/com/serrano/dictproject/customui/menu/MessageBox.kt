@@ -27,6 +27,14 @@ import com.serrano.dictproject.utils.DateUtils
 import com.serrano.dictproject.utils.FileUtils
 import com.serrano.dictproject.utils.MessagePartState
 
+/**
+ * Containers used for the messages in inbox page
+ *
+ * @param[message] The message information
+ * @param[onUserClick] Invoked when the user click the other user (sender or receiver) (go to user profile)
+ * @param[onViewClick] Navigate to about message page to see more information about the message
+ * @param[onDeleteClick] Delete the message for only the user
+ */
 @Composable
 fun MessageBox(
     message: MessagePartState,

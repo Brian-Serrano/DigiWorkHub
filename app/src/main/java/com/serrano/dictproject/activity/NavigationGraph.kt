@@ -61,6 +61,16 @@ import com.serrano.dictproject.viewmodel.SignupViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 
+/**
+ * Function that manages navigation
+ *
+ * @param[navController] Used for navigating to different page
+ * @param[coroutineScope] A coroutine used by opening and closing the drawer
+ * @param[drawerState] State for the drawer
+ * @param[context] Application context
+ * @param[sharedViewModel] State shared to all pages/activity
+ * @param[windowInfo] The screen size that is used for responsive contents
+ */
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun NavigationGraph(

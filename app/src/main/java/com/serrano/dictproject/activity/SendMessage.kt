@@ -58,6 +58,19 @@ import com.serrano.dictproject.utils.SendMessageDialogs
 import com.serrano.dictproject.utils.SendMessageState
 import com.serrano.dictproject.utils.UserDTO
 
+/**
+ * This is the page where you can send messages
+ *
+ * @param[navController] Used for navigating to different page
+ * @param[paddingValues] This is used to move contents down (where it should and can see it), there is top bar on page
+ * @param[context] Used to show toast message and the [FileUtils] utility class
+ * @param[sendMessageState] This states/values are used for input fields in the page
+ * @param[sendMessageDialogs] What dialog to show the default is NONE (do not show)
+ * @param[updateSendMessageState] Update the values of [sendMessageState]
+ * @param[updateDialogState] Update the value of state responsible for showing dialogs
+ * @param[sendMessage] Callback function responsible for sending messages. It needs the navigation callback function that will invoked when the message sent (navigate to inbox).
+ * @param[searchUser] Callback function responsible for searching recipient. It needs the search query (text in search bar) and callback function that will be invoked with the result/response users as its argument, should add the data to the state in the callback.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SendMessage(

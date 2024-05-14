@@ -39,6 +39,17 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 
+/**
+ * A dialog used for selecting dates and times. This contains the date and time picker dialogs.
+ *
+ * @param[text] Header text for the dialog
+ * @param[dateDialogState] States used for the dialog
+ * @param[onDismissRequest] Invoked when the users does something that should close the dialog
+ * @param[onApplyClick] Invoked when the user want to apply the changes (click apply button)
+ * @param[datePicker] Toggle date picker dialog
+ * @param[timePicker] Toggle time picker dialog
+ * @param[selected] Invoked when the user apply the selected date in date picker or time in time picker
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DateTimePickerDialog(

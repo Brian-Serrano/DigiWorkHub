@@ -23,6 +23,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.serrano.dictproject.customui.text.OneLineText
 
+/**
+ * Container for priority of tasks/subtasks
+ *
+ * @param[text] Text for container
+ * @param[onClick] Invoked when the user click the container (open dialog and edit priority)
+ */
 @Composable
 fun PriorityDropDown(
     text: String,

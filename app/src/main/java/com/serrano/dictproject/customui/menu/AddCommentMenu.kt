@@ -24,6 +24,18 @@ import com.serrano.dictproject.customui.textfield.CommentWithMention
 import com.serrano.dictproject.customui.textfield.InputFieldColors
 import com.serrano.dictproject.utils.UserDTO
 
+/**
+ * Component used for sending comments on task in about task page
+ *
+ * @param[commentInput] The description of comment
+ * @param[buttonEnabled] Whether button is enabled. Should only disable if there are server request running.
+ * @param[onCommentInputChange] Change the description of comment
+ * @param[sendComment] Send the comment of task on the server
+ * @param[commentReply] The descriptions of comments replied
+ * @param[mentions] The users mentioned in the comment
+ * @param[onAddMentionsMenu] Open dialog where the user can select users to mention
+ * @param[onRemoveReply] Remove the comment attached to the comment as reply
+ */
 @Composable
 fun AddCommentMenu(
     commentInput: String,

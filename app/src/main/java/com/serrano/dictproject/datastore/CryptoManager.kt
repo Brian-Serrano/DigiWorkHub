@@ -12,6 +12,9 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.IvParameterSpec
 
+/**
+ * Wrapper class that encrypt/decrypt preferences/datastore data
+ */
 class CryptoManager {
 
     private val keyStore = KeyStore.getInstance("AndroidKeyStore").apply {

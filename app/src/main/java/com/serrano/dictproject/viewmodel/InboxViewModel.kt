@@ -52,21 +52,30 @@ class InboxViewModel @Inject constructor(
     private val _dialogState = MutableStateFlow(InboxDialogs.NONE)
     val dialogState: StateFlow<InboxDialogs> = _dialogState.asStateFlow()
 
+    /**
+     * Get the sent messages in server or in room database
+     */
     fun getSentMessages() {
         viewModelScope.launch {
             try {
+                // get the messages in room database
                 val localMessages = dao.getMessagePart(Tags.SENT_MESSAGE).first()
 
+                // check if there are messages in room database
                 if (localMessages.isEmpty()) {
+                    // if there no messages
+                    // check authorization
                     MiscUtils.checkAuthentication(getApplication(), preferencesRepository, apiRepository)
 
+                    // request server for the message
                     when (val response = apiRepository.getSentMessages()) {
                         is Resource.Success -> {
                             val messages = response.data!!
 
+                            // assign the messages to the message state
                             _sentMessages.value = messages.map { mapToMessagePartState(it) }
 
-                            // save fetched data locally
+                            // save messages in room database
                             dao.inboxInsertMessages(
                                 messageParts = messages.map { it.toEntity(Tags.SENT_MESSAGE) },
                                 users = messages.map { it.other.toEntity() }.toSet()
@@ -85,8 +94,10 @@ class InboxViewModel @Inject constructor(
                         }
                     }
                 } else {
+                    // if there are messages
                     val messages = localMessages.map { it.toDTO(dao) }
 
+                    // assign the messages to the message state
                     _sentMessages.value = messages.map { mapToMessagePartState(it) }
                     _processState.value = ProcessState.Success
                 }
@@ -96,21 +107,30 @@ class InboxViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Get the received messages in server or in room database
+     */
     fun getReceivedMessages() {
         viewModelScope.launch {
             try {
+                // get the messages in room database
                 val localMessages = dao.getMessagePart(Tags.RECEIVED_MESSAGE).first()
 
+                // check if there are messages in room database
                 if (localMessages.isEmpty()) {
+                    // if there are no messages
+                    // check authorization
                     MiscUtils.checkAuthentication(getApplication(), preferencesRepository, apiRepository)
 
+                    // request server
                     when (val response = apiRepository.getReceivedMessages()) {
                         is Resource.Success -> {
                             val messages = response.data!!
 
+                            // assign the messages to the message state
                             _receivedMessages.value = messages.map { mapToMessagePartState(it) }
 
-                            // save fetched data locally
+                            // save the message in room database
                             dao.inboxInsertMessages(
                                 messageParts = messages.map { it.toEntity(Tags.RECEIVED_MESSAGE) },
                                 users = messages.map { it.other.toEntity() }.toSet()
@@ -129,8 +149,10 @@ class InboxViewModel @Inject constructor(
                         }
                     }
                 } else {
+                    // if there are messages
                     val messages = localMessages.map { it.toDTO(dao) }
 
+                    // assign the messages to the message state
                     _receivedMessages.value = messages.map { mapToMessagePartState(it) }
                     _processState2.value = ProcessState.Success
                 }
@@ -140,24 +162,30 @@ class InboxViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Refresh sent messages by requesting server
+     */
     fun refreshSentMessages() {
         viewModelScope.launch {
+            // show refresh icon
             updateInboxState(_inboxState.value.copy(isSentRefreshing = true))
 
             MiscUtils.apiAddWrapper(
                 response = apiRepository.getSentMessages(),
                 onSuccess = { messages ->
+                    // assign the messages to the message state
                     _sentMessages.value = messages.map { mapToMessagePartState(it) }
 
-                    // delete the data previously save
+                    // delete the messages previously save in room database
                     dao.deleteMessageParts(Tags.SENT_MESSAGE)
 
-                    // save fetched data locally
+                    // save the new messages in room database
                     dao.inboxInsertMessages(
                         messageParts = messages.map { it.toEntity(Tags.SENT_MESSAGE) },
                         users = messages.map { it.other.toEntity() }.toSet()
                     )
 
+                    // show successful message
                     MiscUtils.toast(getApplication(), "Messages loaded successfully.")
 
                     _processState.value = ProcessState.Success
@@ -167,28 +195,35 @@ class InboxViewModel @Inject constructor(
                 apiRepository = apiRepository
             )
 
+            // hide refresh icon
             updateInboxState(_inboxState.value.copy(isSentRefreshing = false))
         }
     }
 
+    /**
+     * Refresh received messages by requesting server
+     */
     fun refreshReceivedMessages() {
         viewModelScope.launch {
+            // show refresh icon
             updateInboxState(_inboxState.value.copy(isReceivedRefreshing = true))
 
             MiscUtils.apiAddWrapper(
                 response = apiRepository.getReceivedMessages(),
                 onSuccess = { messages ->
+                    // assign the messages to the message state
                     _receivedMessages.value = messages.map { mapToMessagePartState(it) }
 
-                    // delete the data previously save
+                    // delete the message previously save in room database
                     dao.deleteMessageParts(Tags.RECEIVED_MESSAGE)
 
-                    // save fetched data locally
+                    // save the new message in room database
                     dao.inboxInsertMessages(
                         messageParts = messages.map { it.toEntity(Tags.RECEIVED_MESSAGE) },
                         users = messages.map { it.other.toEntity() }.toSet()
                     )
 
+                    // show successful message
                     MiscUtils.toast(getApplication(), "Messages loaded successfully.")
 
                     _processState2.value = ProcessState.Success
@@ -198,31 +233,38 @@ class InboxViewModel @Inject constructor(
                 apiRepository = apiRepository
             )
 
+            // hide refresh icon
             updateInboxState(_inboxState.value.copy(isReceivedRefreshing = false))
         }
     }
 
+    /**
+     * Delete the message for only the user
+     *
+     * @param[messageId] What message to delete
+     */
     fun deleteMessageFromUser(messageId: Int) {
+        // disable button
         updateMessageButtons(messageId, false)
 
         viewModelScope.launch {
             MiscUtils.apiEditWrapper(
                 response = apiRepository.deleteMessageFromUser(MessageIdBody(messageId)),
                 onSuccess = {
-                    // delete message in storage that is shown on about message
+                    // delete message in room database that is shown on about message
                     dao.aboutMessageDeleteMessages(messageId)
 
-                    // delete message in storage that is shown on inbox
+                    // delete message in room database that is shown on inbox
                     dao.deleteMessagePart(messageId)
 
-                    // update sent message ui
+                    // update sent messages tab with the deleted message
                     updateSentMessages(
                         _sentMessages.value.filter {
                             it.messageId != messageId
                         }
                     )
 
-                    // update received message ui
+                    // update received messages tab with the deleted message
                     updateReceivedMessages(
                         _receivedMessages.value.filter {
                             it.messageId != messageId
@@ -235,6 +277,7 @@ class InboxViewModel @Inject constructor(
             )
         }
 
+        // enable button
         updateMessageButtons(messageId, true)
     }
 
@@ -258,6 +301,9 @@ class InboxViewModel @Inject constructor(
         _receivedMessages.value = newMessage
     }
 
+    /**
+     * Disable/Enable one delete button from a group of delete buttons
+     */
     private fun updateMessageButtons(messageId: Int, value: Boolean) {
         updateSentMessages(
             _sentMessages.value.map {
@@ -271,6 +317,9 @@ class InboxViewModel @Inject constructor(
         )
     }
 
+    /**
+     * Convert MessagePartDTO to MessagePartState
+     */
     private fun mapToMessagePartState(messagePartDTO: MessagePartDTO): MessagePartState {
         return MessagePartState(
             messageId = messagePartDTO.messageId,

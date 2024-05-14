@@ -20,6 +20,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.serrano.dictproject.customui.text.OneLineText
 
+/**
+ * A text with edit icon next to it (right side)
+ *
+ * @param[text] The text
+ * @param[onEditButtonClick] Action performed when the user click the edit icon
+ * @param[style] (Optional) The text style
+ * @param[fontWeight] (Optional) The weight of the text/font
+ * @param[isOneLine] Whether the text should not wrap to next line. Overflows that happen will use ellipsis. Default is true.
+ * @param[isJustify] Whether the text is justified align
+ */
 @Composable
 fun TextWithEditButton(
     text: String,

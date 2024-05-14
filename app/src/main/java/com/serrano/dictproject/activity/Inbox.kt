@@ -32,6 +32,24 @@ import com.serrano.dictproject.utils.ProcessState
 import com.serrano.dictproject.utils.Routes
 import com.serrano.dictproject.utils.SharedViewModelState
 
+/**
+ * This page is where you can see all the sent and received messages.
+ *
+ * @param[navController] Used for navigating to different page
+ * @param[paddingValues] This is used to move contents down (where it should and can see it), there is top bar on page
+ * @param[process] The process for the sent messages tab (see [ProcessState.Success], [ProcessState.Error], [ProcessState.Loading] for more information)
+ * @param[process2] The process for the received messages tab (see [ProcessState.Success], [ProcessState.Error], [ProcessState.Loading] for more information)
+ * @param[sentMessages] The sent messages coming from the server or in room database
+ * @param[receivedMessages] The received messages coming from the server or in room database
+ * @param[inboxState] States/values for this page, used by confirm dialog and swipe refresh components
+ * @param[sharedState] [SharedViewModelState.messageBottomBarIdx] is needed for this page
+ * @param[inboxDialogs] What dialog to show the default is NONE (do not show)
+ * @param[updateInboxDialogs] Update the value of state responsible for showing dialogs
+ * @param[updateConfirmDialogState] Update the values and actions in confirm dialog. One confirm dialog is only used and only change its values base on what triggers/shows it.
+ * @param[refreshSentMessages] Refresh sent messages
+ * @param[refreshReceivedMessages] Refresh received messages
+ * @param[deleteMessageFromUser] Callback function responsible for deleting the message only for the user. It needs the id of message to delete.
+ */
 @Composable
 fun Inbox(
     navController: NavController,

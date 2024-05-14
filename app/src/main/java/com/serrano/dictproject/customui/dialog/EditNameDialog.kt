@@ -25,6 +25,15 @@ import com.serrano.dictproject.customui.text.OneLineText
 import com.serrano.dictproject.customui.textfield.ScrollableTextField
 import com.serrano.dictproject.utils.EditNameDialogState
 
+/**
+ * A dialog used for editing data that only includes text
+ *
+ * @param[text] Header text for the dialog
+ * @param[editNameDialogState] States for the dialog
+ * @param[onDismissRequest] Invoked when the users does something that should close the dialog
+ * @param[onApplyClick] Invoked when the user want to apply the changes (click apply button)
+ * @param[onTextChange] Change the text from the input field inside this dialog
+ */
 @Composable
 fun EditNameDialog(
     text: String,

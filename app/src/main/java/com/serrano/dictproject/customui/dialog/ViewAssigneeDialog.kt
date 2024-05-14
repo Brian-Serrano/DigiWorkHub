@@ -28,6 +28,13 @@ import com.serrano.dictproject.customui.text.OneLineText
 import com.serrano.dictproject.utils.FileUtils
 import com.serrano.dictproject.utils.UserDTO
 
+/**
+ * A dialog that shows the assignees/users
+ *
+ * @param[assignees] The assignees shown
+ * @param[onUserClick] Invoked when the user click on the image of assignee/user (go to user profile)
+ * @param[onDismissRequest] Invoked when the users does something that should close the dialog
+ */
 @Composable
 fun ViewAssigneeDialog(
     assignees: List<UserDTO>,

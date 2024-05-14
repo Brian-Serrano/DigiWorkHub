@@ -26,6 +26,19 @@ import com.serrano.dictproject.utils.AddSubtaskState
 import com.serrano.dictproject.utils.DateUtils
 import com.serrano.dictproject.utils.FileUtils
 
+/**
+ * Component used for adding subtasks on task in about task page
+ *
+ * @param[windowInfo] Used for responsive/adaptive content
+ * @param[addSubtaskState] State for the menu
+ * @param[onDescriptionChange] Change description of subtask
+ * @param[onOpenDueDialog] Open dialog where the user can select due date for subtask
+ * @param[onOpenPriorityDialog] Open dialog where the user can select priority for subtask
+ * @param[onOpenTypeDialog] Open dialog where the user can select type for subtask
+ * @param[onOpenAssigneeDialog] Open dialog where the user can select assignees for subtask
+ * @param[onUserClick] Open dialog where the user see the selected assignees
+ * @param[addSubtask] Add the subtask of task on the server
+ */
 @Composable
 fun AddSubtaskMenu(
     windowInfo: WindowInfo,

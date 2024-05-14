@@ -43,6 +43,26 @@ import com.serrano.dictproject.utils.SearchState
 import com.serrano.dictproject.utils.SearchUserDialogState
 import com.serrano.dictproject.utils.UserDTO
 
+/**
+ * This is the page where you can add tasks.
+ *
+ * @param[windowInfo] An object that will be used to determine the size of screen, adapt the contents base on size and become responsive.
+ * @param[addTaskDialogs] What dialog to show the default is NONE (do not show)
+ * @param[navController] Used for navigating to different page
+ * @param[paddingValues] This is used to move contents down (where it should and can see it), there is top bar on page
+ * @param[dialogsState] States/values for the different dialogs (see [EditNameDialogState], [SearchUserDialogState], [DateDialogState], [RadioButtonDialogState], [SearchState] for more information)
+ * @param[addTaskState] States/values in input fields for this page
+ * @param[updateDialogState] Update the value of state responsible for showing dialogs
+ * @param[updateRadioDialogState] Update the values of [RadioButtonDialogState] from [dialogsState]
+ * @param[updateEditNameDialogState] Update the values of [EditNameDialogState] from [dialogsState]
+ * @param[updateDateDialogState] Update the values of [DateDialogState] from [dialogsState]
+ * @param[updateSearchDialogState] Update the values of [SearchUserDialogState] from [dialogsState]
+ * @param[updateViewAssigneeDialogState] Update the values/users in [ViewAssigneeDialog]
+ * @param[updateTaskState] Update the values of [addTaskState]
+ * @param[updateSearchState] Update the values of [SearchState] from [dialogsState]
+ * @param[searchUser] Callback function responsible for searching users/assignees. It needs the search query (text in search bar) and callback function that will be invoked with the result/response users as its argument, should add the data to the state in the callback.
+ * @param[addTask] Callback function responsible for adding the task. It needs the navigation callback function when the add success (navigate to dashboard).
+ */
 @Composable
 fun AddTask(
     windowInfo: WindowInfo,

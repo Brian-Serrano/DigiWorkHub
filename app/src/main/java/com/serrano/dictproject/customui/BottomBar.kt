@@ -9,6 +9,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 
+/**
+ * Bottom bar used in dashboard and inbox page for assigned and created tasks and sent and received messages.
+ *
+ * @param[items] Label for the item
+ * @param[icons] Icon for the item
+ * @param[bottomBarIdx] The selected item
+ * @param[onClick] Select the item when the user click it
+ */
 @Composable
 fun BottomBar(
     items: List<String>,

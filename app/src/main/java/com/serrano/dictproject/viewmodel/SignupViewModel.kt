@@ -50,11 +50,18 @@ class SignupViewModel @Inject constructor(
         _signupState.value = _signupState.value.copy(confirmDialogState = newState)
     }
 
+    /**
+     * Signup/Create Account
+     *
+     * @param[navigate] Callback for navigation that will be invoked when the response is successful. Direct navigation should be done on user interface. Separation of concerns.
+     */
     fun signup(navigate: () -> Unit) {
         viewModelScope.launch {
             try {
+                // disable signup button
                 updateSignupState(_signupState.value.copy(signupButtonEnabled = false))
 
+                // request server for signup
                 when (
                     val response = apiRepository.signup(
                         Signup(
@@ -68,12 +75,21 @@ class SignupViewModel @Inject constructor(
                 ) {
                     is Resource.Success -> {
                         val data = response.data!!
+
+                        // save user information and token in preferences
                         preferencesRepository.login(data.token, data.id, data.name, data.email, data.password, data.image)
+
+                        // show success message
                         MiscUtils.toast(getApplication(), "Created Account Successfully!")
+
+                        // enable signup button
                         updateSignupState(_signupState.value.copy(signupButtonEnabled = true))
+
+                        // navigate
                         navigate()
                     }
                     is Resource.ClientError -> {
+                        // enable signup button and show error message
                         updateSignupState(
                             _signupState.value.copy(
                                 errorMessage = response.clientError?.message ?: "",
@@ -82,6 +98,7 @@ class SignupViewModel @Inject constructor(
                         )
                     }
                     is Resource.GenericError -> {
+                        // enable signup button and show error message
                         updateSignupState(
                             _signupState.value.copy(
                                 errorMessage = response.genericError ?: "",
@@ -90,6 +107,7 @@ class SignupViewModel @Inject constructor(
                         )
                     }
                     is Resource.ServerError -> {
+                        // enable signup button and show error message
                         updateSignupState(
                             _signupState.value.copy(
                                 errorMessage = response.serverError?.error ?: "",
@@ -99,6 +117,7 @@ class SignupViewModel @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
+                // enable signup button and show error message
                 updateSignupState(
                     _signupState.value.copy(
                         errorMessage = e.message ?: "",
@@ -109,11 +128,18 @@ class SignupViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Login user
+     *
+     * @param[navigate] Callback for navigation that will be invoked when the response is successful. Direct navigation should be done on user interface. Separation of concerns.
+     */
     fun login(navigate: () -> Unit) {
         viewModelScope.launch {
             try {
+                // disable login button
                 updateSignupState(_signupState.value.copy(loginButtonEnabled = false))
 
+                // request server for login
                 when (
                     val response = apiRepository.login(
                         Login(
@@ -125,12 +151,21 @@ class SignupViewModel @Inject constructor(
                 ) {
                     is Resource.Success -> {
                         val data = response.data!!
+
+                        // save user information and token in preferences
                         preferencesRepository.login(data.token, data.id, data.name, data.email, data.password, data.image)
+
+                        // show success message
                         MiscUtils.toast(getApplication(), "User Logged In Successfully!")
+
+                        // enable login button
                         updateSignupState(_signupState.value.copy(loginButtonEnabled = true))
+
+                        // navigate
                         navigate()
                     }
                     is Resource.ClientError -> {
+                        // enable login button and show error message
                         updateSignupState(
                             _signupState.value.copy(
                                 errorMessage = response.clientError?.message ?: "",
@@ -139,6 +174,7 @@ class SignupViewModel @Inject constructor(
                         )
                     }
                     is Resource.GenericError -> {
+                        // enable login button and show error message
                         updateSignupState(
                             _signupState.value.copy(
                                 errorMessage = response.genericError ?: "",
@@ -147,6 +183,7 @@ class SignupViewModel @Inject constructor(
                         )
                     }
                     is Resource.ServerError -> {
+                        // enable login button and show error message
                         updateSignupState(
                             _signupState.value.copy(
                                 errorMessage = response.serverError?.error ?: "",
@@ -156,6 +193,7 @@ class SignupViewModel @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
+                // enable login button and show error message
                 updateSignupState(
                     _signupState.value.copy(
                         errorMessage = e.message ?: "",
@@ -166,6 +204,9 @@ class SignupViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Sends a code to the users mail that will be used for password change verification
+     */
     fun forgotPassword() {
         viewModelScope.launch {
             val email = _signupState.value.loginEmail
@@ -181,7 +222,10 @@ class SignupViewModel @Inject constructor(
                     apiCallWrapper(
                         response = apiRepository.forgotPassword(ForgotPasswordBody(email)),
                         onSuccess = {
+                            // open change password dialog
                             updateSignupDialog(SignupDialogs.FORGOT)
+
+                            // show message that code was sent
                             MiscUtils.toast(getApplication(), "A code was sent to your email.")
                         }
                     )
@@ -190,6 +234,9 @@ class SignupViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Change the user password
+     */
     fun changePassword() {
         viewModelScope.launch {
             apiCallWrapper(
@@ -208,6 +255,12 @@ class SignupViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Wrapper function for api calls that returns a single successful message response and shows toast to any error responses.
+     *
+     * @param[response] A response from api call
+     * @param[onSuccess] A function/action that will be invoked when the response was successful
+     */
     private suspend fun apiCallWrapper(response: Resource<Success>, onSuccess: suspend () -> Unit) {
         try {
             MiscUtils.toast(

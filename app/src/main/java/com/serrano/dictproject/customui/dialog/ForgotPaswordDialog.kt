@@ -31,6 +31,23 @@ import com.serrano.dictproject.customui.button.CustomButton
 import com.serrano.dictproject.customui.text.OneLineText
 import com.serrano.dictproject.customui.textfield.CustomTextField
 
+/**
+ * A dialog used for changing password in signup page
+ *
+ * @param[code] The text in code input field
+ * @param[newPassword] The text in new password input field
+ * @param[confirmPassword] The text in confirm password input field
+ * @param[newPasswordVisibility] Visibility for new password field (text or dots)
+ * @param[confirmPasswordVisibility] Visibility for confirm password field (text or dots)
+ * @param[onCodeChange] Changes text in code field when user enter/delete text
+ * @param[onNewPasswordChange] Changes text in new password field when user enter/delete text
+ * @param[onConfirmPasswordChange] Changes text in confirm password field when user enter/delete text
+ * @param[updateNewPasswordVisibility] Toggles visibility for new password field (text or dots)
+ * @param[updateConfirmPasswordVisibility] Toggles visibility for confirm password field (text or dots)
+ * @param[text] Header text for the dialog
+ * @param[onDismissRequest] Invoked when the users does something that should close the dialog
+ * @param[onApplyClick] Invoked when the user want to apply the changes (click apply button)
+ */
 @Composable
 fun ForgotPasswordDialog(
     code: String,

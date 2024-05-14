@@ -31,6 +31,22 @@ import com.serrano.dictproject.customui.dropdown.TypeDropDown
 import com.serrano.dictproject.utils.FileUtils
 import com.serrano.dictproject.utils.SubtaskState
 
+/**
+ * Container used for received subtasks
+ *
+ * @param[currentUserId] The id of user to determine who the user. User created the subtask is only the user can delete it.
+ * @param[windowInfo] Used for responsive/adaptive content
+ * @param[task] Subtask information
+ * @param[navigateToProfile] Navigate to user profile when the user click the image of subtask creator
+ * @param[openViewDialog] Open view assignee dialog when the user click the assignees of subtask
+ * @param[onDescriptionClick] Open dialog to edit description of subtask
+ * @param[onStatusClick] Open dialog to edit status of subtask
+ * @param[onAssigneeClick] Open dialog to edit assignee of subtask
+ * @param[onPriorityClick] Open dialog to edit priority of subtask
+ * @param[onDueClick] Open dialog to edit due date of subtask
+ * @param[onTypeClick] Open dialog to edit type of subtask
+ * @param[onDeleteClick] Delete the subtask on the server
+ */
 @Composable
 fun SubtaskBox(
     currentUserId: Int,

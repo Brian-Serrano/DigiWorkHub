@@ -46,16 +46,26 @@ class SendMessageViewModel @Inject constructor(
         _dialogState.value = newState
     }
 
+    /**
+     * Send message to recipient
+     *
+     * @param[navigate] Callback for navigation that will be invoked when the response is successful. Direct navigation should be done on user interface. Separation of concerns.
+     */
     fun sendMessage(navigate: () -> Unit) {
         viewModelScope.launch {
             try {
+                // disable the send message button
                 updateSendMessageState(_sendMessageState.value.copy(buttonEnabled = false))
 
+                // check if user provided recipient
                 if (_sendMessageState.value.receiver != null) {
+                    // get the file from the attachment uris, this will create files in internal storage
                     val files = _sendMessageState.value.fileUris.map { FileUtils.getFileFromUri(getApplication(), it) }
 
+                    // check authorization
                     MiscUtils.checkAuthentication(getApplication(), preferencesRepository, apiRepository)
 
+                    // request server
                     when (
                         val response = apiRepository.messageUser(
                             file = files.map { file ->
@@ -69,20 +79,24 @@ class SendMessageViewModel @Inject constructor(
                         )
                     ) {
                         is Resource.Success -> {
+                            // show success message
                             MiscUtils.toast(getApplication(), "Message Sent Successfully!")
 
+                            // enable the send message button
                             updateSendMessageState(_sendMessageState.value.copy(buttonEnabled = true))
 
-                            // save the sent message in local storage
+                            // save the sent message in room database
                             val message = response.data!!
                             dao.inboxInsertMessages(
                                 listOf(message.toEntity(Tags.SENT_MESSAGE)),
                                 setOf(message.other.toEntity())
                             )
 
+                            // navigate
                             navigate()
                         }
                         is Resource.ClientError -> {
+                            // enable the send message button and show error message
                             updateSendMessageState(
                                 _sendMessageState.value.copy(
                                     buttonEnabled = true,
@@ -91,6 +105,7 @@ class SendMessageViewModel @Inject constructor(
                             )
                         }
                         is Resource.GenericError -> {
+                            // enable the send message button and show error message
                             updateSendMessageState(
                                 _sendMessageState.value.copy(
                                     buttonEnabled = true,
@@ -99,6 +114,7 @@ class SendMessageViewModel @Inject constructor(
                             )
                         }
                         is Resource.ServerError -> {
+                            // enable the send message button and show error message
                             updateSendMessageState(
                                 _sendMessageState.value.copy(
                                     buttonEnabled = true,
@@ -108,10 +124,12 @@ class SendMessageViewModel @Inject constructor(
                         }
                     }
 
+                    // delete the temporary files created
                     files.forEach { file ->
                         if (file.exists()) file.delete()
                     }
                 } else {
+                    // enable the send message button and show error message
                     updateSendMessageState(
                         _sendMessageState.value.copy(
                             buttonEnabled = true,
@@ -120,11 +138,20 @@ class SendMessageViewModel @Inject constructor(
                     )
                 }
             } catch (e: Exception) {
-                updateSendMessageState(_sendMessageState.value.copy(buttonEnabled = true))
+                // enable the send message button and show error message
+                updateSendMessageState(
+                    _sendMessageState.value.copy(
+                        buttonEnabled = true,
+                        errorMessage = e.message ?: ""
+                    )
+                )
             }
         }
     }
 
+    /**
+     * Search for recipient
+     */
     fun searchUser(searchQuery: String, onSuccess: (List<UserDTO>) -> Unit) {
         viewModelScope.launch {
             MiscUtils.apiAddWrapper(

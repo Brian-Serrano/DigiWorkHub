@@ -11,6 +11,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
+/**
+ * A text that will not wrap to next line used by most component of application
+ *
+ * @param[text] Text
+ * @param[modifier] (Optional) Add design/behavior to the text
+ * @param[style] (Optional) Add style to text
+ * @param[color] (Optional) Add color to text
+ * @param[fontWeight] (Optional) Add weight to text
+ */
 @Composable
 fun OneLineText(
     text: String,

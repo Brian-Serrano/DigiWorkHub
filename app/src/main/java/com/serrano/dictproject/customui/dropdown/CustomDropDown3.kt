@@ -21,6 +21,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.serrano.dictproject.customui.text.OneLineText
 
+/**
+ * Dropdown used in add subtask menu
+ *
+ * @param[selected] Text in dropdown
+ * @param[onClick] Invoked when the user clicks the dropdown (open dialog)
+ */
 @Composable
 fun RowScope.CustomDropDown3(
     selected: String,

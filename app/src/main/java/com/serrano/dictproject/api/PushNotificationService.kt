@@ -17,6 +17,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * A class responsible for implementing push notifications
+ */
 @AndroidEntryPoint
 class PushNotificationService: FirebaseMessagingService() {
 
@@ -28,12 +31,19 @@ class PushNotificationService: FirebaseMessagingService() {
     override fun onNewToken(token: String) {
         super.onNewToken(token)
 
+        // the token is used and saved on server so the user can receive push notifications
         CoroutineScope(job).launch {
+            // get the user data in preferences
             val data = preferencesRepository.getData().first()
+
+            // check if user is logged in
             if (data.email.isNotEmpty() && data.password.isNotEmpty() && data.authToken.isNotEmpty()) {
+                // check if user is still logged in or authorization token is valid
                 if (MiscUtils.checkToken(data.authToken)) {
+                    // if authorization token is invalid, refresh the user login and save the new token generated in user's data in server
                     MiscUtils.checkAuthentication(context, preferencesRepository, apiRepository)
                 } else {
+                    // if authorization token is valid, save the new token generated in user's data in server
                     apiRepository.updateNotificationsToken(NotificationTokenBody(token))
                 }
             }
@@ -43,6 +53,7 @@ class PushNotificationService: FirebaseMessagingService() {
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
 
+        // create notification and notification channel with the message received
         val channelId = "digiwork-hub"
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.mipmap.ic_launcher)

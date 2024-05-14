@@ -9,6 +9,9 @@ import okhttp3.Interceptor
 import okhttp3.Response
 import retrofit2.Invocation
 
+/**
+ * Authorization interceptor, add authorization header to server requests that needs it
+ */
 class AuthInterceptor(
     private val context: Context,
 ): Interceptor {

@@ -20,6 +20,14 @@ import androidx.compose.ui.unit.dp
 import com.serrano.dictproject.customui.text.OneLineText
 import com.serrano.dictproject.utils.MiscUtils
 
+/**
+ * Container used for attachments. Used in send message, about message and about task.
+ *
+ * @param[fileName] The name of attachment
+ * @param[onIconClick] Remove attachment (send message), download attachment (about message, about task)
+ * @param[icon] Remove icon (send message), download icon (about message, about task)
+ * @param[color] Color of icon
+ */
 @Composable
 fun ColumnScope.UploadFileBox(
     fileName: String,

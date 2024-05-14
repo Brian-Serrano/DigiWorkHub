@@ -23,6 +23,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.serrano.dictproject.customui.text.OneLineText
 
+/**
+ * Container for status of tasks/subtasks
+ *
+ * @param[text] The text for container
+ * @param[onClick] Invoked when the user click the container (open dialog to edit task status)
+ */
 @Composable
 fun StatusDropDown(
     text: String,

@@ -1,5 +1,8 @@
 package com.serrano.dictproject.utils
 
+/**
+ * Route names for all pages/activities
+ */
 object Routes {
 
     const val SPLASH = "Splash"

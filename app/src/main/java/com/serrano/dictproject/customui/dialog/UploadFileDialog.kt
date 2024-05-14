@@ -33,6 +33,15 @@ import com.serrano.dictproject.customui.button.CustomButton
 import com.serrano.dictproject.customui.text.OneLineText
 import com.serrano.dictproject.utils.MiscUtils
 
+/**
+ * A dialog used for selecting files that will be uploaded out of dialog. Used in sending attachments to messages and replies.
+ *
+ * @param[onDismissRequest] Invoked when the users does something that should close the dialog
+ * @param[onFilePicked] Invoked when the user selected file in his/her device file explorer
+ * @param[onApplyClick] Invoked when the user want to apply the changes (click apply button)
+ * @param[file] The file as Uri object
+ * @param[context] Used for getting the file name
+ */
 @Composable
 fun UploadFileDialog(
     onDismissRequest: () -> Unit,

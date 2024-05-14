@@ -5,6 +5,9 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
+/**
+ * Used by most the pages in the application for responsive/adaptive content
+ */
 @Composable
 fun RememberWindowInfo(): WindowInfo {
     val configuration = LocalConfiguration.current
@@ -24,6 +27,9 @@ fun RememberWindowInfo(): WindowInfo {
     )
 }
 
+/**
+ * Wrapper object for information about window size
+ */
 data class WindowInfo(
     val screenWidthInfo: WindowType,
     val screenHeightInfo: WindowType,

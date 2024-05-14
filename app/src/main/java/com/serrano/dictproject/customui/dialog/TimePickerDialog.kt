@@ -21,6 +21,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 
+/**
+ * Time Picker Dialog, there are no built-in dialog for time picker in compose yet.
+ *
+ * @param[title] Header text for the dialog
+ * @param[onDismissRequest] Invoked when the users does something that should close the dialog
+ * @param[confirmButton] Component that should have confirm button
+ * @param[dismissButton] (Optional) Component that should have dismiss button
+ * @param[containerColor] (Optional) Background color of the dialog
+ * @param[content] Content inside the dialog
+ */
 @Composable
 fun TimePickerDialog(
     title: String = "Select Time",
